@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import * as aiService from '../services/ai.service';
+import { getPortfolio } from '../services/portfolio.service';
 import { parseUserInputSchema, explainSimulationSchema } from '../schemas/ai.schema';
 
 export async function parseUserInput(req: Request, res: Response) {
@@ -18,13 +19,18 @@ export async function explainSimulation(req: Request, res: Response) {
 export async function chat(req: Request, res: Response) {
   const { message } = z.object({ message: z.string().min(1) }).parse(req.body);
 
+  let portfolio: Awaited<ReturnType<typeof getPortfolio>> | undefined;
+  if (req.user) {
+    try { portfolio = await getPortfolio(req.user.sub); } catch { /* sem portfólio ainda */ }
+  }
+
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
   try {
-    for await (const token of aiService.chatStream(message)) {
+    for await (const token of aiService.chatStream(message, portfolio)) {
       res.write(`data: ${JSON.stringify({ token })}\n\n`);
     }
   } finally {

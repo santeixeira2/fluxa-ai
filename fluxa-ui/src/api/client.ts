@@ -5,12 +5,60 @@ function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+let refreshing: Promise<boolean> | null = null;
+
+async function tryRefresh(): Promise<boolean> {
+  if (refreshing) return refreshing;
+  refreshing = (async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) return false;
+      const res = await fetch(`${BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!res.ok) return false;
+      const { accessToken, refreshToken: newRefresh } = await res.json();
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', newRefresh);
+      // sync Redux store
+      const { store } = await import('../store');
+      const { setTokens } = await import('../store');
+      store.dispatch(setTokens({ accessToken, refreshToken: newRefresh }));
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshing = null;
+    }
+  })();
+  return refreshing;
+}
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     ...options,
   });
+
+  if (res.status === 401 && !path.includes('/auth/')) {
+    const refreshed = await tryRefresh();
+    if (refreshed) {
+      const retry = await fetch(`${BASE}${path}`, {
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        ...options,
+      });
+      if (retry.ok) return retry.json();
+    }
+    // refresh falhou — limpa sessão
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    const { store } = await import('../store');
+    const { clearAuth } = await import('../store');
+    store.dispatch(clearAuth());
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -96,7 +144,7 @@ export async function chatAiStream(
 ): Promise<void> {
   const res = await fetch(`${BASE}/ai/chat`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ message }),
   });
 
@@ -197,4 +245,151 @@ export interface AssetInfo {
 
 export function getAssets(): Promise<AssetInfo[]> {
   return request('/assets');
+}
+
+// ── Portfolio ──────────────────────────────────────────────────────────────
+
+export interface Position {
+  assetId: string;
+  assetName: string;
+  quantity: number;
+  avgPrice: number;
+  currentPrice: number;
+  currentValue: number;
+  pnl: number;
+  pnlPct: number;
+}
+
+export interface Portfolio {
+  id: string;
+  currency: string;
+  initialBalance: number;
+  currentBalance: number;
+  totalValue: number;
+  totalPnl: number;
+  totalPnlPct: number;
+  positions: Position[];
+}
+
+export interface PortfolioTransaction {
+  id: string;
+  assetId: string;
+  type: 'BUY' | 'SELL';
+  quantity: number;
+  price: number;
+  total: number;
+  executedAt: string;
+}
+
+export type TradeResult = { assetId: string; quantity: number; price: number; total: number };
+
+export function getPortfolio(): Promise<Portfolio> {
+  return request('/portfolio');
+}
+
+export function buyAsset(assetId: string, amount: number): Promise<TradeResult> {
+  return request('/portfolio/buy', { method: 'POST', body: JSON.stringify({ assetId, amount }) });
+}
+
+export function sellAsset(assetId: string, quantity: number): Promise<TradeResult> {
+  return request('/portfolio/sell', { method: 'POST', body: JSON.stringify({ assetId, quantity }) });
+}
+
+export function getPortfolioTransactions(): Promise<PortfolioTransaction[]> {
+  return request('/portfolio/transactions');
+}
+
+export type ChartPeriod = '1D' | '1W' | '1M' | '1Y' | '5Y';
+
+export interface OHLCVPoint {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+export interface PerformancePoint {
+  totalValue: string;
+  timestamp: string;
+}
+
+export function getChartData(assetId: string, period: ChartPeriod, currency = 'brl'): Promise<OHLCVPoint[]> {
+  return request(`/price/chart/${assetId}?period=${period}&currency=${currency}`);
+}
+
+export function getPortfolioPerformance(): Promise<PerformancePoint[]> {
+  return request('/portfolio/performance');
+}
+
+// ── Profile ────────────────────────────────────────────────────────────────
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string | null;
+  phone: string | null;
+  createdAt: string;
+  hasPassword: boolean;
+}
+
+export function getProfile(): Promise<UserProfile> {
+  return request('/profile');
+}
+
+export function updateProfile(data: { name?: string; phone?: string }): Promise<UserProfile> {
+  return request('/profile', { method: 'PATCH', body: JSON.stringify(data) });
+}
+
+export function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  return request('/profile/password', { method: 'PATCH', body: JSON.stringify({ currentPassword, newPassword }) });
+}
+
+// ── Alerts ─────────────────────────────────────────────────────────────────
+
+export type AlertType = 'PRICE_ABOVE' | 'PRICE_BELOW';
+
+export interface Alert {
+  id: string;
+  asset_id: string;
+  type: AlertType;
+  threshold: string;
+  active: boolean;
+  triggered_at: string | null;
+  created_at: string;
+  alert_triggers: { price_brl: string; message: string | null; triggered_at: string }[];
+}
+
+export function listAlerts(): Promise<Alert[]> {
+  return request('/alerts');
+}
+
+export function createAlert(assetId: string, type: AlertType, threshold: number): Promise<Alert> {
+  return request('/alerts', { method: 'POST', body: JSON.stringify({ assetId, type, threshold }) });
+}
+
+export function deleteAlert(id: string): Promise<void> {
+  return request(`/alerts/${id}`, { method: 'DELETE' });
+}
+
+// ── Notifications ──────────────────────────────────────────────────────────
+
+export interface Notification {
+  id: number;
+  message: string | null;
+  price_brl: string;
+  triggered_at: string;
+  alerts: {
+    asset_id: string;
+    type: string;
+    threshold: string;
+  } | null;
+}
+
+export function getNotifications(): Promise<Notification[]> {
+  return request('/notifications');
+}
+
+export function markNotificationsRead(): Promise<void> {
+  return request('/notifications/read', { method: 'POST' });
 }

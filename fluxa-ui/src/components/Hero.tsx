@@ -95,7 +95,7 @@ export default function Hero({ onParsed }: HeroProps) {
       <div className="max-w-[900px] mx-auto text-center relative z-10 pt-20">
         <Reveal delay={0}>
           <div className="inline-block px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] text-[11px] font-mono tracking-[0.2em] text-white/40 uppercase mb-8">
-            [ Flux AI Simulation ]
+            [ Fluxa AI Simulation ]
           </div>
         </Reveal>
 
@@ -147,7 +147,7 @@ export default function Hero({ onParsed }: HeroProps) {
               {isAdvising && !advice ? (
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  <span className="text-sm font-mono uppercase tracking-widest text-white/50">Flux AI is analyzing markets...</span>
+                  <span className="text-sm font-mono uppercase tracking-widest text-white/50">Fluxa AI is analyzing markets...</span>
                 </div>
               ) : (
                 <>

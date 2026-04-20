@@ -1,9 +1,10 @@
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
-import { db } from '@/utils/db';
+import { prisma } from '@/utils/prisma';
 import { redis } from '@/utils/redis';
 import { config } from '@/config';
+import { ensurePortfolio } from '@/services/portfolio.service';
 import type { AuthToken, AuthPayload } from '@/types';
 
 const ACCESS_TTL = '15m';
@@ -22,25 +23,26 @@ async function saveRefresh(userId: string, token: string) {
 
 export async function register(email: string, password: string, name: string, phone: string): Promise<AuthToken> {
   const hashedPassword = await argon2.hash(password);
-  const { rows } = await db.query<{ id: string; email: string; name: string }>(
-    `INSERT INTO users (email, password_hash, name, phone) VALUES ($1, $2, $3, $4) RETURNING id, email, name`,
-    [email, hashedPassword, name, phone],
-  );
-  const token = generateToken({ userId: rows[0].id, email, name: rows[0].name });
-  await saveRefresh(rows[0].id, token.refreshToken);
+  const user = await prisma.user.create({
+    data: { email, passwordHash: hashedPassword, name, phone },
+    select: { id: true, email: true, name: true },
+  });
+  const token = generateToken({ userId: user.id, email: user.email, name: user.name ?? undefined });
+  await saveRefresh(user.id, token.refreshToken);
+  await ensurePortfolio(user.id);
   return token;
 }
 
 export async function login(email: string, password: string): Promise<AuthToken> {
-  const { rows } = await db.query(`SELECT id, email, name, password_hash FROM users WHERE email = $1`, [email]);
-  if (rows.length === 0) throw new Error('Invalid credentials');
-  if (!rows[0].password_hash) throw new Error('This account uses Google sign-in');
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new Error('Invalid credentials');
+  if (!user.passwordHash) throw new Error('This account uses Google sign-in');
 
-  const valid = await argon2.verify(rows[0].password_hash, password);
+  const valid = await argon2.verify(user.passwordHash, password);
   if (!valid) throw new Error('Invalid credentials');
 
-  const token = generateToken({ userId: rows[0].id, email: rows[0].email, name: rows[0].name });
-  await saveRefresh(rows[0].id, token.refreshToken);
+  const token = generateToken({ userId: user.id, email: user.email, name: user.name ?? undefined });
+  await saveRefresh(user.id, token.refreshToken);
   return token;
 }
 
@@ -50,18 +52,17 @@ export async function loginWithGoogle(accessToken: string): Promise<AuthToken> {
   });
   if (!res.ok) throw new Error('Invalid Google token');
   const { email, name } = await res.json() as { email: string; name?: string };
-  let { rows } = await db.query(`SELECT id, email FROM users WHERE email = $1`, [email]);
 
-  if (rows.length === 0) {
-    const insert = await db.query(
-      `INSERT INTO users (email, name) VALUES ($1, $2) RETURNING id, email, name`,
-      [email, name ?? email],
-    );
-    rows = insert.rows;
-  }
+  const user = await prisma.user.upsert({
+    where: { email },
+    update: {},
+    create: { email, name: name ?? email },
+    select: { id: true, email: true, name: true },
+  });
 
-  const token = generateToken({ userId: rows[0].id, email: rows[0].email, name: rows[0].name });
-  await saveRefresh(rows[0].id, token.refreshToken);
+  const token = generateToken({ userId: user.id, email: user.email, name: user.name ?? undefined });
+  await saveRefresh(user.id, token.refreshToken);
+  await ensurePortfolio(user.id);
   return token;
 }
 
@@ -77,10 +78,10 @@ export async function refreshToken(token: string): Promise<AuthToken> {
   const stored = await redis.get(`refresh:${userId}`);
   if (stored !== token) throw new Error('Refresh token revoked');
 
-  const { rows } = await db.query(`SELECT email, name FROM users WHERE id = $1`, [userId]);
-  if (rows.length === 0) throw new Error('User not found');
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, name: true } });
+  if (!user) throw new Error('User not found');
 
-  const tokens = generateToken({ userId, email: rows[0].email, name: rows[0].name });
+  const tokens = generateToken({ userId, email: user.email, name: user.name ?? undefined });
   await saveRefresh(userId, tokens.refreshToken);
   return tokens;
 }

@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String   @unique
+  passwordHash String?  @map("password_hash")
+  name         String?
+  phone        String?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  alerts     alerts[]
+  portfolios SimulatedPortfolio[]
+
+  @@map("users")
+}
+
+model alert_triggers {
+  id           BigInt    @id @default(autoincrement())
+  alert_id     String?   @db.Uuid
+  price_brl    Decimal   @db.Decimal(18, 8)
+  message      String?
+  triggered_at DateTime  @default(now()) @db.Timestamptz(6)
+  read_at      DateTime?
+  alerts       alerts?   @relation(fields: [alert_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model alerts {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id        String?          @db.Uuid
+  asset_id       String
+  type           String
+  threshold      Decimal?         @db.Decimal(18, 8)
+  direction      String?
+  active         Boolean          @default(true)
+  triggered_at   DateTime?        @db.Timestamptz(6)
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  alert_triggers alert_triggers[]
+  users          User?            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([active, asset_id], map: "idx_alerts_active")
+}
+
+model price_history {
+  id          BigInt   @id @default(autoincrement())
+  asset_id    String
+  price_brl   Decimal  @db.Decimal(18, 8)
+  recorded_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([asset_id, recorded_at(sort: Desc)], map: "idx_price_history_asset_time")
+}
+
+model SimulatedPortfolio {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @unique @map("user_id") @db.Uuid
+  initialBalance Decimal  @map("initial_balance") @db.Decimal(18, 2)
+  currentBalance Decimal  @map("current_balance") @db.Decimal(18, 2)
+  currency       String   @default("BRL")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user         User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  positions    SimulatedPosition[]
+  transactions SimulatedTransaction[]
+  snapshots    PortfolioSnapshot[]
+
+  @@map("simulated_portfolios")
+}
+
+model PortfolioSnapshot {
+  id          BigInt   @id @default(autoincrement())
+  portfolioId String   @map("portfolio_id") @db.Uuid
+  totalValue  Decimal  @map("total_value") @db.Decimal(18, 2)
+  timestamp   DateTime @default(now()) @db.Timestamptz(6)
+
+  portfolio SimulatedPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("portfolio_snapshots")
+}
+
+model SimulatedPosition {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  portfolioId String  @map("portfolio_id") @db.Uuid
+  assetId     String  @map("asset_id")
+  quantity    Decimal @db.Decimal(18, 8)
+  avgPrice    Decimal @map("avg_price") @db.Decimal(18, 8)
+
+  portfolio SimulatedPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, assetId])
+  @@map("simulated_positions")
+}
+
+model SimulatedTransaction {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  portfolioId String          @map("portfolio_id") @db.Uuid
+  assetId     String          @map("asset_id")
+  type        TransactionType
+  quantity    Decimal         @db.Decimal(18, 8)
+  price       Decimal         @db.Decimal(18, 8)
+  total       Decimal         @db.Decimal(18, 2)
+  executedAt  DateTime        @default(now()) @map("executed_at") @db.Timestamptz(6)
+
+  portfolio SimulatedPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("simulated_transactions")
+}
+
+enum TransactionType {
+  BUY
+  SELL
+}

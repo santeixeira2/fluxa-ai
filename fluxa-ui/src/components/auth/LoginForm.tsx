@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Logo from '../Logo';
 import GoogleButton from './GoogleButton';
@@ -10,6 +10,8 @@ const labelCls = "text-xs font-mono uppercase tracking-widest text-black/40 dark
 export default function LoginForm() {
   const { login, register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string })?.from ?? '/';
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -34,7 +36,7 @@ export default function LoginForm() {
     try {
       if (mode === 'login') await login(email, password);
       else await register(email, password, name, phone);
-      navigate('/');
+      navigate(from);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {

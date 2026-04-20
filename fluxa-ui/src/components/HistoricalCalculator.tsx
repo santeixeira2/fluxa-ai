@@ -3,6 +3,7 @@ import { simulateHistorical, type HistoricalSimulationResult } from '../api/clie
 import { useApi } from '../hooks/useApi';
 import { useAssets } from '../hooks/useAssets';
 import Reveal from './Reveal';
+import Select from './Select';
 
 type TabType = 'crypto' | 'stocks' | 'forex';
 
@@ -96,16 +97,12 @@ export default function HistoricalCalculator() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-8 flex-1">
             <div className="space-y-2">
               <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">Select Asset</label>
-              <select 
-                className="w-full bg-white/[0.03] border border-white/[0.1] rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-white/30 appearance-none cursor-pointer"
+              <Select
+                variant="glass"
                 value={asset}
-                onChange={e => { setAsset(e.target.value); setPurchaseDate(''); }}
-
-              >
-                {grouped[tab].map(opt => (
-                  <option key={opt.value} value={opt.value} className="bg-black text-white">{opt.label}</option>
-                ))}
-              </select>
+                onChange={v => { setAsset(v); setPurchaseDate(''); }}
+                options={grouped[tab]}
+              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

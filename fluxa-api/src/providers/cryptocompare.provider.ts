@@ -30,10 +30,23 @@ interface HistodayResponse {
     Data: {
         Data: Array<{
             time: number;
+            open: number;
+            high: number;
+            low: number;
             close: number;
         }>;
     };
 }
+
+export interface OHLCVPoint {
+    time: number;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+}
+
+export type ChartPeriod = '1D' | '1W' | '1M' | '1Y' | '5Y';
 
 export function toSymbol(assetId: string): string {
     return SYMBOL_MAP[assetId.toLowerCase()] ?? assetId.toUpperCase();
@@ -68,6 +81,35 @@ export async function fetchCurrentPriceBatch(
         if (price != null) result[assetIds[i]] = price;
     }
     return result;
+}
+
+export async function fetchOHLCV(
+    assetId: string,
+    period: ChartPeriod,
+    currency: string,
+): Promise<OHLCVPoint[]> {
+    const symbol = toSymbol(assetId);
+    const tsym = currency.toUpperCase();
+
+    const configs: Record<ChartPeriod, { endpoint: string; limit: number; aggregate?: number }> = {
+        '1D': { endpoint: 'histominute', limit: 288, aggregate: 5 },
+        '1W': { endpoint: 'histohour',   limit: 168 },
+        '1M': { endpoint: 'histoday',    limit: 30 },
+        '1Y': { endpoint: 'histoday',    limit: 365 },
+        '5Y': { endpoint: 'histoday',    limit: 1825 },
+    };
+
+    const { endpoint, limit, aggregate } = configs[period];
+
+    const { data } = await clientV2.get<HistodayResponse>(`/${endpoint}`, {
+        params: { fsym: symbol, tsym, limit, ...(aggregate ? { aggregate } : {}) },
+    });
+
+    if (data.Response !== 'Success') throw new Error(`CryptoCompare: ${data.Message}`);
+
+    return data.Data.Data
+        .filter(p => p.close > 0)
+        .map(p => ({ time: p.time, open: p.open, high: p.high, low: p.low, close: p.close }));
 }
 
 export async function fetchHistoricalPriceFromCC(

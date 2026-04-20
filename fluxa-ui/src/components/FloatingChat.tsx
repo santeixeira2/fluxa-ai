@@ -83,7 +83,7 @@ export default function FloatingChat({ onParsed }: Props) {
                 Fx
               </div>
               <div>
-                <p className="text-sm font-semibold leading-none text-black dark:text-white">Flux AI</p>
+                <p className="text-sm font-semibold leading-none text-black dark:text-white">Fluxa AI</p>
                 <p className="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Assistente financeiro</p>
               </div>
             </div>

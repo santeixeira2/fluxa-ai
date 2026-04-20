@@ -13,6 +13,7 @@ export interface SimFormData {
 interface SimulatorProps {
   prefill?: SimFormData | null;
   onPrefillConsumed?: () => void;
+  onAssetChange?: (assetId: string) => void;
 }
 
 const TAB_TYPES: Record<TabType, string[]> = {
@@ -21,7 +22,7 @@ const TAB_TYPES: Record<TabType, string[]> = {
   forex:  ['forex'],
 };
 
-export default function SimulatorContainer({ prefill, onPrefillConsumed }: SimulatorProps) {
+export default function SimulatorContainer({ prefill, onPrefillConsumed, onAssetChange }: SimulatorProps) {
   const { assets } = useAssets();
   const [tab, setTab]           = useState<TabType>('crypto');
   const [asset, setAsset]       = useState('');
@@ -43,7 +44,9 @@ export default function SimulatorContainer({ prefill, onPrefillConsumed }: Simul
   useEffect(() => {
     const list = grouped[tab];
     if (list.length > 0 && (!asset || !list.find(a => a.value === asset))) {
-      setAsset(list[0].value);
+      const first = list[0].value;
+      setAsset(first);
+      onAssetChange?.(first);
     }
   }, [tab, grouped]);
 
@@ -80,7 +83,7 @@ export default function SimulatorContainer({ prefill, onPrefillConsumed }: Simul
       tab={tab}
       setTab={setTab}
       asset={asset}
-      setAsset={setAsset}
+      setAsset={v => { setAsset(v); onAssetChange?.(v); }}
       grouped={grouped}
       investment={investment}
       setInvestment={setInvestment}

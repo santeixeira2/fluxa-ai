@@ -27,7 +27,25 @@ Data: ${JSON.stringify(data)}`;
   return generateContent(prompt, { responseMimeType: 'text/plain' });
 }
 
-export async function* chatStream(message: string): AsyncGenerator<string> {
+interface PortfolioContext {
+  currency: string;
+  initialBalance: number;
+  currentBalance: number;
+  totalValue: number;
+  totalPnl: number;
+  totalPnlPct: number;
+  positions: {
+    assetName: string;
+    quantity: number;
+    avgPrice: number;
+    currentPrice: number;
+    currentValue: number;
+    pnl: number;
+    pnlPct: number;
+  }[];
+}
+
+export async function* chatStream(message: string, portfolio?: PortfolioContext): AsyncGenerator<string> {
   const allIds = ASSETS
     .filter(a => a.provider !== 'exchangerate')
     .map(a => a.id);
@@ -45,14 +63,37 @@ export async function* chatStream(message: string): AsyncGenerator<string> {
 
   const today = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
-  const prompt = `Você é o assistente financeiro da Fluxa. Responda em português, de forma direta e objetiva. Sem rodeios.
+  const fmtBRL = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
+
+  let portfolioContext = '';
+  if (portfolio) {
+    const posLines = portfolio.positions.length > 0
+      ? portfolio.positions.map(p =>
+          `  - ${p.assetName}: ${p.quantity} unidades | preço médio ${fmtBRL(p.avgPrice)} | preço atual ${fmtBRL(p.currentPrice)} | valor ${fmtBRL(p.currentValue)} | P&L ${fmtBRL(p.pnl)} (${fmtPct(p.pnlPct)})`
+        ).join('\n')
+      : '  (sem posições abertas)';
+
+    portfolioContext = `
+CARTEIRA DO USUÁRIO:
+- Saldo livre: ${fmtBRL(portfolio.currentBalance)}
+- Valor total da carteira: ${fmtBRL(portfolio.totalValue)}
+- Rentabilidade total: ${fmtBRL(portfolio.totalPnl)} (${fmtPct(portfolio.totalPnlPct)})
+- Capital inicial: ${fmtBRL(portfolio.initialBalance)}
+- Posições:
+${posLines}`;
+  }
+
+  const prompt = `Você é o Fluxa, assistente financeiro pessoal da Fluxa. Responda em português, de forma direta e objetiva.
 
 Regras obrigatórias:
 - Vá direto ao ponto. Sem introduções longas.
+- Se o usuário tem posições abertas, leve em conta a carteira dele ao responder.
 - Mencione o preço atual do ativo se relevante.
-- Diga os principais fatores que podem fazer o ativo SUBIR ou CAIR nos próximos meses (seja específico: resultados trimestrais, ciclo de juros, adoção de IA, concorrência, etc).
-- Termine com uma linha de tendência no formato: "Tendência: pode [SUBIR/CAIR/LATERAL] nos próximos meses por [motivo principal]."
-- Última linha sempre: "⚠️ Análise baseada em dados até ${today}. Não é determinística — nosso modelo não prevê o futuro com certeza. Isso não é recomendação de investimento."
+- Aponte os principais fatores que podem fazer o ativo SUBIR ou CAIR (resultados, juros, macro, concorrência, etc).
+- Termine com: "Tendência: pode [SUBIR/CAIR/LATERAL] nos próximos meses por [motivo]."
+- Última linha sempre: "⚠️ Análise até ${today}. Não é recomendação de investimento."
+${portfolioContext}
 
 PREÇOS ATUAIS (BRL):
 ${priceContext}

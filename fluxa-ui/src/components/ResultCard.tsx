@@ -110,7 +110,7 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
           {explainApi.loading ? (
             <><span className="spinner small light" /> Gerando análise...</>
           ) : (
-            <>✦ Analisar com Flux AI</>
+            <>✦ Analisar com Fluxa AI</>
           )}
         </button>
 
@@ -120,7 +120,7 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
 
         {explanation && (
           <div className="ai-explanation">
-            <div className="ai-explanation-label">✦ Flux AI</div>
+            <div className="ai-explanation-label">✦ Fluxa AI</div>
             <p className="ai-explanation-text">{explanation}</p>
           </div>
         )}

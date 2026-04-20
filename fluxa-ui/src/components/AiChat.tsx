@@ -70,10 +70,10 @@ export default function AiChat({ onParsed }: AiChatProps) {
       <div className="section-header">
         <div className="section-label">
           <span className="section-label-dot" />
-          Flux AI
+          Fluxa AI
         </div>
         <h2 className="section-title">
-          Converse com a <span className="gradient-text">Flux AI</span>
+          Converse com a <span className="gradient-text">Fluxa AI</span>
         </h2>
         <p className="section-subtitle">
           Faça perguntas sobre o mercado, peça análises ou descreva
@@ -86,7 +86,7 @@ export default function AiChat({ onParsed }: AiChatProps) {
         <div className="ai-chat-header">
           <div className="ai-chat-avatar" aria-hidden="true">Fx</div>
           <div>
-            <div className="ai-chat-title">Flux AI</div>
+            <div className="ai-chat-title">Fluxa AI</div>
             <div className="ai-chat-subtitle">Assistente financeiro · Dados em tempo real</div>
           </div>
         </div>

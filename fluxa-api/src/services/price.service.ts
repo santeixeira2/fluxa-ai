@@ -1,5 +1,5 @@
-import { fetchCurrentPrice, fetchCurrentPriceBatch, fetchHistoricalPriceFromCC } from '../providers/cryptocompare.provider';
-import { fetchCurrentPriceYahoo, fetchHistoricalPriceYahoo } from '../providers/yahoo.provider';
+import { fetchCurrentPrice, fetchCurrentPriceBatch, fetchHistoricalPriceFromCC, fetchOHLCV, type ChartPeriod } from '../providers/cryptocompare.provider';
+import { fetchCurrentPriceYahoo, fetchHistoricalPriceYahoo, fetchOHLCVYahoo } from '../providers/yahoo.provider';
 import { fetchFiatRate } from '../providers/exchangerate.provider';
 import { getAsset } from '../config/assets.config';
 import { getCached, setCached } from '../utils/cache';
@@ -122,6 +122,37 @@ export async function getHistoricalPrice(assetId: string, date: string, currency
 
     setCached(cacheKey, price, HISTORY_TTL_MS);
     return price;
+}
+
+export async function getChartData(assetId: string, period: ChartPeriod, currency: string) {
+    const asset = getAsset(assetId);
+    if (!asset) throw new Error('Asset not found');
+
+    const cacheKey = `chart:${assetId}:${period}:${currency}`;
+    const ttl = period === '1D' ? 5 * 60_000 : 60 * 60_000;
+
+    type Point = { time: number; open: number; high: number; low: number; close: number };
+    const cached = getCached<Point[]>(cacheKey);
+    if (cached) return cached;
+
+    let points: Point[];
+
+    if (asset.provider === 'yahoo') {
+        const { points: raw, currency: rawCurrency } = await fetchOHLCVYahoo(asset.yahooTicker!, period);
+        if (rawCurrency === 'USD' && currency.toUpperCase() === 'BRL') {
+            const rate = await getUsdBrl();
+            points = raw.map(p => ({ ...p, open: p.open * rate, high: p.high * rate, low: p.low * rate, close: p.close * rate }));
+        } else {
+            points = raw;
+        }
+    } else if (asset.provider === 'cryptocompare') {
+        points = await fetchOHLCV(assetId, period, currency);
+    } else {
+        throw new Error('Chart not available for this asset');
+    }
+
+    setCached(cacheKey, points, ttl);
+    return points;
 }
 
 export async function getFiatRate(from: string, to: string): Promise<number> {

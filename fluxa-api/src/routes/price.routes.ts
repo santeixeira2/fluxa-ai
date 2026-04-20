@@ -6,4 +6,5 @@ const router = Router();
 router.get('/price', asyncHandler(priceController.getPrice));
 router.get('/batch', asyncHandler(priceController.getPriceBatch));
 router.get('/fiat-rate', asyncHandler(priceController.getFiatRate));
+router.get('/chart/:assetId', asyncHandler(priceController.getChartData));
 export default router;

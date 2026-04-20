@@ -27,3 +27,13 @@ export async function getFiatRate(req: Request, res: Response) {
     res.json({ rate });
 }
 
+export async function getChartData(req: Request, res: Response) {
+    const { assetId } = z.object({ assetId: z.string().min(1) }).parse(req.params);
+    const { period, currency } = z.object({
+        period: z.enum(['1D', '1W', '1M', '1Y', '5Y']).default('1M'),
+        currency: z.string().default('brl'),
+    }).parse(req.query);
+    const data = await priceService.getChartData(assetId, period, currency);
+    res.json(data);
+}
+
