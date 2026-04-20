@@ -152,15 +152,23 @@ VITE_API_TARGET=http://localhost:3000  # alvo do proxy
 ## Planos Futuros
 
 ### Curto Prazo
-- [ ] Light mode completo (componentes com App.css ainda sem dark: vars)
-- [ ] Página de perfil (`/profile`)
-- [ ] Smart Alerts — UI para configurar alertas de preço
+- [x] Página de perfil (`/profile`) — editar nome, telefone e senha
+- [x] Smart Alerts — UI de alertas de compra/venda integrada no portfólio
+- [x] Notificações in-app — sino com badge, dropdown e mark-as-read
+- [x] Portfólio simulado — compra por valor BRL, venda por quantidade, P&L em tempo real
+- [x] Gráfico OHLCV integrado — candlestick nas calculadoras e portfólio, períodos 1D–5Y
+- [x] Select customizado com busca — substitui `<select>` nativo em toda a UI
+- [x] Refresh token automático — sem logout inesperado por expiração
+- [x] FloatingChat global — disponível em todas as páginas
+- [x] Navbar reestruturada — Home, Calculadoras, Portfolio
+- [x] Conversor de câmbio em tempo real — BRL, USD, EUR, GBP, JPY
 
 ### Médio Prazo
-- [ ] Portfólio pessoal — salvar e acompanhar simulações
-- [ ] Gráfico histórico integrado na calculadora
-- [ ] PWA — instalável no celular
+- [ ] Comparador de ativos — retorno side-by-side no histórico
+- [ ] Calculadora de DCA
+- [ ] Relatório mensal gerado por AI
+- [ ] Freemium — limites por plano, integração de pagamento
 
 ### Longo Prazo
+- [ ] PWA — instalável no celular
 - [ ] Mobile nativo (React Native)
-- [ ] Dashboard consolidado de portfólio

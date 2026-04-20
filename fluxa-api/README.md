@@ -226,16 +226,25 @@ ollama pull qwen2.5:7b
 ## Planos Futuros
 
 ### Curto Prazo
-- [ ] Smart Alerts — worker cron que verifica preços e dispara alertas
+- [x] Smart Alerts — worker cron (30s) que verifica preços e dispara alertas
+- [x] Portfólio API — 1 portfólio por usuário, compra/venda com preço real
+- [x] Notificações in-app — polling com badge e dropdown no Navbar
+- [x] Perfil do usuário — editar nome/telefone, trocar senha
+- [x] Chat AI com contexto do portfólio — posições, P&L e saldo injetados no prompt
+- [x] Gráfico OHLCV — CryptoCompare (crypto) + Yahoo Finance (ações BR/US), períodos 1D–5Y
+- [x] Snapshots de performance do portfólio — job diário + snapshot por trade
+- [x] Refresh token automático — intercepta 401, retenta request transparentemente
 - [ ] Rate limiting (`express-rate-limit`)
 - [ ] Helmet (headers de segurança)
 - [ ] Testes (Jest + Supertest)
 
 ### Médio Prazo
-- [ ] Portfólio API — CRUD de posições simuladas por usuário
-- [ ] Histórico de preços — job que salva preços no Postgres para indicadores (MA, RSI)
-- [ ] Notificações — push (Firebase) + email para alertas
+- [ ] Comparador de ativos — side-by-side retorno histórico
+- [ ] Calculadora de DCA — aporte mensal vs meta
+- [ ] Relatório mensal gerado por AI
+- [ ] Freemium — limites por plano, integração Stripe/Pagar.me
 
 ### Longo Prazo
 - [ ] Fine-tuning do Qwen 2.5 com dados financeiros em PT-BR
 - [ ] Indicadores técnicos (MA, RSI) calculados sobre o histórico local
+- [ ] PWA / Mobile nativo
