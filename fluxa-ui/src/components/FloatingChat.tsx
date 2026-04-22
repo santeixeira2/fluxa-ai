@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { parseUserInput, chatAiStream } from '../api/client';
 import type { SimFormData } from './Simulator';
 
@@ -11,19 +12,15 @@ interface Message {
   text: string;
 }
 
-const EXAMPLES = [
-  'Qual a previsão para a NVIDIA?',
-  'Investir R$5.000 em BTC vale?',
-  'Vale a pena comprar ETH agora?',
-];
-
 export default function FloatingChat({ onParsed }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const examples: string[] = t('chat.examples', { returnObjects: true }) as string[];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -83,8 +80,8 @@ export default function FloatingChat({ onParsed }: Props) {
                 Fx
               </div>
               <div>
-                <p className="text-sm font-semibold leading-none text-black dark:text-white">Fluxa AI</p>
-                <p className="text-[11px] text-black/40 dark:text-white/40 mt-0.5">Assistente financeiro</p>
+                <p className="text-sm font-semibold leading-none text-black dark:text-white">{t('chat.title')}</p>
+                <p className="text-[11px] text-black/40 dark:text-white/40 mt-0.5">{t('chat.subtitle')}</p>
               </div>
             </div>
             <button
@@ -101,8 +98,8 @@ export default function FloatingChat({ onParsed }: Props) {
           <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px] max-h-[320px]">
             {messages.length === 0 && !loading && (
               <div className="space-y-2">
-                <p className="text-xs text-black/30 dark:text-white/30 text-center mb-4">Pergunte sobre o mercado ou descreva um investimento</p>
-                {EXAMPLES.map((ex, i) => (
+                <p className="text-xs text-black/30 dark:text-white/30 text-center mb-4">{t('chat.placeholder')}</p>
+                {examples.map((ex, i) => (
                   <button
                     key={i}
                     onClick={() => setInput(ex)}
@@ -149,7 +146,7 @@ export default function FloatingChat({ onParsed }: Props) {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 disabled={loading}
-                placeholder="Pergunte sobre o mercado..."
+                placeholder={t('chat.placeholder')}
                 className="flex-1 bg-black/[0.05] dark:bg-white/[0.05] border border-black/[0.08] dark:border-white/[0.08] rounded-xl px-3 py-2 text-sm outline-none focus:border-black/20 dark:focus:border-white/20 transition-colors placeholder:text-black/30 dark:placeholder:text-white/30 text-black dark:text-white"
               />
               <button

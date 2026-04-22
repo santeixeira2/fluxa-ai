@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { simulateHistorical, type HistoricalSimulationResult } from '../api/client';
 import { useApi } from '../hooks/useApi';
 import { useAssets } from '../hooks/useAssets';
@@ -14,6 +15,7 @@ const TAB_TYPES: Record<TabType, string[]> = {
 };
 
 export default function HistoricalCalculator() {
+  const { t } = useTranslation();
   const { assets } = useAssets();
   const [tab, setTab] = useState<TabType>('crypto');
   const [asset, setAsset] = useState('');
@@ -71,8 +73,8 @@ export default function HistoricalCalculator() {
     <section className="py-24 px-6 max-w-[1200px] mx-auto border-t border-white/[0.05]" id="historico">
       <Reveal delay={0}>
         <div className="text-center mb-16">
-          <span className="section-label">[ Advanced Analytics ]</span>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mt-2">Historic Returns.</h2>
+          <span className="section-label">{t('calculadoras.historical.badge')}</span>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mt-2">{t('calculadoras.historical.headline')}</h2>
         </div>
       </Reveal>
 
@@ -81,22 +83,22 @@ export default function HistoricalCalculator() {
           <div className="glass-card p-10 flex flex-col h-full">
            {/* Custom Pill Tabs */}
            <div className="flex gap-1 bg-white/[0.03] border border-white/[0.05] p-1 rounded-full w-fit mb-10 px-2 mx-auto sm:mx-0">
-            {['crypto', 'stocks', 'forex'].map((t) => (
+            {(['crypto', 'stocks', 'forex'] as TabType[]).map((tabKey) => (
               <button
-                key={t}
-                onClick={() => { setTab(t as TabType); setPurchaseDate(''); }}
+                key={tabKey}
+                onClick={() => { setTab(tabKey); setPurchaseDate(''); }}
                 className={`px-6 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all ${
-                  tab === t ? 'bg-white text-black shadow-lg' : 'text-white/30 hover:text-white/60'
+                  tab === tabKey ? 'bg-white text-black shadow-lg' : 'text-white/30 hover:text-white/60'
                 }`}
               >
-                {t}
+                {t(`calculadoras.simulator.tabs.${tabKey}`)}
               </button>
             ))}
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-8 flex-1">
             <div className="space-y-2">
-              <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">Select Asset</label>
+              <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">{t('calculadoras.historical.selectAsset')}</label>
               <Select
                 variant="glass"
                 value={asset}
@@ -107,7 +109,7 @@ export default function HistoricalCalculator() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">Purchase Date</label>
+                <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">{t('calculadoras.historical.purchaseDate')}</label>
                 <input 
                   type="date"
                   min={minDate}
@@ -118,7 +120,7 @@ export default function HistoricalCalculator() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">Investment (BRL)</label>
+                <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">{t('calculadoras.historical.investment')}</label>
                 <input 
                   type="number" 
                   placeholder="0,00"
@@ -134,7 +136,7 @@ export default function HistoricalCalculator() {
               disabled={api.loading}
               className="mt-4 w-full bg-white text-black font-bold py-5 rounded-2xl transition-all hover:bg-white/90 active:scale-[0.98] disabled:opacity-50 shadow-glow"
             >
-              {api.loading ? 'Calculating...' : 'Go Back in Time'}
+              {api.loading ? t('calculadoras.historical.calculating') : t('calculadoras.historical.calculate')}
             </button>
           </form>
         </div>
@@ -148,13 +150,13 @@ export default function HistoricalCalculator() {
               <div className="w-16 h-16 rounded-full border border-white/[0.05] flex items-center justify-center mb-6 text-2xl text-white/10">
                 ◌
               </div>
-              <p className="text-sm font-mono tracking-tighter text-white/20 uppercase">Awaiting Historical Input</p>
+              <p className="text-sm font-mono tracking-tighter text-white/20 uppercase">{t('calculadoras.historical.awaiting')}</p>
             </div>
           ) : (
              <div className="animate-fade space-y-8">
               <div className="flex justify-between items-end border-b border-white/[0.05] pb-8 flex-wrap gap-6">
                 <div>
-                  <span className="text-[10px] font-mono tracking-widest uppercase text-white/30">Current Appraisal</span>
+                  <span className="text-[10px] font-mono tracking-widest uppercase text-white/30">{t('calculadoras.historical.currentAppraisal')}</span>
                   <div className="text-5xl font-bold tracking-tighter mt-2">
                     {formatBRL(result.currentValue)}
                   </div>
@@ -169,21 +171,21 @@ export default function HistoricalCalculator() {
 
               <div className="bg-white/[0.03] border border-white/[0.05] p-6 rounded-3xl">
                 <p className="text-sm text-white/40 leading-relaxed font-medium">
-                  Investing <strong className="text-white">{formatBRL(parseFloat(investment))}</strong> in <strong className="text-white uppercase tracking-widest text-[11px] font-mono ml-1">{asset}</strong> on <strong className="text-white">{formatDate(result.purchaseDate)}</strong> would result in the above portfolio value today.
+                  {t('calculadoras.historical.resultSentence', { amount: formatBRL(parseFloat(investment)), asset: asset.toUpperCase(), date: formatDate(result.purchaseDate) })}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-8 px-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-white/20">Purchase Price</span>
+                  <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-white/20">{t('calculadoras.historical.purchasePrice')}</span>
                   <span className="font-mono text-white/80 text-sm">{formatBRL(result.priceAtPurchase)}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-white/20">Market Price</span>
+                  <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-white/20">{t('calculadoras.historical.marketPrice')}</span>
                   <span className="font-mono text-white/80 text-sm">{formatBRL(result.currentPrice)}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-white/20">Total P&L</span>
+                  <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-white/20">{t('calculadoras.historical.totalPnl')}</span>
                   <span className={`font-mono text-sm font-bold ${isProfit ? 'text-white' : 'text-white/40'}`}>
                     {isProfit ? '+' : ''}{formatBRL(result.profit)}
                   </span>

@@ -1,10 +1,12 @@
 import './App.css';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import FloatingChat from './components/FloatingChat';
 import Reveal from './components/Reveal';
 import Logo from './components/Logo';
+import MarketsSection from './components/MarketsSection';
 import LoginForm from './components/auth/LoginForm';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PortfolioPage from './pages/PortfolioPage';
@@ -12,6 +14,8 @@ import ProfilePage from './pages/ProfilePage';
 import CalculadorasPage from './pages/CalculadorasPage';
 
 function Home() {
+  const { t } = useTranslation();
+  const faqItems: { q: string; a: string }[] = t('faq.items', { returnObjects: true }) as { q: string; a: string }[];
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex flex-col pt-[104px] selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
       <Navbar />
@@ -19,17 +23,15 @@ function Home() {
       <main className="flex-1">
         <Hero onParsed={() => {}} />
 
+        <MarketsSection />
+
         <section className="py-24 px-6 max-w-[800px] mx-auto text-center border-t border-white/[0.05]">
           <Reveal delay={0}>
-            <span className="section-label">[ FAQ ]</span>
-            <h2 className="text-3xl font-bold mb-12">Perguntas frequentes.</h2>
+            <span className="section-label">{t('faq.badge')}</span>
+            <h2 className="text-3xl font-bold mb-12">{t('faq.headline')}</h2>
           </Reveal>
           <div className="space-y-4 text-left">
-            {[
-              { q: 'O que é o Fluxa?', a: 'O Fluxa é seu guru financeiro com AI. Você informa o que tem investido e recebe insights, simulações e análises personalizadas em tempo real.' },
-              { q: 'Os dados são em tempo real?', a: 'Sim. Buscamos preços de criptomoedas, ações e câmbio a cada 30 segundos das principais exchanges e fontes de dados.' },
-              { q: 'O Fluxa substitui uma corretora?', a: 'Não. O Fluxa é uma ferramenta de análise e simulação. Não executamos ordens reais nem nos conectamos com sua corretora.' },
-            ].map((item, i) => (
+            {faqItems.map((item, i) => (
               <Reveal delay={150 + i * 100} key={i}>
                 <div className="glass-card p-6 hover:bg-white/[0.05]">
                   <h3 className="text-sm font-bold mb-2 flex items-center justify-between">

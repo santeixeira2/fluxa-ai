@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createChart, ColorType, CrosshairMode, LineStyle, AreaSeries } from 'lightweight-charts';
 import { getPortfolioPerformance } from '../api/client';
 import type { PerformancePoint } from '../api/client';
@@ -6,6 +7,7 @@ import type { PerformancePoint } from '../api/client';
 const fmtBRL = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export default function PortfolioChart() {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [points, setPoints] = useState<PerformancePoint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,14 +69,14 @@ export default function PortfolioChart() {
 
   if (loading) return (
     <div className="h-[200px] flex items-center justify-center text-xs font-mono text-black/30 dark:text-white/30">
-      Carregando performance...
+      {t('common.loading')}
     </div>
   );
 
   if (points.length < 2) return (
     <div className="h-[200px] flex flex-col items-center justify-center text-black/20 dark:text-white/20">
       <p className="text-2xl mb-2">—</p>
-      <p className="text-xs font-mono">Faça sua primeira compra para ver a performance.</p>
+      <p className="text-xs font-mono">{t('common.noData')}</p>
     </div>
   );
 
@@ -86,7 +88,7 @@ export default function PortfolioChart() {
   return (
     <div className="w-full">
       <div className="flex items-baseline gap-3 mb-3">
-        <p className="text-xs font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">Performance</p>
+        <p className="text-xs font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">{t('common.performance')}</p>
         <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
           {pnl >= 0 ? '+' : ''}{fmtBRL(pnl)} ({pnl >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%)
         </span>

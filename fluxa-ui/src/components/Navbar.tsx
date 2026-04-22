@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Logo from './Logo';
 import PriceTicker from './PriceTicker';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,12 +13,13 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { theme, setTheme } = useThemeContext();
+  const { t, i18n } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
   const [cfgCurrency, setCfgCurrency] = useState('BRL');
-  const [cfgLang, setCfgLang] = useState('PT-BR');
   const { notifications, markRead } = useNotifications();
   const notifRef = useRef<HTMLDivElement>(null);
+  const currentLang = i18n.language === 'en-US' ? 'EN-US' : 'PT-BR';
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -52,14 +54,14 @@ export default function Navbar() {
 
           <div className="hidden md:flex items-center gap-8">
             <Link to="/" className="text-[13px] font-medium text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors">
-              Home
+              {t('nav.home')}
             </Link>
             <Link to="/calculadoras" className="text-[13px] font-medium text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors">
-              Calculadoras
+              {t('nav.calculadoras')}
             </Link>
             {user && (
               <Link to="/portfolio" className="text-[13px] font-medium text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors">
-                Portfolio
+                {t('nav.portfolio')}
               </Link>
             )}
           </div>
@@ -86,10 +88,10 @@ export default function Navbar() {
               {showNotif && (
                 <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50">
                   <div className="px-4 py-3 border-b border-black/[0.06] dark:border-white/[0.06]">
-                    <p className="text-xs font-bold text-black dark:text-white">Notificações</p>
+                    <p className="text-xs font-bold text-black dark:text-white">{t('nav.notifications')}</p>
                   </div>
                   {notifications.length === 0 ? (
-                    <p className="px-4 py-6 text-sm text-center text-black/30 dark:text-white/30">Nenhuma notificação.</p>
+                    <p className="px-4 py-6 text-sm text-center text-black/30 dark:text-white/30">{t('nav.noNotifications')}</p>
                   ) : (
                     <ul className="max-h-72 overflow-y-auto divide-y divide-black/[0.04] dark:divide-white/[0.04]">
                       {notifications.map(n => {
@@ -115,7 +117,7 @@ export default function Navbar() {
                   )}
                   <div className="px-4 py-2.5 border-t border-black/[0.06] dark:border-white/[0.06]">
                     <button onClick={() => { navigate('/portfolio?tab=alerts'); setShowNotif(false); }} className="text-xs text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors">
-                      Ver alertas →
+                      {t('nav.viewAlerts')}
                     </button>
                   </div>
                 </div>
@@ -149,7 +151,7 @@ export default function Navbar() {
                       onClick={() => setShowMenu(false)}
                       className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium bg-black dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity"
                     >
-                      Sign in / Sign up
+                      {t('nav.signIn')}
                     </Link>
                     <div className="h-px w-full bg-black/[0.05] dark:bg-white/[0.05] my-1" />
                   </>
@@ -174,7 +176,7 @@ export default function Navbar() {
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
                       </svg>
-                      Portfolio
+                      {t('nav.portfolio')}
                     </button>
 
                     <button
@@ -184,7 +186,7 @@ export default function Navbar() {
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                       </svg>
-                      Edit profile
+                      {t('nav.editProfile')}
                     </button>
 
                     <div className="h-px w-full bg-black/[0.05] dark:bg-white/[0.05] my-1" />
@@ -193,10 +195,10 @@ export default function Navbar() {
 
                 {/* Theme */}
                 <div className="p-3">
-                  <div className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">Theme</div>
+                  <div className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">{t('nav.theme')}</div>
                   <div className="flex gap-2">
-                    <button onClick={() => setTheme('dark')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${theme === 'dark' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>Dark</button>
-                    <button onClick={() => setTheme('light')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${theme === 'light' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>Light</button>
+                    <button onClick={() => setTheme('dark')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${theme === 'dark' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>{t('nav.dark')}</button>
+                    <button onClick={() => setTheme('light')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${theme === 'light' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>{t('nav.light')}</button>
                   </div>
                 </div>
 
@@ -204,7 +206,7 @@ export default function Navbar() {
 
                 {/* Currency */}
                 <div className="p-3">
-                  <div className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">Currency</div>
+                  <div className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">{t('nav.currency')}</div>
                   <div className="flex gap-2">
                     <button onClick={() => setCfgCurrency('BRL')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${cfgCurrency === 'BRL' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>BRL (R$)</button>
                     <button onClick={() => setCfgCurrency('USD')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${cfgCurrency === 'USD' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>USD ($)</button>
@@ -215,10 +217,10 @@ export default function Navbar() {
 
                 {/* Language */}
                 <div className="p-3">
-                  <div className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">Language</div>
+                  <div className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">{t('nav.language')}</div>
                   <div className="grid grid-cols-2 gap-2">
-                    <button onClick={() => setCfgLang('PT-BR')} className={`py-2 rounded-xl text-xs font-medium transition-all ${cfgLang === 'PT-BR' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>PT-BR</button>
-                    <button onClick={() => setCfgLang('EN-US')} className={`py-2 rounded-xl text-xs font-medium transition-all ${cfgLang === 'EN-US' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>EN-US</button>
+                    <button onClick={() => i18n.changeLanguage('pt-BR')} className={`py-2 rounded-xl text-xs font-medium transition-all ${currentLang === 'PT-BR' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>PT-BR</button>
+                    <button onClick={() => i18n.changeLanguage('en-US')} className={`py-2 rounded-xl text-xs font-medium transition-all ${currentLang === 'EN-US' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>EN-US</button>
                   </div>
                 </div>
 
@@ -232,7 +234,7 @@ export default function Navbar() {
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                       </svg>
-                      Sign out
+                      {t('nav.signOut')}
                     </button>
                   </>
                 )}

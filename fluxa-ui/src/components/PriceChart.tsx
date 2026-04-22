@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createChart, ColorType, CrosshairMode, CandlestickSeries, type IChartApi } from 'lightweight-charts';
 import { getChartData } from '../api/client';
 import type { ChartPeriod } from '../api/client';
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function PriceChart({ assetId, assetName }: Props) {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const [period, setPeriod] = useState<ChartPeriod>('1M');
@@ -100,12 +102,12 @@ export default function PriceChart({ assetId, assetName }: Props) {
         <div ref={containerRef} className="w-full rounded-xl overflow-hidden" />
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-white/5 rounded-xl">
-            <p className="text-xs font-mono text-black/30 dark:text-white/30">Carregando...</p>
+            <p className="text-xs font-mono text-black/30 dark:text-white/30">{t('common.loading')}</p>
           </div>
         )}
         {error && !loading && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-xs font-mono text-black/30 dark:text-white/30">Dados indisponíveis para este ativo.</p>
+            <p className="text-xs font-mono text-black/30 dark:text-white/30">{t('common.chartNoData')}</p>
           </div>
         )}
       </div>

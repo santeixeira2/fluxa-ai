@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Reveal from '../Reveal';
 import Select from '../Select';
 import type { SimulationResult } from '../../api/client';
@@ -23,7 +24,7 @@ export interface SimulatorFormProps {
 export default function SimulatorForm({
   tab, setTab, asset, setAsset, grouped, investment, setInvestment, futurePrice, setFuturePrice, isLoading, result, onSubmit
 }: SimulatorFormProps) {
-  
+  const { t } = useTranslation();
   const formatBRL = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const isProfit = result && result.profit >= 0;
 
@@ -31,8 +32,8 @@ export default function SimulatorForm({
     <section className="py-24 px-6 max-w-[1200px] mx-auto border-t border-white/[0.05]" id="simulator">
       <Reveal delay={0}>
         <div className="text-center mb-16">
-          <span className="section-label">[ Investment Tool ]</span>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mt-2">Manage Assets.</h2>
+          <span className="section-label">{t('calculadoras.simulator.badge')}</span>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mt-2">{t('calculadoras.simulator.headline')}</h2>
         </div>
       </Reveal>
 
@@ -42,22 +43,22 @@ export default function SimulatorForm({
           <div className="glass-card p-10 flex flex-col h-full">
           {/* Custom Pill Tabs */}
           <div className="flex gap-1 bg-white/[0.03] border border-white/[0.05] p-1 rounded-full w-fit mb-10 px-2 mx-auto sm:mx-0">
-            {(['crypto', 'stocks', 'forex'] as TabType[]).map((t) => (
+            {(['crypto', 'stocks', 'forex'] as TabType[]).map((tabKey) => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
+                key={tabKey}
+                onClick={() => setTab(tabKey)}
                 className={`px-6 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all ${
-                  tab === t ? 'bg-white text-black shadow-lg' : 'text-white/30 hover:text-white/60'
+                  tab === tabKey ? 'bg-white text-black shadow-lg' : 'text-white/30 hover:text-white/60'
                 }`}
               >
-                {t}
+                {t(`calculadoras.simulator.tabs.${tabKey}`)}
               </button>
             ))}
           </div>
 
           <form onSubmit={onSubmit} className="flex flex-col gap-8 flex-1">
             <div className="space-y-2">
-              <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">Select Asset</label>
+              <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">{t('calculadoras.simulator.selectAsset')}</label>
               <Select
                 variant="glass"
                 value={asset}
@@ -68,8 +69,8 @@ export default function SimulatorForm({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">Investment (BRL)</label>
-                <input 
+                <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">{t('calculadoras.simulator.investment')}</label>
+                <input
                   type="number"
                   placeholder="0,00"
                   className="w-full bg-white/[0.03] border border-white/[0.1] rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-white/30 font-mono"
@@ -78,7 +79,7 @@ export default function SimulatorForm({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">Target Price (BRL)</label>
+                <label className="text-[10px] font-mono tracking-widest uppercase text-white/30 ml-4">{t('calculadoras.simulator.targetPrice')}</label>
                 <input 
                   type="number"
                   placeholder="0,00"
@@ -94,7 +95,7 @@ export default function SimulatorForm({
               disabled={isLoading}
               className="mt-4 w-full bg-white text-black font-bold py-5 rounded-2xl transition-all hover:bg-white/90 active:scale-[0.98] disabled:opacity-50 shadow-glow"
             >
-              {isLoading ? 'Simulating...' : 'Calculate Projection'}
+              {isLoading ? t('calculadoras.simulator.simulating') : t('calculadoras.simulator.calculate')}
             </button>
           </form>
         </div>
@@ -108,13 +109,13 @@ export default function SimulatorForm({
               <div className="w-16 h-16 rounded-full border border-white/[0.05] flex items-center justify-center mb-6 text-2xl text-white/10">
                 ○
               </div>
-              <p className="text-sm font-mono tracking-tighter text-white/20 uppercase">Awaiting Simulation Parameters</p>
+              <p className="text-sm font-mono tracking-tighter text-white/20 uppercase">{t('calculadoras.simulator.awaiting')}</p>
             </div>
           ) : (
             <div className="space-y-10 animate-fade">
               <div className="flex justify-between items-end border-b border-white/[0.05] pb-10 flex-wrap gap-6">
                 <div>
-                  <span className="text-[10px] font-mono tracking-widest uppercase text-white/30">Projected Portfolio</span>
+                  <span className="text-[10px] font-mono tracking-widest uppercase text-white/30">{t('calculadoras.simulator.projectedPortfolio')}</span>
                   <div className="text-5xl font-bold tracking-tighter mt-2">
                     {formatBRL(result.finalValue)}
                   </div>
@@ -129,10 +130,10 @@ export default function SimulatorForm({
 
               <div className="grid grid-cols-2 gap-px bg-white/[0.05] rounded-3xl overflow-hidden border border-white/[0.05]">
                 {[
-                  { label: 'Current Price', value: formatBRL(result.currentPrice) },
-                  { label: 'Projection', value: formatBRL(parseFloat(futurePrice)) },
-                  { label: 'P&L Realized', value: (isProfit ? '+' : '') + formatBRL(result.profit) },
-                  { label: 'Market Weight', value: '1.24x Leverage' }
+                  { label: t('calculadoras.simulator.currentPrice'), value: formatBRL(result.currentPrice) },
+                  { label: t('calculadoras.simulator.projection'), value: formatBRL(parseFloat(futurePrice)) },
+                  { label: t('calculadoras.simulator.pnlRealized'), value: (isProfit ? '+' : '') + formatBRL(result.profit) },
+                  { label: t('calculadoras.simulator.marketWeight'), value: '1.24x Leverage' }
                 ].map((item, i) => (
                   <div key={i} className="bg-[#050505] p-6 flex flex-col gap-1">
                     <span className="text-[9px] font-mono tracking-[0.2em] uppercase text-white/20">{item.label}</span>

@@ -1,0 +1,246 @@
+{
+  "nav": {
+    "home": "Home",
+    "calculadoras": "Calculators",
+    "portfolio": "Portfolio",
+    "signIn": "Sign in / Sign up",
+    "editProfile": "Edit profile",
+    "signOut": "Sign out",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "currency": "Currency",
+    "language": "Language",
+    "notifications": "Notifications",
+    "noNotifications": "No notifications.",
+    "viewAlerts": "View alerts →"
+  },
+  "hero": {
+    "badge": "[ Fluxa AI ]",
+    "headline": "The financial guru",
+    "headlineMuted": "you never had.",
+    "subheadline": "Ask about any asset, simulate scenarios and get insights based on your portfolio — with real market prices, no broker needed.",
+    "placeholder": "Ex: Should I buy Bitcoin right now?",
+    "analyzing": "Analyzing...",
+    "askFluxa": "Ask Fluxa",
+    "analyzingMarkets": "Fluxa AI is analyzing markets...",
+    "fluxaAI": "Fluxa AI",
+    "trust1": "Real-time prices",
+    "trust2": "No broker needed",
+    "trust3": "Your portfolio, your context"
+  },
+  "markets": {
+    "badge": "[ Markets ]",
+    "headline": "Global Markets.",
+    "tabs": {
+      "indices": "Indices",
+      "crypto": "Crypto",
+      "stocks": "Stocks",
+      "br_stocks": "B3",
+      "commodities": "Commodities",
+      "currencies": "Currencies"
+    },
+    "colName": "Name",
+    "colPrice": "Price / Change",
+    "loading": "Loading...",
+    "noData": "No data available."
+  },
+  "faq": {
+    "badge": "[ FAQ ]",
+    "headline": "Common questions.",
+    "items": [
+      {
+        "q": "What is Fluxa?",
+        "a": "Fluxa is your AI-powered financial guru. Tell it what you have invested and get real-time personalized insights, simulations and analysis."
+      },
+      {
+        "q": "Is the data real-time?",
+        "a": "Yes. We fetch crypto, stock and forex prices every 30 seconds from major exchanges and data sources."
+      },
+      {
+        "q": "Does Fluxa replace a broker?",
+        "a": "No. Fluxa is an analysis and simulation tool. We don't execute real orders or connect to your brokerage account."
+      }
+    ]
+  },
+  "portfolio": {
+    "badge": "[ Portfolio ]",
+    "buy": "Buy",
+    "sell": "Sell",
+    "freeBalance": "Free balance",
+    "initialCapital": "Initial capital",
+    "positions": "Positions",
+    "tabs": {
+      "positions": "Positions",
+      "transactions": "History",
+      "alerts": "Alerts"
+    },
+    "emptyPositions": "No assets yet. Start by buying something.",
+    "emptyTransactions": "No transactions yet.",
+    "currentPrice": "Current price",
+    "tradeModal": {
+      "buyTitle": "Buy asset",
+      "sellTitle": "Sell asset",
+      "asset": "Asset",
+      "selectAsset": "Select an asset",
+      "amountBRL": "Amount (BRL)",
+      "quantity": "Quantity",
+      "useAll": "Use all",
+      "sellAll": "Sell all",
+      "processing": "Processing...",
+      "buyAtPrice": "Buy at current price",
+      "sellAtPrice": "Sell at current price",
+      "fillFields": "Please fill in all fields correctly."
+    },
+    "alerts": {
+      "newAlert": "New alert",
+      "buyAlert": "↘ Buy",
+      "sellAlert": "↗ Sell",
+      "buyDesc": "Notifies when price drops below",
+      "sellDesc": "Notifies when price rises above",
+      "assetLabel": "Asset",
+      "selectAsset": "Select...",
+      "targetPrice": "Target price (BRL)",
+      "create": "Create",
+      "creating": "...",
+      "active": "Active",
+      "history": "Triggered history",
+      "noActive": "No active alerts.",
+      "below": "Below",
+      "above": "Above",
+      "fillFields": "Please fill in all fields."
+    }
+  },
+  "profile": {
+    "badge": "[ Profile ]",
+    "memberSince": "Member since",
+    "personalInfo": "Personal information",
+    "email": "Email",
+    "name": "Name",
+    "namePlaceholder": "Your name",
+    "phone": "Phone",
+    "phonePlaceholder": "+1 555 000 0000",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saved": "Profile updated.",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "changePasswordBtn": "Change password",
+    "changingPassword": "Changing...",
+    "passwordChanged": "Password changed successfully.",
+    "passwordMismatch": "Passwords do not match."
+  },
+  "calculadoras": {
+    "nav": {
+      "converter": "Converter",
+      "chart": "Chart",
+      "simulator": "Simulator",
+      "historical": "Historical"
+    },
+    "converter": {
+      "badge": "[ Converter ]",
+      "headline": "Real-time exchange rates.",
+      "subheadline": "Rates updated automatically.",
+      "amount": "Amount",
+      "from": "From",
+      "to": "To",
+      "fetching": "Fetching rate...",
+      "unavailable": "Rate unavailable."
+    },
+    "chart": {
+      "badge": "[ Chart ]",
+      "headline": "Real-time price."
+    },
+    "simulator": {
+      "badge": "[ Investment Tool ]",
+      "headline": "Simulate the Future.",
+      "selectAsset": "Select Asset",
+      "investment": "Investment (BRL)",
+      "targetPrice": "Target Price (BRL)",
+      "calculating": "Calculating...",
+      "calculate": "Calculate Projection",
+      "awaiting": "Awaiting parameters",
+      "projectedPortfolio": "Projected Portfolio",
+      "currentPrice": "Current Price",
+      "projection": "Projection",
+      "pnl": "P&L",
+      "simulating": "Simulating...",
+      "pnlRealized": "P&L Realized",
+      "marketWeight": "Market Weight",
+      "tabs": {
+        "crypto": "Crypto",
+        "stocks": "Stocks",
+        "forex": "Forex"
+      }
+    },
+    "historical": {
+      "badge": "[ Advanced Analytics ]",
+      "headline": "Historic Returns.",
+      "selectAsset": "Select Asset",
+      "purchaseDate": "Purchase Date",
+      "investment": "Investment (BRL)",
+      "calculating": "Calculating...",
+      "calculate": "Go Back in Time",
+      "awaiting": "Awaiting historical input",
+      "currentAppraisal": "Current Appraisal",
+      "purchasePrice": "Purchase Price",
+      "marketPrice": "Market Price",
+      "totalPnl": "Total P&L",
+      "resultSentence": "Investing {{amount}} in {{asset}} on {{date}} would result in the above portfolio value today."
+    }
+  },
+  "auth": {
+    "login": "Sign in",
+    "register": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "name": "Name",
+    "phone": "Phone",
+    "terms": "I accept the terms of service",
+    "submit": "Continue",
+    "loading": "Loading...",
+    "switchToRegister": "Don't have an account? Sign up",
+    "switchToLogin": "Already have an account? Sign in",
+    "orContinueWith": "or continue with",
+    "passwordMismatch": "Passwords do not match.",
+    "acceptTerms": "You must accept the terms to continue.",
+    "welcomeBack": "Welcome back",
+    "createAccount": "Create account",
+    "signInSubtitle": "Sign in to your account",
+    "registerSubtitle": "Start simulating smarter",
+    "fullName": "Full name",
+    "minPasswordPlaceholder": "Min. 8 characters",
+    "repeatPasswordPlaceholder": "Repeat your password",
+    "agreePrefix": "I agree to the",
+    "and": "and",
+    "termsLink": "Terms of Service",
+    "privacyLink": "Privacy Policy",
+    "or": "OR",
+    "noAccount": "Don't have an account?",
+    "alreadyAccount": "Already have an account?"
+  },
+  "chat": {
+    "title": "Fluxa AI",
+    "subtitle": "Financial assistant",
+    "placeholder": "Ask about the market...",
+    "examples": [
+      "What's the outlook for NVIDIA?",
+      "Is investing $1,000 in BTC worth it?",
+      "Should I buy ETH right now?"
+    ]
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong.",
+    "noData": "No data.",
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "performance": "Performance",
+    "chartNoData": "Chart data unavailable for this asset."
+  }
+}

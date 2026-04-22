@@ -345,6 +345,26 @@ export function changePassword(currentPassword: string, newPassword: string): Pr
   return request('/profile/password', { method: 'PATCH', body: JSON.stringify({ currentPassword, newPassword }) });
 }
 
+// ── Markets ────────────────────────────────────────────────────────────────
+
+export interface MarketItem {
+  id: string;
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  currency: string;
+}
+
+export type MarketCategory = 'indices' | 'crypto' | 'stocks' | 'br_stocks' | 'commodities' | 'currencies';
+
+export type MarketsData = Record<MarketCategory, MarketItem[]>;
+
+export function getMarkets(): Promise<MarketsData> {
+  return request('/markets');
+}
+
 // ── Alerts ─────────────────────────────────────────────────────────────────
 
 export type AlertType = 'PRICE_ABOVE' | 'PRICE_BELOW';

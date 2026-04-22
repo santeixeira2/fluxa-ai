@@ -1,4 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { getProfile, updateProfile, changePassword } from '../api/client';
@@ -8,6 +9,7 @@ const inputCls = "w-full bg-black/[0.04] dark:bg-white/[0.05] border border-blac
 const labelCls = "text-[10px] font-mono tracking-widest text-black/40 dark:text-white/40 uppercase mb-1.5 block";
 
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +41,7 @@ export default function ProfilePage() {
     try {
       const updated = await updateProfile({ name: name || undefined, phone: phone || undefined });
       setProfile(prev => prev ? { ...prev, ...updated } : prev);
-      setEditMsg({ ok: true, text: 'Perfil atualizado.' });
+      setEditMsg({ ok: true, text: t('profile.saved') });
     } catch (err) {
       setEditMsg({ ok: false, text: err instanceof Error ? err.message : 'Erro ao salvar.' });
     } finally {
@@ -50,12 +52,12 @@ export default function ProfilePage() {
   async function handlePasswordSubmit(e: FormEvent) {
     e.preventDefault();
     setPwdMsg(null);
-    if (newPwd !== confirmPwd) return setPwdMsg({ ok: false, text: 'As senhas não coincidem.' });
+    if (newPwd !== confirmPwd) return setPwdMsg({ ok: false, text: t('profile.passwordMismatch') });
     setPwdLoading(true);
     try {
       await changePassword(currentPwd, newPwd);
       setCurrentPwd(''); setNewPwd(''); setConfirmPwd('');
-      setPwdMsg({ ok: true, text: 'Senha alterada com sucesso.' });
+      setPwdMsg({ ok: true, text: t('profile.passwordChanged') });
     } catch (err) {
       setPwdMsg({ ok: false, text: err instanceof Error ? err.message : 'Erro ao alterar senha.' });
     } finally {
@@ -67,7 +69,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center pt-[104px]">
         <Navbar />
-        <div className="text-black/30 dark:text-white/30 text-sm font-mono">Carregando...</div>
+        <div className="text-black/30 dark:text-white/30 text-sm font-mono">{t('common.loading')}</div>
       </div>
     );
   }
@@ -87,7 +89,7 @@ export default function ProfilePage() {
       <main className="max-w-[600px] mx-auto px-6 py-12">
         {/* Header */}
         <div className="mb-10">
-          <span className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">[ Perfil ]</span>
+          <span className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">{t('profile.badge')}</span>
           <div className="flex items-center gap-5 mt-4">
             <div className="w-16 h-16 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-2xl font-bold text-black dark:text-white">
               {initials}
@@ -95,34 +97,34 @@ export default function ProfilePage() {
             <div>
               <p className="text-xl font-bold">{profile.name ?? profile.email}</p>
               <p className="text-sm text-black/40 dark:text-white/40 font-mono">{profile.email}</p>
-              <p className="text-xs text-black/30 dark:text-white/30 font-mono mt-0.5">Membro desde {memberSince}</p>
+              <p className="text-xs text-black/30 dark:text-white/30 font-mono mt-0.5">{t('profile.memberSince')} {memberSince}</p>
             </div>
           </div>
         </div>
 
         {/* Edit info */}
         <section className="mb-8 bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl p-6">
-          <h2 className="text-sm font-bold mb-5">Informações pessoais</h2>
+          <h2 className="text-sm font-bold mb-5">{t('profile.personalInfo')}</h2>
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div>
-              <label className={labelCls}>Email</label>
+              <label className={labelCls}>{t('profile.email')}</label>
               <input value={profile.email} disabled className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Nome</label>
+              <label className={labelCls}>{t('profile.name')}</label>
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
-                placeholder="Seu nome"
+                placeholder={t('profile.namePlaceholder')}
                 className={inputCls}
               />
             </div>
             <div>
-              <label className={labelCls}>Telefone</label>
+              <label className={labelCls}>{t('profile.phone')}</label>
               <input
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
-                placeholder="+55 11 99999-9999"
+                placeholder={t('profile.phonePlaceholder')}
                 className={inputCls}
               />
             </div>
@@ -136,7 +138,7 @@ export default function ProfilePage() {
               disabled={editLoading}
               className="w-full py-3 rounded-xl text-sm font-medium bg-black dark:bg-white text-white dark:text-black hover:opacity-80 transition-opacity disabled:opacity-50"
             >
-              {editLoading ? 'Salvando...' : 'Salvar alterações'}
+              {editLoading ? t('profile.saving') : t('profile.save')}
             </button>
           </form>
         </section>
@@ -144,10 +146,10 @@ export default function ProfilePage() {
         {/* Change password — only for non-Google users */}
         {profile.hasPassword && (
           <section className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl p-6">
-            <h2 className="text-sm font-bold mb-5">Alterar senha</h2>
+            <h2 className="text-sm font-bold mb-5">{t('profile.changePassword')}</h2>
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <div>
-                <label className={labelCls}>Senha atual</label>
+                <label className={labelCls}>{t('profile.currentPassword')}</label>
                 <input
                   type="password"
                   value={currentPwd}
@@ -157,17 +159,17 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label className={labelCls}>Nova senha</label>
+                <label className={labelCls}>{t('profile.newPassword')}</label>
                 <input
                   type="password"
                   value={newPwd}
                   onChange={e => setNewPwd(e.target.value)}
-                  placeholder="Mínimo 8 caracteres"
+                  placeholder="••••••••"
                   className={inputCls}
                 />
               </div>
               <div>
-                <label className={labelCls}>Confirmar nova senha</label>
+                <label className={labelCls}>{t('profile.confirmPassword')}</label>
                 <input
                   type="password"
                   value={confirmPwd}
@@ -186,7 +188,7 @@ export default function ProfilePage() {
                 disabled={pwdLoading}
                 className="w-full py-3 rounded-xl text-sm font-medium bg-black/[0.06] dark:bg-white/[0.06] hover:bg-black/10 dark:hover:bg-white/10 transition-colors disabled:opacity-50"
               >
-                {pwdLoading ? 'Alterando...' : 'Alterar senha'}
+                {pwdLoading ? t('profile.changingPassword') : t('profile.changePasswordBtn')}
               </button>
             </form>
           </section>

@@ -1,0 +1,246 @@
+{
+  "nav": {
+    "home": "Home",
+    "calculadoras": "Calculadoras",
+    "portfolio": "Portfolio",
+    "signIn": "Entrar / Cadastrar",
+    "editProfile": "Editar perfil",
+    "signOut": "Sair",
+    "theme": "Tema",
+    "dark": "Escuro",
+    "light": "Claro",
+    "currency": "Moeda",
+    "language": "Idioma",
+    "notifications": "Notificações",
+    "noNotifications": "Nenhuma notificação.",
+    "viewAlerts": "Ver alertas →"
+  },
+  "hero": {
+    "badge": "[ Fluxa AI ]",
+    "headline": "O guru financeiro",
+    "headlineMuted": "que você nunca teve.",
+    "subheadline": "Pergunte sobre qualquer ativo, simule cenários e receba insights baseados no seu portfólio — com preços reais, sem corretora.",
+    "placeholder": "Ex: Vale a pena comprar Bitcoin agora?",
+    "analyzing": "Analisando...",
+    "askFluxa": "Perguntar",
+    "analyzingMarkets": "Fluxa AI analisando mercados...",
+    "fluxaAI": "Fluxa AI",
+    "trust1": "Preços em tempo real",
+    "trust2": "Sem corretora",
+    "trust3": "Seu portfólio, seu contexto"
+  },
+  "markets": {
+    "badge": "[ Mercados ]",
+    "headline": "Mercados Globais.",
+    "tabs": {
+      "indices": "Índices",
+      "crypto": "Crypto",
+      "stocks": "Ações",
+      "br_stocks": "B3",
+      "commodities": "Commodities",
+      "currencies": "Moedas"
+    },
+    "colName": "Nome",
+    "colPrice": "Preço / Variação",
+    "loading": "Carregando...",
+    "noData": "Dados indisponíveis."
+  },
+  "faq": {
+    "badge": "[ FAQ ]",
+    "headline": "Perguntas frequentes.",
+    "items": [
+      {
+        "q": "O que é o Fluxa?",
+        "a": "O Fluxa é seu guru financeiro com AI. Você informa o que tem investido e recebe insights, simulações e análises personalizadas em tempo real."
+      },
+      {
+        "q": "Os dados são em tempo real?",
+        "a": "Sim. Buscamos preços de criptomoedas, ações e câmbio a cada 30 segundos das principais exchanges e fontes de dados."
+      },
+      {
+        "q": "O Fluxa substitui uma corretora?",
+        "a": "Não. O Fluxa é uma ferramenta de análise e simulação. Não executamos ordens reais nem nos conectamos com sua corretora."
+      }
+    ]
+  },
+  "portfolio": {
+    "badge": "[ Portfolio ]",
+    "buy": "Comprar",
+    "sell": "Vender",
+    "freeBalance": "Saldo livre",
+    "initialCapital": "Capital inicial",
+    "positions": "Posições",
+    "tabs": {
+      "positions": "Posições",
+      "transactions": "Histórico",
+      "alerts": "Alertas"
+    },
+    "emptyPositions": "Nenhum ativo ainda. Comece comprando algo.",
+    "emptyTransactions": "Nenhuma transação ainda.",
+    "currentPrice": "Preço atual",
+    "tradeModal": {
+      "buyTitle": "Comprar ativo",
+      "sellTitle": "Vender ativo",
+      "asset": "Ativo",
+      "selectAsset": "Selecione um ativo",
+      "amountBRL": "Valor (BRL)",
+      "quantity": "Quantidade",
+      "useAll": "Usar tudo",
+      "sellAll": "Vender tudo",
+      "processing": "Processando...",
+      "buyAtPrice": "Comprar ao preço atual",
+      "sellAtPrice": "Vender ao preço atual",
+      "fillFields": "Preencha os campos corretamente."
+    },
+    "alerts": {
+      "newAlert": "Novo alerta",
+      "buyAlert": "↘ Compra",
+      "sellAlert": "↗ Venda",
+      "buyDesc": "Avisa quando cair abaixo",
+      "sellDesc": "Avisa quando subir acima",
+      "assetLabel": "Ativo",
+      "selectAsset": "Selecione...",
+      "targetPrice": "Preço alvo (BRL)",
+      "create": "Criar",
+      "creating": "...",
+      "active": "Ativos",
+      "history": "Histórico disparado",
+      "noActive": "Nenhum alerta ativo.",
+      "below": "Abaixo de",
+      "above": "Acima de",
+      "fillFields": "Preencha todos os campos."
+    }
+  },
+  "profile": {
+    "badge": "[ Perfil ]",
+    "memberSince": "Membro desde",
+    "personalInfo": "Informações pessoais",
+    "email": "Email",
+    "name": "Nome",
+    "namePlaceholder": "Seu nome",
+    "phone": "Telefone",
+    "phonePlaceholder": "+55 11 99999-9999",
+    "save": "Salvar alterações",
+    "saving": "Salvando...",
+    "saved": "Perfil atualizado.",
+    "changePassword": "Alterar senha",
+    "currentPassword": "Senha atual",
+    "newPassword": "Nova senha",
+    "confirmPassword": "Confirmar nova senha",
+    "changePasswordBtn": "Alterar senha",
+    "changingPassword": "Alterando...",
+    "passwordChanged": "Senha alterada com sucesso.",
+    "passwordMismatch": "As senhas não coincidem."
+  },
+  "calculadoras": {
+    "nav": {
+      "converter": "Conversor",
+      "chart": "Gráfico",
+      "simulator": "Simulador",
+      "historical": "Histórico"
+    },
+    "converter": {
+      "badge": "[ Conversor ]",
+      "headline": "Câmbio em tempo real.",
+      "subheadline": "Taxas atualizadas automaticamente.",
+      "amount": "Valor",
+      "from": "De",
+      "to": "Para",
+      "fetching": "Buscando taxa...",
+      "unavailable": "Taxa indisponível."
+    },
+    "chart": {
+      "badge": "[ Gráfico ]",
+      "headline": "Preço em tempo real."
+    },
+    "simulator": {
+      "badge": "[ Investment Tool ]",
+      "headline": "Simule o Futuro.",
+      "selectAsset": "Selecionar Ativo",
+      "investment": "Investimento (BRL)",
+      "targetPrice": "Preço Alvo (BRL)",
+      "calculating": "Calculando...",
+      "calculate": "Calcular Projeção",
+      "awaiting": "Aguardando parâmetros",
+      "projectedPortfolio": "Portfólio Projetado",
+      "currentPrice": "Preço Atual",
+      "projection": "Projeção",
+      "pnl": "P&L",
+      "simulating": "Simulando...",
+      "pnlRealized": "P&L Realizado",
+      "marketWeight": "Peso de Mercado",
+      "tabs": {
+        "crypto": "Crypto",
+        "stocks": "Ações",
+        "forex": "Forex"
+      }
+    },
+    "historical": {
+      "badge": "[ Analytics Avançado ]",
+      "headline": "Retornos Históricos.",
+      "selectAsset": "Selecionar Ativo",
+      "purchaseDate": "Data de Compra",
+      "investment": "Investimento (BRL)",
+      "calculating": "Calculando...",
+      "calculate": "Voltar no Tempo",
+      "awaiting": "Aguardando dados históricos",
+      "currentAppraisal": "Valor Atual",
+      "purchasePrice": "Preço de Compra",
+      "marketPrice": "Preço de Mercado",
+      "totalPnl": "P&L Total",
+      "resultSentence": "Investir {{amount}} em {{asset}} em {{date}} resultaria no valor de portfólio acima hoje."
+    }
+  },
+  "auth": {
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "email": "Email",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "name": "Nome",
+    "phone": "Telefone",
+    "terms": "Aceito os termos de uso",
+    "submit": "Continuar",
+    "loading": "Carregando...",
+    "switchToRegister": "Não tem conta? Cadastre-se",
+    "switchToLogin": "Já tem conta? Entre",
+    "orContinueWith": "ou continue com",
+    "passwordMismatch": "As senhas não coincidem.",
+    "acceptTerms": "Você deve aceitar os termos para continuar.",
+    "welcomeBack": "Bem-vindo de volta",
+    "createAccount": "Criar conta",
+    "signInSubtitle": "Entre na sua conta",
+    "registerSubtitle": "Comece a simular melhor",
+    "fullName": "Nome completo",
+    "minPasswordPlaceholder": "Mín. 8 caracteres",
+    "repeatPasswordPlaceholder": "Repita sua senha",
+    "agreePrefix": "Concordo com os",
+    "and": "e",
+    "termsLink": "Termos de uso",
+    "privacyLink": "Política de privacidade",
+    "or": "OU",
+    "noAccount": "Não tem conta?",
+    "alreadyAccount": "Já tem conta?"
+  },
+  "chat": {
+    "title": "Fluxa AI",
+    "subtitle": "Assistente financeiro",
+    "placeholder": "Pergunte sobre o mercado...",
+    "examples": [
+      "Qual a previsão para a NVIDIA?",
+      "Investir R$5.000 em BTC vale?",
+      "Vale a pena comprar ETH agora?"
+    ]
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Algo deu errado.",
+    "noData": "Sem dados.",
+    "close": "Fechar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Excluir",
+    "performance": "Performance",
+    "chartNoData": "Dados indisponíveis para este ativo."
+  }
+}

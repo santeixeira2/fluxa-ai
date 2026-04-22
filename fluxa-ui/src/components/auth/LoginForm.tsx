@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Logo from '../Logo';
@@ -8,6 +9,7 @@ const inputCls = "w-full bg-black/[0.04] dark:bg-white/[0.05] border border-blac
 const labelCls = "text-xs font-mono uppercase tracking-widest text-black/40 dark:text-white/40 mb-1.5 block";
 
 export default function LoginForm() {
+  const { t } = useTranslation();
   const { login, register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,8 +31,8 @@ export default function LoginForm() {
     e.preventDefault();
     setError('');
     if (mode === 'register') {
-      if (password !== confirmPassword) return setError('Passwords do not match');
-      if (!terms) return setError('You must accept the terms to continue');
+      if (password !== confirmPassword) return setError(t('auth.passwordMismatch'));
+      if (!terms) return setError(t('auth.acceptTerms'));
     }
     setLoading(true);
     try {
@@ -61,41 +63,41 @@ export default function LoginForm() {
 
         <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02] p-8">
           <h1 className="text-lg font-bold mb-1">
-            {mode === 'login' ? 'Welcome back' : 'Create account'}
+            {mode === 'login' ? t('auth.welcomeBack') : t('auth.createAccount')}
           </h1>
           <p className="text-sm text-black/40 dark:text-white/40 mb-8">
-            {mode === 'login' ? 'Sign in to your account' : 'Start simulating smarter'}
+            {mode === 'login' ? t('auth.signInSubtitle') : t('auth.registerSubtitle')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'register' && (
               <>
                 <div>
-                  <label className={labelCls}>Full name</label>
+                  <label className={labelCls}>{t('auth.fullName')}</label>
                   <input type="text" value={name} onChange={e => setName(e.target.value)} required className={inputCls} placeholder="John Doe" />
                 </div>
                 <div>
-                  <label className={labelCls}>Phone</label>
+                  <label className={labelCls}>{t('auth.phone')}</label>
                   <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} required className={inputCls} placeholder="+55 11 99999-9999" />
                 </div>
               </>
             )}
 
             <div>
-              <label className={labelCls}>Email</label>
+              <label className={labelCls}>{t('auth.email')}</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className={inputCls} placeholder="you@email.com" />
             </div>
 
             <div>
-              <label className={labelCls}>Password</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} className={inputCls} placeholder="Min. 8 characters" />
+              <label className={labelCls}>{t('auth.password')}</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} className={inputCls} placeholder={t('auth.minPasswordPlaceholder')} />
             </div>
 
             {mode === 'register' && (
               <>
                 <div>
-                  <label className={labelCls}>Confirm password</label>
-                  <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className={inputCls} placeholder="Repeat your password" />
+                  <label className={labelCls}>{t('auth.confirmPassword')}</label>
+                  <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className={inputCls} placeholder={t('auth.repeatPasswordPlaceholder')} />
                 </div>
 
                 <label className="flex items-start gap-3 cursor-pointer group">
@@ -110,7 +112,7 @@ export default function LoginForm() {
                     </div>
                   </div>
                   <span className="text-xs text-black/40 dark:text-white/40 leading-relaxed">
-                    I agree to the <a href="#" className="text-black dark:text-white hover:underline">Terms of Service</a> and <a href="#" className="text-black dark:text-white hover:underline">Privacy Policy</a>
+                    {t('auth.agreePrefix')} <a href="#" className="text-black dark:text-white hover:underline">{t('auth.termsLink')}</a> {t('auth.and')} <a href="#" className="text-black dark:text-white hover:underline">{t('auth.privacyLink')}</a>
                   </span>
                 </label>
               </>
@@ -121,7 +123,7 @@ export default function LoginForm() {
             )}
 
             <button type="submit" disabled={loading} className="w-full bg-black dark:bg-white text-white dark:text-black font-bold py-3 rounded-lg text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
-              {loading ? 'Loading...' : mode === 'login' ? 'Sign in' : 'Create account'}
+              {loading ? t('auth.loading') : mode === 'login' ? t('auth.login') : t('auth.createAccount')}
             </button>
           </form>
 
@@ -129,7 +131,7 @@ export default function LoginForm() {
             <>
               <div className="flex items-center gap-3 my-5">
                 <div className="flex-1 h-px bg-black/10 dark:bg-white/10" />
-                <span className="text-xs text-black/20 dark:text-white/20 font-mono">OR</span>
+                <span className="text-xs text-black/20 dark:text-white/20 font-mono">{t('auth.or')}</span>
                 <div className="flex-1 h-px bg-black/10 dark:bg-white/10" />
               </div>
               <GoogleButton onError={setError} onLoading={setLoading} />
@@ -137,8 +139,8 @@ export default function LoginForm() {
           )}
 
           <p className="text-xs text-black/30 dark:text-white/30 text-center mt-6">
-            {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
-            <button onClick={switchMode} className="text-black dark:text-white hover:underline">{mode === 'login' ? 'Sign up' : 'Sign in'}</button>
+            {mode === 'login' ? t('auth.noAccount') : t('auth.alreadyAccount')}{' '}
+            <button onClick={switchMode} className="text-black dark:text-white hover:underline">{mode === 'login' ? t('auth.register') : t('auth.login')}</button>
           </p>
         </div>
       </div>
