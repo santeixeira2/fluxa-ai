@@ -68,12 +68,29 @@ export const ASSETS: AssetConfig[] = [
   { id: 'mglu3',  symbol: 'MGLU3',  name: 'Magalu ON',        type: 'br_stock', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2011-05-05', yahooTicker: 'MGLU3.SA' },
   { id: 'b3sa3',  symbol: 'B3SA3',  name: 'B3 ON',            type: 'br_stock', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2017-03-09', yahooTicker: 'B3SA3.SA' },
 
+  // ── Indices ────────────────────────────────────────────────────────────────
+  { id: 'ibovespa', symbol: 'IBOV',  name: 'Ibovespa',   type: 'index', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2000-01-01', yahooTicker: '^BVSP'  },
+  { id: 'sp500',    symbol: 'SPX',   name: 'S&P 500',    type: 'index', provider: 'yahoo', nativeCurrency: 'USD', minDate: '2000-01-01', yahooTicker: '^GSPC'  },
+  { id: 'nasdaq',   symbol: 'NDX',   name: 'Nasdaq',     type: 'index', provider: 'yahoo', nativeCurrency: 'USD', minDate: '2000-01-01', yahooTicker: '^IXIC'  },
+  { id: 'dowjones', symbol: 'DJI',   name: 'Dow Jones',  type: 'index', provider: 'yahoo', nativeCurrency: 'USD', minDate: '2000-01-01', yahooTicker: '^DJI'   },
+  { id: 'dax',      symbol: 'DAX',   name: 'DAX',        type: 'index', provider: 'yahoo', nativeCurrency: 'EUR', minDate: '2000-01-01', yahooTicker: '^GDAXI' },
+  { id: 'ftse100',  symbol: 'UKX',   name: 'FTSE 100',   type: 'index', provider: 'yahoo', nativeCurrency: 'GBP', minDate: '2000-01-01', yahooTicker: '^FTSE'  },
+  { id: 'nikkei',   symbol: 'N225',  name: 'Nikkei 225', type: 'index', provider: 'yahoo', nativeCurrency: 'JPY', minDate: '2000-01-01', yahooTicker: '^N225'  },
+
   // ── Forex ──────────────────────────────────────────────────────────────────
-  { id: 'usd-brl', symbol: 'USD', name: 'Dólar Americano', type: 'forex', provider: 'exchangerate', nativeCurrency: 'BRL', minDate: '2000-01-01' },
-  { id: 'eur-brl', symbol: 'EUR', name: 'Euro',            type: 'forex', provider: 'exchangerate', nativeCurrency: 'BRL', minDate: '2000-01-01' },
-  { id: 'gbp-brl', symbol: 'GBP', name: 'Libra Esterlina', type: 'forex', provider: 'exchangerate', nativeCurrency: 'BRL', minDate: '2000-01-01' },
-  { id: 'jpy-brl', symbol: 'JPY', name: 'Iene Japonês',    type: 'forex', provider: 'exchangerate', nativeCurrency: 'BRL', minDate: '2000-01-01' },
-  { id: 'btc-usd', symbol: 'BTC', name: 'Bitcoin (USD)',   type: 'forex', provider: 'exchangerate', nativeCurrency: 'BRL', minDate: '2000-01-01' },
+  { id: 'usd-brl', symbol: 'USD', name: 'Dólar Americano',    type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2000-01-01', yahooTicker: 'USDBRL=X' },
+  { id: 'eur-brl', symbol: 'EUR', name: 'Euro',               type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2000-01-01', yahooTicker: 'EURBRL=X' },
+  { id: 'gbp-brl', symbol: 'GBP', name: 'Libra Esterlina',    type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2000-01-01', yahooTicker: 'GBPBRL=X' },
+  { id: 'jpy-brl', symbol: 'JPY', name: 'Iene Japonês',       type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'JPYBRL=X' },
+  { id: 'cad-brl', symbol: 'CAD', name: 'Dólar Canadense',    type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'CADBRL=X' },
+  { id: 'aud-brl', symbol: 'AUD', name: 'Dólar Australiano',  type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'AUDBRL=X' },
+  { id: 'chf-brl', symbol: 'CHF', name: 'Franco Suíço',       type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'CHFBRL=X' },
+  { id: 'mxn-brl', symbol: 'MXN', name: 'Peso Mexicano',      type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'MXNBRL=X' },
+  { id: 'ars-brl', symbol: 'ARS', name: 'Peso Argentino',     type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'ARSBRL=X' },
+  { id: 'clp-brl', symbol: 'CLP', name: 'Peso Chileno',       type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'CLPBRL=X' },
+  { id: 'cop-brl', symbol: 'COP', name: 'Peso Colombiano',    type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'COPBRL=X' },
+  { id: 'pen-brl', symbol: 'PEN', name: 'Sol Peruano',        type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'PENBRL=X' },
+  { id: 'uyu-brl', symbol: 'UYU', name: 'Peso Uruguaio',      type: 'forex', provider: 'yahoo', nativeCurrency: 'BRL', minDate: '2003-01-01', yahooTicker: 'UYUBRL=X' },
 ];
 
 export const ASSET_MAP = new Map(ASSETS.map(a => [a.id, a]));

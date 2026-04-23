@@ -345,6 +345,24 @@ export function changePassword(currentPassword: string, newPassword: string): Pr
   return request('/profile/password', { method: 'PATCH', body: JSON.stringify({ currentPassword, newPassword }) });
 }
 
+// ── Analysis ───────────────────────────────────────────────────────────────
+
+export type Regime = 'trending_up' | 'trending_down' | 'volatile' | 'mean_reverting';
+
+export interface RegimeResult {
+  regime: Regime;
+  confidence: number;
+  metrics: {
+    realizedVol: number;
+    smaSlope: number;
+    directionalBias: number;
+  };
+}
+
+export function getRegime(assetId: string): Promise<RegimeResult> {
+  return request(`/analysis/regime?asset=${encodeURIComponent(assetId)}`);
+}
+
 // ── Markets ────────────────────────────────────────────────────────────────
 
 export interface MarketItem {

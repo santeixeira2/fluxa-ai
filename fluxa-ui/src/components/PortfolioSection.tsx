@@ -1,18 +1,19 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getPriceBatch, getFiatRate } from '../api/client';
 import Sparkline, { generateSparkData } from './Sparkline';
 
 const CRYPTO_ASSETS = [
-  { id: 'bitcoin',  symbol: 'BTC', name: 'Bitcoin',   color: '#F7931A' },
-  { id: 'ethereum', symbol: 'ETH', name: 'Ethereum',  color: '#627EEA' },
-  { id: 'solana',   symbol: 'SOL', name: 'Solana',    color: '#9945FF' },
-];
+  { id: 'bitcoin',  symbol: 'BTC', color: '#F7931A' },
+  { id: 'ethereum', symbol: 'ETH', color: '#627EEA' },
+  { id: 'solana',   symbol: 'SOL', color: '#9945FF' },
+] as const;
 
 const WATCHLIST_ASSETS = [
-  { id: 'bitcoin',  symbol: 'BTC', name: 'Bitcoin',       color: '#F7931A' },
-  { id: 'ethereum', symbol: 'ETH', name: 'Ethereum',      color: '#627EEA' },
-  { id: 'solana',   symbol: 'SOL', name: 'Solana',        color: '#9945FF' },
-];
+  { id: 'bitcoin',  symbol: 'BTC', color: '#F7931A' },
+  { id: 'ethereum', symbol: 'ETH', color: '#627EEA' },
+  { id: 'solana',   symbol: 'SOL', color: '#9945FF' },
+] as const;
 
 const ALL_IDS = [...new Set([...CRYPTO_ASSETS, ...WATCHLIST_ASSETS].map(a => a.id))];
 
@@ -26,6 +27,7 @@ function formatBRL(value: number): string {
 }
 
 export default function PortfolioSection() {
+  const { t } = useTranslation();
   const [prices, setPrices]   = useState<Record<string, number>>({});
   const [usdRate, setUsdRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -84,7 +86,7 @@ export default function PortfolioSection() {
       {/* ── Portfolio Header ── */}
       <div className="portfolio-header">
         <div className="portfolio-header-left">
-          <div className="portfolio-label">Total Portfolio</div>
+          <div className="portfolio-label">{t('portfolioSection.totalPortfolio')}</div>
           <div className="portfolio-value mono">
             {loading ? (
               <span className="shimmer-loading" style={{ width: 200, height: 36, display: 'inline-block' }}>&nbsp;</span>
@@ -98,10 +100,10 @@ export default function PortfolioSection() {
         </div>
         <div className="portfolio-actions">
           <button className="portfolio-btn portfolio-btn-deposit" id="btn-deposit">
-            <span>⊕</span> Deposit
+            <span>⊕</span> {t('portfolioSection.deposit')}
           </button>
           <button className="portfolio-btn portfolio-btn-withdraw" id="btn-withdraw">
-            <span>↗</span> Withdraw
+            <span>↗</span> {t('portfolioSection.withdraw')}
           </button>
         </div>
       </div>
@@ -109,8 +111,8 @@ export default function PortfolioSection() {
       {/* ── My Portfolio Cards (like AAPL/TSLA in the prototype) ── */}
       <div className="portfolio-cards-section">
         <div className="portfolio-cards-header">
-          <span className="portfolio-cards-title">My Portfolio</span>
-          <span className="portfolio-cards-showall">Show All</span>
+          <span className="portfolio-cards-title">{t('portfolioSection.myPortfolio')}</span>
+          <span className="portfolio-cards-showall">{t('portfolioSection.showAll')}</span>
         </div>
         <div className="portfolio-cards-grid">
           {CRYPTO_ASSETS.map((asset) => {
@@ -126,7 +128,7 @@ export default function PortfolioSection() {
                   </div>
                   <div className="portfolio-card-meta">
                     <span className="portfolio-card-symbol">{asset.symbol}</span>
-                    <span className="portfolio-card-name">{asset.name}</span>
+                    <span className="portfolio-card-name">{t(`portfolioSection.assets.${asset.id}`)}</span>
                   </div>
                 </div>
                 <div className="portfolio-card-chart">
@@ -140,7 +142,7 @@ export default function PortfolioSection() {
                 </div>
                 <div className="portfolio-card-bottom">
                   <span className="portfolio-card-price mono">
-                    {loading && !price ? '—' : price ? formatBRL(price) : '—'}
+                    {loading && !price ? t('common.dash') : price ? formatBRL(price) : t('common.dash')}
                   </span>
                   <span className={`portfolio-card-change ${isUp ? 'up' : 'down'}`}>
                     {isUp ? '↗' : '↘'} {isUp ? '+' : ''}{change.toFixed(2)}%
@@ -156,7 +158,7 @@ export default function PortfolioSection() {
               <div className="portfolio-card-icon" style={{ background: '#22C55E' }}>$</div>
               <div className="portfolio-card-meta">
                 <span className="portfolio-card-symbol">USD</span>
-                <span className="portfolio-card-name">Dólar</span>
+                <span className="portfolio-card-name">{t('portfolioSection.assets.usd')}</span>
               </div>
             </div>
             <div className="portfolio-card-chart">
@@ -170,7 +172,7 @@ export default function PortfolioSection() {
             </div>
             <div className="portfolio-card-bottom">
               <span className="portfolio-card-price mono">
-                {loading && !usdRate ? '—' : usdRate ? formatBRL(usdRate) : '—'}
+                {loading && !usdRate ? t('common.dash') : usdRate ? formatBRL(usdRate) : t('common.dash')}
               </span>
               <span className={`portfolio-card-change ${(changes['usd'] || 0) >= 0 ? 'up' : 'down'}`}>
                 {(changes['usd'] || 0) >= 0 ? '↗' : '↘'} {(changes['usd'] || 0) >= 0 ? '+' : ''}{(changes['usd'] || 0).toFixed(2)}%
@@ -183,8 +185,8 @@ export default function PortfolioSection() {
       {/* ── Watchlist (rows with sparklines) ── */}
       <div className="watchlist-section">
         <div className="portfolio-cards-header">
-          <span className="portfolio-cards-title">My Watchlist</span>
-          <span className="portfolio-cards-showall">Show All</span>
+          <span className="portfolio-cards-title">{t('portfolioSection.myWatchlist')}</span>
+          <span className="portfolio-cards-showall">{t('portfolioSection.showAll')}</span>
         </div>
         <div className="watchlist-rows">
           {WATCHLIST_ASSETS.map((asset) => {
@@ -200,7 +202,7 @@ export default function PortfolioSection() {
                   </div>
                   <div className="watchlist-row-meta">
                     <span className="watchlist-row-symbol">{asset.symbol}</span>
-                    <span className="watchlist-row-name">{asset.name}</span>
+                    <span className="watchlist-row-name">{t(`portfolioSection.assets.${asset.id}`)}</span>
                   </div>
                 </div>
                 <div className="watchlist-row-spark">
@@ -215,7 +217,7 @@ export default function PortfolioSection() {
                 </div>
                 <div className="watchlist-row-right">
                   <span className="watchlist-row-price mono">
-                    {loading && !price ? '—' : price ? formatBRL(price) : '—'}
+                    {loading && !price ? t('common.dash') : price ? formatBRL(price) : t('common.dash')}
                   </span>
                   <span className={`watchlist-row-change ${isUp ? 'up' : 'down'}`}>
                     {isUp ? '↗' : '↘'} {isUp ? '+' : ''}{change.toFixed(2)}%

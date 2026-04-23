@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { createChart, ColorType, CrosshairMode, CandlestickSeries, type IChartApi } from 'lightweight-charts';
 import { getChartData } from '../api/client';
 import type { ChartPeriod } from '../api/client';
+import RegimeBadge from './RegimeBadge';
 
 const PERIODS: ChartPeriod[] = ['1D', '1W', '1M', '1Y', '5Y'];
 
@@ -79,7 +80,10 @@ export default function PriceChart({ assetId, assetName }: Props) {
     <div className="w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        {assetName && <p className="text-sm font-bold text-black dark:text-white">{assetName}</p>}
+        <div className="flex flex-col gap-1.5">
+          {assetName && <p className="text-sm font-bold text-black dark:text-white">{assetName}</p>}
+          <RegimeBadge assetId={assetId} />
+        </div>
         <div className="flex gap-1 ml-auto">
           {PERIODS.map(p => (
             <button

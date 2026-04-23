@@ -60,7 +60,7 @@ export default function FloatingChat({ onParsed }: Props) {
       });
     } catch (err) {
       setMessages(prev => prev.slice(0, -1));
-      setError(err instanceof Error ? err.message : 'Erro inesperado');
+      setError(err instanceof Error ? err.message : t('common.unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -118,16 +118,16 @@ export default function FloatingChat({ onParsed }: Props) {
                     Fx
                   </div>
                 )}
-                <div className={`max-w-[80%] text-sm px-3 py-2 rounded-2xl leading-relaxed ${
+                <div className={`max-w-[80%] text-sm px-3 py-2 rounded-2xl leading-relaxed whitespace-pre-wrap ${
                   msg.role === 'user'
                     ? 'bg-black dark:bg-white text-white dark:text-black rounded-tr-sm'
                     : 'bg-black/[0.06] dark:bg-white/[0.06] text-black/90 dark:text-white/90 rounded-tl-sm'
                 }`}>
                   {msg.text || (loading && i === messages.length - 1 ? (
                     <span className="flex gap-1 items-center h-4">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:0ms]" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:150ms]" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:300ms]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-black/30 dark:bg-white/40 animate-bounce [animation-delay:0ms]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-black/30 dark:bg-white/40 animate-bounce [animation-delay:150ms]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-black/30 dark:bg-white/40 animate-bounce [animation-delay:300ms]" />
                     </span>
                   ) : '')}
                 </div>

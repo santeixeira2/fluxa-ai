@@ -55,7 +55,7 @@ export default function Reveal({ children, delay = 0, className = '', direction 
     <div
       ref={ref}
       className={`transition-all duration-1000 ease-out ${
-        isVisible ? 'opacity-100' : 'opacity-0'
+        isVisible ? 'opacity-100 blur-0' : 'opacity-0 blur-[3px]'
       } ${transformClass} ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
     >

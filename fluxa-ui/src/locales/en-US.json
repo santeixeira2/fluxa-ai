@@ -156,6 +156,10 @@
     "simulator": {
       "badge": "[ Investment Tool ]",
       "headline": "Simulate the Future.",
+      "headlineManage": "Manage assets.",
+      "awaitingLong": "Awaiting simulation parameters",
+      "leverageValue": "1.24x leverage",
+      "roiSuffix": "{{value}}% ROI",
       "selectAsset": "Select Asset",
       "investment": "Investment (BRL)",
       "targetPrice": "Target Price (BRL)",
@@ -220,7 +224,9 @@
     "privacyLink": "Privacy Policy",
     "or": "OR",
     "noAccount": "Don't have an account?",
-    "alreadyAccount": "Already have an account?"
+    "alreadyAccount": "Already have an account?",
+    "googleContinue": "Continue with Google",
+    "googleSignInFailed": "Google sign-in failed."
   },
   "chat": {
     "title": "Fluxa AI",
@@ -232,6 +238,67 @@
       "Should I buy ETH right now?"
     ]
   },
+  "aiChat": {
+    "sectionLabel": "Fluxa AI",
+    "titlePrefix": "Chat with ",
+    "subtitle": "Ask about the market, request analysis, or describe an investment scenario — the AI answers with real data.",
+    "cardSubtitle": "Financial assistant · Real-time data",
+    "placeholder": "Ask about the market...",
+    "thinking": "Thinking",
+    "send": "✦ Send",
+    "examples": [
+      "What's the outlook for NVIDIA in April?",
+      "I want to invest $1,000 in Bitcoin if it hits $500,000",
+      "Is it worth buying ETH now?"
+    ]
+  },
+  "portfolioSection": {
+    "totalPortfolio": "Total portfolio",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "myPortfolio": "My portfolio",
+    "myWatchlist": "My watchlist",
+    "showAll": "Show all",
+    "assets": {
+      "bitcoin": "Bitcoin",
+      "ethereum": "Ethereum",
+      "solana": "Solana",
+      "usd": "US Dollar"
+    }
+  },
+  "priceTicker": {
+    "assets": {
+      "bitcoin": "Bitcoin",
+      "ethereum": "Ethereum",
+      "solana": "Solana",
+      "aapl": "Apple",
+      "tsla": "Tesla",
+      "usd": "US Dollar"
+    }
+  },
+  "resultCard": {
+    "placeholder": "Set up your investment and click simulate to see results here.",
+    "resultLabel": "Result",
+    "simulationTitle": "Investment simulation",
+    "finalValue": "Final value",
+    "currentPrice": "Current price",
+    "targetPrice": "Target price",
+    "invested": "Invested",
+    "profitLoss": "Profit / loss",
+    "explainLoading": "Generating analysis...",
+    "explainButton": "✦ Analyze with Fluxa AI",
+    "fluxaAiLabel": "✦ Fluxa AI"
+  },
+  "statsGrid": {
+    "positiveReturn": "Average positive return",
+    "simulationsDone": "Simulations run",
+    "userSatisfaction": "User satisfaction",
+    "months": {
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong.",
@@ -241,6 +308,8 @@
     "confirm": "Confirm",
     "delete": "Delete",
     "performance": "Performance",
-    "chartNoData": "Chart data unavailable for this asset."
+    "chartNoData": "Chart data unavailable for this asset.",
+    "unexpectedError": "Unexpected error",
+    "dash": "—"
   }
 }

@@ -8,6 +8,8 @@ import portfolioRoutes from './portfolio.routes';
 import profileRoutes from './profile.routes';
 import alertRoutes from './alert.routes';
 import notificationRoutes from './notification.routes';
+import marketsRoutes from './markets.routes';
+import analysisRoutes from './analysis.routes';
 
 const router = Router();
 router.use('/price', priceRoutes);
@@ -19,5 +21,7 @@ router.use('/portfolio', portfolioRoutes);
 router.use('/profile', profileRoutes);
 router.use('/alerts', alertRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/markets', marketsRoutes);
+router.use('/analysis', analysisRoutes);
 
 export default router;

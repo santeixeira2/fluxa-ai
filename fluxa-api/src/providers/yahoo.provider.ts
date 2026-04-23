@@ -13,6 +13,8 @@ interface YahooChartResponse {
         result: Array<{
             meta: {
                 regularMarketPrice: number;
+                regularMarketChange: number;
+                regularMarketChangePercent: number;
                 currency: string;
             };
             timestamp: number[];
@@ -79,6 +81,27 @@ export async function fetchCurrentPriceYahoo(ticker: string): Promise<{ price: n
 
     return {
         price: result.meta.regularMarketPrice,
+        currency: result.meta.currency,
+    };
+}
+
+export async function fetchMarketDataYahoo(ticker: string): Promise<{
+    price: number;
+    change: number;
+    changePercent: number;
+    currency: string;
+}> {
+    const { data } = await client.get<YahooChartResponse>(`/chart/${ticker}`, {
+        params: { interval: '1d', range: '1d' },
+    });
+
+    const result = data.chart.result?.[0];
+    if (!result) throw new Error(`Yahoo Finance: no data for ${ticker}`);
+
+    return {
+        price: result.meta.regularMarketPrice,
+        change: result.meta.regularMarketChange,
+        changePercent: result.meta.regularMarketChangePercent,
         currency: result.meta.currency,
     };
 }

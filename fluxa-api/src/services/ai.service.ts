@@ -1,6 +1,7 @@
 import { generateContent, generateStream } from '../providers/ollama.provider';
 import { getPriceBatch } from './price.service';
 import { ASSETS } from '../config/assets.config';
+import { detectRegime, detectAssetFromMessage, formatRegimeForPrompt } from './analysis.service';
 import type { ParserUserInput } from '../types';
 
 const PARSE_PROMPT = `Extract investment intent from the user message. Return ONLY valid JSON with this shape:
@@ -66,6 +67,15 @@ export async function* chatStream(message: string, portfolio?: PortfolioContext)
   const fmtBRL = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
 
+  let regimeContext = '';
+  const detectedAsset = detectAssetFromMessage(message);
+  if (detectedAsset) {
+    try {
+      const regime = await detectRegime(detectedAsset);
+      regimeContext = formatRegimeForPrompt(detectedAsset, regime);
+    } catch { /* sem dados suficientes, continua sem regime */ }
+  }
+
   let portfolioContext = '';
   if (portfolio) {
     const posLines = portfolio.positions.length > 0
@@ -91,10 +101,11 @@ Regras obrigatórias:
 - Se o usuário tem posições abertas, leve em conta a carteira dele ao responder.
 - Mencione o preço atual do ativo se relevante.
 - Aponte os principais fatores que podem fazer o ativo SUBIR ou CAIR (resultados, juros, macro, concorrência, etc).
+- Se um regime de mercado for fornecido abaixo, use-o para contextualizar a análise.
 - Termine com: "Tendência: pode [SUBIR/CAIR/LATERAL] nos próximos meses por [motivo]."
 - Última linha sempre: "⚠️ Análise até ${today}. Não é recomendação de investimento."
 ${portfolioContext}
-
+${regimeContext ? `\n${regimeContext}\n` : ''}
 PREÇOS ATUAIS (BRL):
 ${priceContext}
 

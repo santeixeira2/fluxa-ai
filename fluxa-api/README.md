@@ -95,7 +95,8 @@ src/
     simulation.routes.ts
   services/
     auth.service.ts         ← register, login, loginWithGoogle, refreshToken, logout
-    ai.service.ts
+    ai.service.ts           ← chatStream (injeta preços, portfólio e regime)
+    analysis.service.ts     ← detectRegime (vol realizada + SMA slope + bias direcional)
     price.service.ts
     simulation.service.ts
   types/index.ts
@@ -134,10 +135,32 @@ POST /api/simulate/historical { asset, purchaseDate, investment, currency }
 
 ### IA
 ```
-POST /api/ai/chat    { message }   → SSE stream de tokens
+POST /api/ai/chat    { message }   → SSE stream de tokens (injeta preços + regime + portfólio)
 POST /api/ai/parse   { message }   → intent para preencher simulador
 POST /api/ai/explain { ...data }   → explica resultado
 ```
+
+### Análise de Mercado
+```
+GET  /api/analysis/regime?asset=bitcoin   → regime atual do ativo (cache 15min)
+```
+
+Retorno:
+```json
+{
+  "regime": "trending_up",
+  "confidence": 0.75,
+  "metrics": {
+    "realizedVol": 0.0312,
+    "smaSlope": 0.0284,
+    "directionalBias": 0.71
+  }
+}
+```
+
+Regimes possíveis: `trending_up` · `trending_down` · `volatile` · `mean_reverting`
+
+O regime detectado é automaticamente injetado no prompt do `chatStream` quando a mensagem menciona um ativo conhecido.
 
 ### Ativos / Health
 ```
@@ -234,17 +257,32 @@ ollama pull qwen2.5:7b
 - [x] Gráfico OHLCV — CryptoCompare (crypto) + Yahoo Finance (ações BR/US), períodos 1D–5Y
 - [x] Snapshots de performance do portfólio — job diário + snapshot por trade
 - [x] Refresh token automático — intercepta 401, retenta request transparentemente
+- [x] Regime Detector (ML Fase 1) — classificador estatístico de regime de mercado injetado no chat
 - [ ] Rate limiting (`express-rate-limit`)
 - [ ] Helmet (headers de segurança)
 - [ ] Testes (Jest + Supertest)
 
-### Médio Prazo
+### Médio Prazo — ML Roadmap
+- [ ] **ML Fase 2** — microserviço Python (FastAPI + `hmmlearn`) substituindo o classificador estatístico com HMM treinado em 5Y de dados
+- [ ] **ML Fase 3** — Earnings Sentiment via SEC EDGAR + Groq/DeepSeek (textos longos)
+- [ ] **ML Fase 4** — Factor Risk Model: PCA sobre retornos do portfólio, stress test histórico
 - [ ] Comparador de ativos — side-by-side retorno histórico
 - [ ] Calculadora de DCA — aporte mensal vs meta
 - [ ] Relatório mensal gerado por AI
 - [ ] Freemium — limites por plano, integração Stripe/Pagar.me
 
+### Provedores de IA — Comparativo
+
+| Provedor | Modelo | Uso ideal | Custo |
+|---|---|---|---|
+| Ollama (atual) | Qwen 2.5 7B | Dev local, zero latência de rede | Gratuito (local) |
+| Groq | Llama 3.3 70B | Streaming rápido em produção | Free tier generoso |
+| DeepSeek | R1 | Análise estruturada, textos longos | Free tier com rate limit |
+| Google | Gemini 2.0 Flash | PT-BR, instrução complexa | Free tier generoso |
+| Cerebras | Llama 3.3 70B | Alternativa ao Groq (velocidade) | Free tier |
+
+**Qwen 2.5 7B vs Groq (Llama 3.3 70B):** o Qwen cita o regime mas não aprofunda — os fatores de análise continuam genéricos. O Llama 70B via Groq usa o contexto do regime para colorir toda a análise, não apenas a abertura. Para Earnings Sentiment (Fase 3, textos longos), DeepSeek R1 é o mais indicado pelo raciocínio estruturado.
+
 ### Longo Prazo
-- [ ] Fine-tuning do Qwen 2.5 com dados financeiros em PT-BR
-- [ ] Indicadores técnicos (MA, RSI) calculados sobre o histórico local
+- [ ] Fine-tuning com dados financeiros em PT-BR
 - [ ] PWA / Mobile nativo

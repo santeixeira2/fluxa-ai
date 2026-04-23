@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * StatsGrid — matches the Treva prototype top section:
  * 3 cards: progress ring, bar chart, monthly satisfaction bars
  */
 export default function StatsGrid() {
+  const { t } = useTranslation();
   return (
     <div className="stats-grid">
       {/* ── Card 1: Progress Ring ── */}
@@ -17,20 +19,20 @@ export default function StatsGrid() {
           </div>
         </div>
         <div className="stats-card-value">78%</div>
-        <div className="stats-card-desc">Retorno médio positivo</div>
+        <div className="stats-card-desc">{t('statsGrid.positiveReturn')}</div>
       </div>
 
       {/* ── Card 2: Bar Chart ── */}
       <div className="stats-card">
         <BarChart />
         <div className="stats-card-value">1.2M</div>
-        <div className="stats-card-desc">Simulações realizadas</div>
+        <div className="stats-card-desc">{t('statsGrid.simulationsDone')}</div>
       </div>
 
       {/* ── Card 3: Monthly Bars ── */}
       <div className="stats-card">
         <div className="stats-card-value stats-card-value-top">93%</div>
-        <div className="stats-card-desc">Satisfação dos usuários</div>
+        <div className="stats-card-desc">{t('statsGrid.userSatisfaction')}</div>
         <MonthlyBars />
       </div>
     </div>
@@ -108,10 +110,11 @@ function BarChart() {
 
 /* ── Monthly Satisfaction Bars (Apr/Jun/Jul with gradient) ── */
 function MonthlyBars() {
+  const { t } = useTranslation();
   const months = [
-    { label: 'Mar', value: 45, color: 'rgba(0,191,168,0.25)' },
-    { label: 'Abr', value: 65, color: 'rgba(0,191,168,0.5)' },
-    { label: 'Mai', value: 90, color: '#00BFA8' },
+    { label: t('statsGrid.months.mar'), value: 45, color: 'rgba(0,191,168,0.25)' },
+    { label: t('statsGrid.months.apr'), value: 65, color: 'rgba(0,191,168,0.5)' },
+    { label: t('statsGrid.months.may'), value: 90, color: '#00BFA8' },
   ];
 
   return (

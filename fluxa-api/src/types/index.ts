@@ -37,3 +37,15 @@ export interface AuthPayload {
   email: string;
   name?: string;
 }
+
+export type Regime = 'trending_up' | 'trending_down' | 'volatile' | 'mean_reverting';
+
+export interface RegimeResult {
+  regime: Regime;
+  confidence: number;
+  metrics: {
+    realizedVol: number;
+    smaSlope: number;
+    directionalBias: number;
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { explainSimulation, type SimulationResult } from '../api/client';
 import { useApi } from '../hooks/useApi';
 
@@ -17,6 +18,7 @@ function formatBRL(value: number): string {
 }
 
 export default function ResultCard({ result, lastRequest }: ResultCardProps) {
+  const { t } = useTranslation();
   const explainApi = useApi<{ explanation: string }>();
   const [explanation, setExplanation] = useState<string | null>(null);
 
@@ -41,7 +43,7 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
         <div className="result-placeholder">
           <div className="result-placeholder-icon">◈</div>
           <p className="result-placeholder-text">
-            Configure seu investimento e clique em simular para ver os resultados aqui.
+            {t('resultCard.placeholder')}
           </p>
         </div>
       </div>
@@ -58,8 +60,8 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
         {/* Header */}
         <div className="result-header">
           <div className="result-asset-info">
-            <div className="result-label">Resultado</div>
-            <div className="result-asset-name">Simulação de Investimento</div>
+            <div className="result-label">{t('resultCard.resultLabel')}</div>
+            <div className="result-asset-name">{t('resultCard.simulationTitle')}</div>
           </div>
           <span className={`result-roi ${roiClass}`}>
             {isProfit ? '+' : ''}{result.roi.toFixed(2)}%
@@ -68,7 +70,7 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
 
         {/* Big value */}
         <div className="result-big-value">
-          <div className="result-big-value-label">Valor Final</div>
+          <div className="result-big-value-label">{t('resultCard.finalValue')}</div>
           <div className={`result-big-number ${valueClass}`}>
             {formatBRL(result.finalValue)}
           </div>
@@ -81,19 +83,19 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
         {/* Metrics */}
         <div className="result-metrics">
           <div className="result-metric">
-            <div className="result-metric-label">Preço Atual</div>
+            <div className="result-metric-label">{t('resultCard.currentPrice')}</div>
             <div className="result-metric-value">{formatBRL(result.currentPrice)}</div>
           </div>
           <div className="result-metric">
-            <div className="result-metric-label">Preço Alvo</div>
-            <div className="result-metric-value">{lastRequest ? formatBRL(lastRequest.futurePrice) : '—'}</div>
+            <div className="result-metric-label">{t('resultCard.targetPrice')}</div>
+            <div className="result-metric-value">{lastRequest ? formatBRL(lastRequest.futurePrice) : t('common.dash')}</div>
           </div>
           <div className="result-metric">
-            <div className="result-metric-label">Investido</div>
-            <div className="result-metric-value">{lastRequest ? formatBRL(lastRequest.investment) : '—'}</div>
+            <div className="result-metric-label">{t('resultCard.invested')}</div>
+            <div className="result-metric-value">{lastRequest ? formatBRL(lastRequest.investment) : t('common.dash')}</div>
           </div>
           <div className="result-metric">
-            <div className="result-metric-label">Lucro / Prejuízo</div>
+            <div className="result-metric-label">{t('resultCard.profitLoss')}</div>
             <div className={`result-metric-value ${valueClass}`}>
               {isProfit ? '+' : ''}{formatBRL(result.profit)}
             </div>
@@ -108,9 +110,9 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
           id="btn-explain"
         >
           {explainApi.loading ? (
-            <><span className="spinner small light" /> Gerando análise...</>
+            <><span className="spinner small light" /> {t('resultCard.explainLoading')}</>
           ) : (
-            <>✦ Analisar com Fluxa AI</>
+            <>{t('resultCard.explainButton')}</>
           )}
         </button>
 
@@ -120,7 +122,7 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
 
         {explanation && (
           <div className="ai-explanation">
-            <div className="ai-explanation-label">✦ Fluxa AI</div>
+            <div className="ai-explanation-label">{t('resultCard.fluxaAiLabel')}</div>
             <p className="ai-explanation-text">{explanation}</p>
           </div>
         )}

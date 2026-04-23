@@ -1,4 +1,5 @@
 import { useGoogleLogin } from '@react-oauth/google';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function GoogleButton({ onError, onLoading }: Props) {
+  const { t } = useTranslation();
   const { loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
@@ -20,12 +22,12 @@ export default function GoogleButton({ onError, onLoading }: Props) {
         await loginWithGoogle(access_token);
         navigate('/');
       } catch (err) {
-        onError(err instanceof Error ? err.message : 'Google sign-in failed');
+        onError(err instanceof Error ? err.message : t('auth.googleSignInFailed'));
       } finally {
         onLoading(false);
       }
     },
-    onError: () => onError('Google sign-in failed'),
+    onError: () => onError(t('auth.googleSignInFailed')),
   });
 
   return (
@@ -40,7 +42,7 @@ export default function GoogleButton({ onError, onLoading }: Props) {
         <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
         <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
       </svg>
-      Continue with Google
+      {t('auth.googleContinue')}
     </button>
   );
 }

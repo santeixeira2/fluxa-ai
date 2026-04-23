@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { parseUserInput, chatAiStream } from '../api/client';
 import type { SimFormData } from './Simulator';
 
@@ -12,6 +13,11 @@ interface Message {
 }
 
 export default function AiChat({ onParsed }: AiChatProps) {
+  const { t } = useTranslation();
+  const examples = useMemo(
+    () => t('aiChat.examples', { returnObjects: true }) as string[],
+    [t]
+  );
   const [input, setInput]       = useState('');
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState<string | null>(null);
@@ -53,31 +59,25 @@ export default function AiChat({ onParsed }: AiChatProps) {
       });
     } catch (err) {
       setMessages(prev => prev.slice(0, -1)); // remove empty assistant bubble on error
-      setError(err instanceof Error ? err.message : 'Erro inesperado');
+      setError(err instanceof Error ? err.message : t('common.unexpectedError'));
     } finally {
       setLoading(false);
     }
   }
-
-  const examples = [
-    'Qual a previsão para a NVIDIA em abril?',
-    'Quero investir R$5.000 em bitcoin se chegar a R$500.000',
-    'Vale a pena comprar ETH agora?',
-  ];
 
   return (
     <section className="ai-chat section" id="ai-chat">
       <div className="section-header">
         <div className="section-label">
           <span className="section-label-dot" />
-          Fluxa AI
+          {t('aiChat.sectionLabel')}
         </div>
         <h2 className="section-title">
-          Converse com a <span className="gradient-text">Fluxa AI</span>
+          {t('aiChat.titlePrefix')}
+          <span className="gradient-text">{t('hero.fluxaAI')}</span>
         </h2>
         <p className="section-subtitle">
-          Faça perguntas sobre o mercado, peça análises ou descreva
-          um cenário de investimento — a IA responde com dados reais.
+          {t('aiChat.subtitle')}
         </p>
       </div>
 
@@ -86,8 +86,8 @@ export default function AiChat({ onParsed }: AiChatProps) {
         <div className="ai-chat-header">
           <div className="ai-chat-avatar" aria-hidden="true">Fx</div>
           <div>
-            <div className="ai-chat-title">Fluxa AI</div>
-            <div className="ai-chat-subtitle">Assistente financeiro · Dados em tempo real</div>
+            <div className="ai-chat-title">{t('hero.fluxaAI')}</div>
+            <div className="ai-chat-subtitle">{t('aiChat.cardSubtitle')}</div>
           </div>
         </div>
 
@@ -130,7 +130,7 @@ export default function AiChat({ onParsed }: AiChatProps) {
             <input
               className="ai-chat-input"
               type="text"
-              placeholder="Pergunte sobre o mercado..."
+              placeholder={t('aiChat.placeholder')}
               value={input}
               onChange={e => setInput(e.target.value)}
               disabled={loading}
@@ -140,7 +140,7 @@ export default function AiChat({ onParsed }: AiChatProps) {
               className="btn-ai-send"
               disabled={loading || !input.trim()}
             >
-              {loading ? <><span className="spinner small" /> Pensando</> : '✦ Enviar'}
+              {loading ? <><span className="spinner small" /> {t('aiChat.thinking')}</> : t('aiChat.send')}
             </button>
           </div>
         </form>
