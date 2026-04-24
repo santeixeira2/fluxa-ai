@@ -13,7 +13,7 @@ const googleClient = new OAuth2Client(config.googleClientId);
 
 function generateToken(payload: AuthPayload): AuthToken {
   const accessToken = jwt.sign(payload, String(config.jwtSecret), { expiresIn: ACCESS_TTL });
-  const refreshToken = jwt.sign({ sub: payload.userId }, String(config.jwtRefreshSecret), { expiresIn: REFRESH_TTL });
+  const refreshToken = jwt.sign({ userId: payload.userId }, String(config.jwtRefreshSecret), { expiresIn: REFRESH_TTL });
   return { accessToken, refreshToken };
 }
 
@@ -36,7 +36,7 @@ export async function register(email: string, password: string, name: string, ph
 export async function login(email: string, password: string): Promise<AuthToken> {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error('Invalid credentials');
-  if (!user.passwordHash) throw new Error('This account uses Google sign-in');
+  if (!user.passwordHash) throw new Error('Invalid credentials');
 
   const valid = await argon2.verify(user.passwordHash, password);
   if (!valid) throw new Error('Invalid credentials');
@@ -46,13 +46,23 @@ export async function login(email: string, password: string): Promise<AuthToken>
   return token;
 }
 
-export async function loginWithGoogle(accessToken: string): Promise<AuthToken> {
-  const res = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  if (!res.ok) throw new Error('Invalid Google token');
-  const { email, name } = await res.json() as { email: string; name?: string };
+export async function loginWithGoogle(idToken: string): Promise<AuthToken> {
+  let payload: { email?: string; name?: string; email_verified?: boolean } | undefined;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: config.googleClientId,
+    });
+    payload = ticket.getPayload() ?? undefined;
+  } catch {
+    throw new Error('Invalid Google token');
+  }
 
+  if (!payload?.email || !payload.email_verified) {
+    throw new Error('Invalid Google token');
+  }
+
+  const { email, name } = payload;
   const user = await prisma.user.upsert({
     where: { email },
     update: {},

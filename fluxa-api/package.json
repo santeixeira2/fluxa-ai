@@ -6,7 +6,16 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --require tsconfig-paths/register --respawn --transpile-only src/server.ts"
+    "dev": "ts-node-dev --require tsconfig-paths/register --respawn --transpile-only src/server.ts",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:create": "prisma migrate dev --create-only",
+    "db:migrate:reset": "prisma migrate reset",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:pull": "prisma db pull",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@google/genai": "^1.0.0",
@@ -17,6 +26,7 @@
     "cors": "^2.8.6",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-rate-limit": "^8.4.0",
     "google-auth-library": "^10.6.2",
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
