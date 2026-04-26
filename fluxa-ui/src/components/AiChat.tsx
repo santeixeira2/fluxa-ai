@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseUserInput, chatAiStream } from '../api/client';
 import type { SimFormData } from './Simulator';
+import ChatMarkdown from './ChatMarkdown';
 
 interface AiChatProps {
   onParsed: (data: SimFormData) => void;
@@ -99,7 +100,9 @@ export default function AiChat({ onParsed }: AiChatProps) {
                 {msg.role === 'assistant' && (
                   <div className="ai-message-avatar">Fx</div>
                 )}
-                <div className="ai-message-bubble">{msg.text}</div>
+                <div className="ai-message-bubble">
+                  {msg.role === 'assistant' ? <ChatMarkdown text={msg.text} /> : msg.text}
+                </div>
               </div>
             ))}
             {loading && messages[messages.length - 1]?.text === '' && (

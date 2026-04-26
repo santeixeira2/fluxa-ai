@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import SimulatorContainer, { type SimFormData } from '../components/containers/SimulatorContainer';
 import HistoricalCalculator from '../components/HistoricalCalculator';
+import DCACalculator from '../components/DCACalculator';
 import PriceChart from '../components/PriceChart';
 import Reveal from '../components/Reveal';
 import Select from '../components/Select';
@@ -78,6 +79,7 @@ const NAV_SECTIONS = [
   { id: 'chart',     labelKey: 'calculadoras.nav.chart'     },
   { id: 'simulator', labelKey: 'calculadoras.nav.simulator' },
   { id: 'historico', labelKey: 'calculadoras.nav.historical'},
+  { id: 'dca',       labelKey: 'calculadoras.nav.dca'       },
 ];
 
 function CalcSidebar({ active }: { active: string }) {
@@ -324,7 +326,7 @@ export default function CalculadorasPage() {
 
   // Scroll spy for sidebar
   useEffect(() => {
-    const ids = ['converter', 'chart', 'simulator', 'historico'];
+    const ids = ['converter', 'chart', 'simulator', 'historico', 'dca'];
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(e => { if (e.isIntersecting) setActiveSection(e.target.id); });
@@ -370,6 +372,8 @@ export default function CalculadorasPage() {
             />
 
             <HistoricalCalculator />
+
+            <DCACalculator />
           </main>
 
         </div>

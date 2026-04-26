@@ -5,6 +5,7 @@ import { parseUserInput, explainSimulation, getPrice, chatAiStream } from '../ap
 import Reveal from './Reveal';
 import Logo from './Logo';
 import CandlestickBackground from './CandlestickBackground';
+import ChatMarkdown from './ChatMarkdown';
 
 interface HeroProps {
   onParsed: (data: SimFormData) => void;
@@ -150,10 +151,10 @@ export default function Hero({ onParsed }: HeroProps) {
                       <span className={`w-2 h-2 rounded-full bg-emerald-500 ${isAdvising ? 'animate-pulse' : 'shadow-[0_0_10px_rgba(16,185,129,0.6)]'}`} />
                       <span className="text-[10px] font-mono tracking-widest uppercase text-black/40 dark:text-white/40">{t('hero.fluxaAI')}</span>
                     </div>
-                    <p className="text-black/80 dark:text-white/80 text-sm md:text-base leading-relaxed whitespace-pre-wrap">
-                      {advice}
+                    <div className="text-black/80 dark:text-white/80 text-sm md:text-base leading-relaxed">
+                      <ChatMarkdown text={advice} />
                       {isAdvising && <span className="inline-block w-1.5 h-4 ml-0.5 bg-black/60 dark:bg-white/60 animate-pulse align-middle" />}
-                    </p>
+                    </div>
                   </>
                 )}
               </div>

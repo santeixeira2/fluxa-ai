@@ -73,7 +73,53 @@
     "tabs": {
       "positions": "Positions",
       "transactions": "History",
-      "alerts": "Alerts"
+      "alerts": "Alerts",
+      "compare": "Compare",
+      "report": "Report"
+    },
+    "compare": {
+      "assetA": "Asset A",
+      "assetB": "Asset B",
+      "period": "Period",
+      "metric": "Metric",
+      "totalReturn": "Total return",
+      "annualizedVol": "Annualized volatility",
+      "sharpe": "Sharpe ratio",
+      "maxDrawdown": "Max drawdown",
+      "loading": "Computing comparison...",
+      "error": "Could not compare these assets.",
+      "chartTitle": "Normalized performance (base 100)",
+      "chartHint": "Each series starts at 100 on the period's first day",
+      "correlation": {
+        "label": "Returns correlation",
+        "weak_positive": "Move nearly independently. Good diversification.",
+        "weak_negative": "Move nearly independently, slight opposition. Good diversification.",
+        "moderate_positive": "Tend to move together. Partial diversification.",
+        "moderate_negative": "Tend to move in opposite directions. Moderate hedge.",
+        "strong_positive": "Move almost in lockstep. Concentrated risk — little real diversification.",
+        "strong_negative": "Move almost in opposition. Strong hedge."
+      }
+    },
+    "report": {
+      "title": "{{month}} report",
+      "loading": "Generating report with Fluxa AI...",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "startValue": "Starting value",
+      "endValue": "Ending value",
+      "periodPnl": "Period P&L",
+      "maxDrawdown": "Max drawdown",
+      "tradesTotal": "Trades",
+      "tradesVolume": "Volume traded",
+      "topTradedAsset": "Most traded asset",
+      "alertsTriggered": "Alerts triggered",
+      "topWinners": "Top winners",
+      "topLosers": "Top losers",
+      "aiSummary": "Fluxa AI analysis",
+      "error": "Could not generate the report.",
+      "noWinners": "No positive highlights this month.",
+      "noLosers": "No relevant losses this month.",
+      "noTopAsset": "—"
     },
     "emptyPositions": "No assets yet. Start by buying something.",
     "emptyTransactions": "No transactions yet.",
@@ -137,7 +183,8 @@
       "converter": "Converter",
       "chart": "Chart",
       "simulator": "Simulator",
-      "historical": "Historical"
+      "historical": "Historical",
+      "dca": "DCA"
     },
     "converter": {
       "badge": "[ Converter ]",
@@ -193,6 +240,51 @@
       "marketPrice": "Market Price",
       "totalPnl": "Total P&L",
       "resultSentence": "Investing {{amount}} in {{asset}} on {{date}} would result in the above portfolio value today."
+    },
+    "dca": {
+      "badge": "[ DCA Calculator ]",
+      "headline": "Dollar-Cost Averaging.",
+      "subheadline": "Simulate periodic contributions and compare with lump-sum.",
+      "asset": "Select Asset",
+      "amount": "Amount per Contribution (BRL)",
+      "frequency": "Frequency",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "startDate": "Start Date",
+      "endDate": "End Date (optional)",
+      "calculate": "Simulate DCA",
+      "calculating": "Simulating...",
+      "totalInvested": "Total Invested",
+      "totalQty": "Total Qty",
+      "avgPrice": "Avg Price",
+      "currentValue": "Current Value",
+      "profit": "Profit",
+      "roi": "ROI",
+      "entries": "{{count}} contributions",
+      "lumpSum": {
+        "title": "DCA vs Lump-Sum",
+        "dcaLabel": "DCA",
+        "lumpLabel": "Lump-Sum",
+        "dcaWon": "DCA won by {{diff}}",
+        "lumpWon": "Lump-Sum won by {{diff}}",
+        "tied": "Tied"
+      },
+      "schedule": {
+        "title": "Contribution Schedule",
+        "date": "Date",
+        "price": "Price",
+        "qty": "Quantity",
+        "show": "Show schedule",
+        "hide": "Hide schedule"
+      },
+      "chart": {
+        "title": "Asset price + purchase points"
+      },
+      "errors": {
+        "invalidPeriod": "The selected period is invalid.",
+        "tooManyEntries": "Period too long. Maximum 500 contributions.",
+        "fetchFailed": "Could not simulate DCA."
+      }
     }
   },
   "auth": {

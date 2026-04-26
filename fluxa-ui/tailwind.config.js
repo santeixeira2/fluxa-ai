@@ -24,8 +24,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['DM Sans', 'sans-serif'],
-        mono: ['DM Mono', 'monospace'],
+        sans: ['Space Grotesk', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       boxShadow: {
         'card': '0 0 0 1px rgba(255, 255, 255, 0.08)',

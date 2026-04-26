@@ -47,11 +47,11 @@
   },
   "faq": {
     "badge": "[ FAQ ]",
-    "headline": "Perguntas frequentes.",
+    "headline": "Perguntas sobre a Fluxa.",
     "items": [
       {
-        "q": "O que é o Fluxa?",
-        "a": "O Fluxa é seu guru financeiro com AI. Você informa o que tem investido e recebe insights, simulações e análises personalizadas em tempo real."
+        "q": "O que é a Fluxa?",
+        "a": "A Fluxa é seu guru financeiro com AI. Você informa o que tem investido e recebe insights, simulações e análises personalizadas em tempo real."
       },
       {
         "q": "Os dados são em tempo real?",
@@ -60,6 +60,18 @@
       {
         "q": "O Fluxa substitui uma corretora?",
         "a": "Não. O Fluxa é uma ferramenta de análise e simulação. Não executamos ordens reais nem nos conectamos com sua corretora."
+      },
+      {
+        "q": "O que é a watchlist?",
+        "a": "A watchlist é uma lista de ativos que você deseja monitorar. Você pode adicionar ativos a watchlist para receber notificações quando o preço de um ativo mudar."
+      },
+      {
+        "q": "O que são alertas?",
+        "a": "Alertas são notificações que você recebe quando o preço de um ativo atinge um determinado valor. Você pode criar alertas para ativos que você deseja monitorar."
+      },
+      {
+        "q": "Como funciona a simulação de investimento?",
+        "a": "A simulação de investimento permite você simular um investimento em um ativo. Você pode simular um investimento em um ativo para ver quanto você pode ganhar ou perder."
       }
     ]
   },
@@ -73,7 +85,53 @@
     "tabs": {
       "positions": "Posições",
       "transactions": "Histórico",
-      "alerts": "Alertas"
+      "alerts": "Alertas",
+      "compare": "Comparar",
+      "report": "Relatório"
+    },
+    "compare": {
+      "assetA": "Ativo A",
+      "assetB": "Ativo B",
+      "period": "Período",
+      "metric": "Métrica",
+      "totalReturn": "Retorno total",
+      "annualizedVol": "Volatilidade anualizada",
+      "sharpe": "Índice Sharpe",
+      "maxDrawdown": "Drawdown máximo",
+      "loading": "Calculando comparação...",
+      "error": "Não foi possível comparar os ativos.",
+      "chartTitle": "Performance normalizada (base 100)",
+      "chartHint": "Cada série começa em 100 no início do período",
+      "correlation": {
+        "label": "Correlação dos retornos",
+        "weak_positive": "Movem-se de forma quase independente. Boa diversificação.",
+        "weak_negative": "Movem-se quase independentes, com leve oposição. Boa diversificação.",
+        "moderate_positive": "Tendem a se mover juntos. Diversificação parcial.",
+        "moderate_negative": "Tendem a se mover em direções opostas. Hedge moderado.",
+        "strong_positive": "Movem-se quase juntos. Risco concentrado — pouca diversificação real.",
+        "strong_negative": "Movem-se quase em oposição. Forte hedge."
+      }
+    },
+    "report": {
+      "title": "Relatório de {{month}}",
+      "loading": "Gerando relatório com Fluxa AI...",
+      "previousMonth": "Mês anterior",
+      "nextMonth": "Próximo mês",
+      "startValue": "Valor inicial",
+      "endValue": "Valor final",
+      "periodPnl": "Resultado do período",
+      "maxDrawdown": "Drawdown máximo",
+      "tradesTotal": "Operações",
+      "tradesVolume": "Volume negociado",
+      "topTradedAsset": "Ativo mais negociado",
+      "alertsTriggered": "Alertas disparados",
+      "topWinners": "Top winners",
+      "topLosers": "Top losers",
+      "aiSummary": "Análise da Fluxa AI",
+      "error": "Não foi possível gerar o relatório.",
+      "noWinners": "Sem destaques positivos no mês.",
+      "noLosers": "Sem perdas relevantes no mês.",
+      "noTopAsset": "—"
     },
     "emptyPositions": "Nenhum ativo ainda. Comece comprando algo.",
     "emptyTransactions": "Nenhuma transação ainda.",
@@ -137,7 +195,8 @@
       "converter": "Conversor",
       "chart": "Gráfico",
       "simulator": "Simulador",
-      "historical": "Histórico"
+      "historical": "Histórico",
+      "dca": "DCA"
     },
     "converter": {
       "badge": "[ Conversor ]",
@@ -193,6 +252,51 @@
       "marketPrice": "Preço de Mercado",
       "totalPnl": "P&L Total",
       "resultSentence": "Investir {{amount}} em {{asset}} em {{date}} resultaria no valor de portfólio acima hoje."
+    },
+    "dca": {
+      "badge": "[ DCA Calculator ]",
+      "headline": "Dollar-Cost Averaging.",
+      "subheadline": "Simule aportes periódicos e compare com lump-sum.",
+      "asset": "Selecionar Ativo",
+      "amount": "Valor por Aporte (BRL)",
+      "frequency": "Frequência",
+      "weekly": "Semanal",
+      "monthly": "Mensal",
+      "startDate": "Data Inicial",
+      "endDate": "Data Final (opcional)",
+      "calculate": "Simular DCA",
+      "calculating": "Simulando...",
+      "totalInvested": "Total Investido",
+      "totalQty": "Qtd Total",
+      "avgPrice": "Preço Médio",
+      "currentValue": "Valor Atual",
+      "profit": "Lucro",
+      "roi": "ROI",
+      "entries": "{{count}} aportes",
+      "lumpSum": {
+        "title": "DCA vs Lump-Sum",
+        "dcaLabel": "DCA",
+        "lumpLabel": "Lump-Sum",
+        "dcaWon": "DCA venceu por {{diff}}",
+        "lumpWon": "Lump-Sum venceu por {{diff}}",
+        "tied": "Empate"
+      },
+      "schedule": {
+        "title": "Cronograma de Aportes",
+        "date": "Data",
+        "price": "Preço",
+        "qty": "Quantidade",
+        "show": "Mostrar cronograma",
+        "hide": "Ocultar cronograma"
+      },
+      "chart": {
+        "title": "Preço do ativo + pontos de compra"
+      },
+      "errors": {
+        "invalidPeriod": "O período selecionado é inválido.",
+        "tooManyEntries": "Período muito longo. Máximo de 500 aportes.",
+        "fetchFailed": "Não foi possível simular o DCA."
+      }
     }
   },
   "auth": {

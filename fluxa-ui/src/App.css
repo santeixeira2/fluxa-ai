@@ -322,7 +322,7 @@
   font-size: 2.4rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   color: var(--text-primary);
   line-height: 1;
   margin-bottom: 0.5rem;
@@ -364,7 +364,7 @@
   color: var(--text-primary);
   line-height: 1;
   margin-bottom: 0.3rem;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .hero-stat-number.teal {
@@ -445,7 +445,7 @@
   font-size: 0.92rem;
   font-weight: 600;
   color: var(--text-primary);
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 
@@ -496,7 +496,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
   color: var(--text-primary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.95rem;
   transition: all var(--ease-fast);
   outline: none;
@@ -539,12 +539,12 @@
   font-size: 0.88rem;
   font-weight: 600;
   pointer-events: none;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .form-input-prefix .form-input {
   padding-left: 2.75rem;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .btn-simulate {
@@ -552,7 +552,7 @@
   padding: 0.9rem 1.5rem;
   background: var(--accent-teal);
   color: #05130F;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
   border: none;
@@ -691,7 +691,7 @@
 .result-big-number {
   font-size: 2.5rem;
   font-weight: 800;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   letter-spacing: -0.03em;
   line-height: 1;
   margin-bottom: 0.4rem;
@@ -741,7 +741,7 @@
 .result-metric-value {
   font-size: 1.1rem;
   font-weight: 700;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
 }
@@ -755,7 +755,7 @@
   background: transparent;
   border: 1px solid var(--border-default);
   color: var(--text-secondary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
   border-radius: 10px;
@@ -851,7 +851,7 @@
 .hist-profit-value {
   font-size: 1.5rem;
   font-weight: 800;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 
@@ -919,7 +919,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
   color: var(--text-primary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.92rem;
   outline: none;
   transition: all var(--ease-fast);
@@ -937,7 +937,7 @@
   padding: 0.85rem 1.25rem;
   background: var(--accent-teal);
   color: #05130F;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.88rem;
   font-weight: 700;
   border: none;
@@ -994,7 +994,7 @@
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .ai-auto-sim-note {

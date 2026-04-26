@@ -199,6 +199,50 @@ export function simulateHistorical(data: HistoricalSimulationRequest): Promise<H
   });
 }
 
+// ── DCA ────────────────────────────────────────────────────────────────────
+
+export type DCAFrequency = 'weekly' | 'monthly';
+
+export interface DCARequest {
+  asset: string;
+  amount: number;
+  frequency: DCAFrequency;
+  startDate: string;
+  endDate?: string;
+  currency?: string;
+}
+
+export interface DCAScheduleItem {
+  date: string;
+  price: number;
+  quantity: number;
+  cumulative: number;
+}
+
+export interface DCAResult {
+  schedule: DCAScheduleItem[];
+  totalInvested: number;
+  totalQuantity: number;
+  averagePrice: number;
+  currentPrice: number;
+  currentValue: number;
+  profit: number;
+  roi: number;
+  lumpSum: {
+    quantity: number;
+    currentValue: number;
+    profit: number;
+    roi: number;
+  };
+}
+
+export function simulateDCA(data: DCARequest): Promise<DCAResult> {
+  return request('/simulate/dca', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
 export interface FiatRateResponse {
   rate: number;
 }
@@ -322,6 +366,37 @@ export function getPortfolioPerformance(): Promise<PerformancePoint[]> {
   return request('/portfolio/performance');
 }
 
+export interface MonthlyReport {
+  period: { year: number; month: number; label: string };
+  startValue: number;
+  endValue: number;
+  periodPnl: number;
+  periodPnlPct: number;
+  peakValue: number;
+  troughValue: number;
+  maxDrawdownPct: number;
+  trades: {
+    total: number;
+    buys: number;
+    sells: number;
+    volume: number;
+    topAsset: { id: string; name: string; volume: number } | null;
+  };
+  alertsTriggered: number;
+  topWinners: { assetId: string; assetName: string; pnl: number; pnlPct: number }[];
+  topLosers: { assetId: string; assetName: string; pnl: number; pnlPct: number }[];
+  aiSummary: string;
+  generatedAt: string;
+}
+
+export function getMonthlyReport(year?: number, month?: number): Promise<MonthlyReport> {
+  const params = new URLSearchParams();
+  if (year != null) params.set('year', String(year));
+  if (month != null) params.set('month', String(month));
+  const qs = params.toString();
+  return request(`/portfolio/report${qs ? `?${qs}` : ''}`);
+}
+
 // ── Profile ────────────────────────────────────────────────────────────────
 
 export interface UserProfile {
@@ -361,6 +436,38 @@ export interface RegimeResult {
 
 export function getRegime(assetId: string): Promise<RegimeResult> {
   return request(`/analysis/regime?asset=${encodeURIComponent(assetId)}`);
+}
+
+export type ComparisonPeriod = '1M' | '1Y' | '5Y';
+
+export interface ComparisonAssetMetrics {
+  totalReturn: number;
+  annualizedVol: number;
+  sharpe: number;
+  maxDrawdown: number;
+}
+
+export interface ComparisonAsset {
+  id: string;
+  name: string;
+  symbol: string;
+  series: { time: number; normalized: number }[];
+  metrics: ComparisonAssetMetrics;
+}
+
+export interface ComparisonResult {
+  period: ComparisonPeriod;
+  assets: [ComparisonAsset, ComparisonAsset];
+  correlation: number;
+}
+
+export function getComparison(
+  idA: string,
+  idB: string,
+  period: ComparisonPeriod,
+): Promise<ComparisonResult> {
+  const assets = `${idA},${idB}`;
+  return request(`/analysis/compare?assets=${encodeURIComponent(assets)}&period=${period}`);
 }
 
 // ── Markets ────────────────────────────────────────────────────────────────

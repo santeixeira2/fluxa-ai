@@ -5,11 +5,12 @@ import Navbar from '../components/Navbar';
 import Select from '../components/Select';
 import PortfolioChart from '../components/PortfolioChart';
 import PriceChart from '../components/PriceChart';
+import ComparisonTab from '../components/ComparisonTab';
 import {
   getPortfolio, buyAsset, sellAsset, getPortfolioTransactions, getAssets,
-  listAlerts, createAlert, deleteAlert,
+  listAlerts, createAlert, deleteAlert, getMonthlyReport,
 } from '../api/client';
-import type { Portfolio, PortfolioTransaction, AssetInfo, Alert, AlertType } from '../api/client';
+import type { Portfolio, PortfolioTransaction, AssetInfo, Alert, AlertType, MonthlyReport } from '../api/client';
 
 const fmtBRL = (n: number) =>
   n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -20,7 +21,7 @@ const fmtPct = (n: number) =>
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
-type Tab = 'positions' | 'transactions' | 'alerts';
+type Tab = 'positions' | 'transactions' | 'alerts' | 'report' | 'compare';
 type TradeMode = 'buy' | 'sell';
 
 // ── Trade Modal ────────────────────────────────────────────────────────────
@@ -280,6 +281,142 @@ function AlertsTab({ assets }: { assets: AssetInfo[] }) {
   );
 }
 
+// ── Report Tab ─────────────────────────────────────────────────────────────
+
+function ReportTab() {
+  const { t } = useTranslation();
+  const [period, setPeriod] = useState(() => {
+    const now = new Date();
+    return { year: now.getUTCFullYear(), month: now.getUTCMonth() + 1 };
+  });
+  const [report, setReport] = useState<MonthlyReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+    setReport(null);
+    getMonthlyReport(period.year, period.month)
+      .then(r => { if (!cancelled) setReport(r); })
+      .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('portfolio.report.error')); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [period, t]);
+
+  function shift(delta: number) {
+    setPeriod(prev => {
+      const m = prev.month + delta;
+      if (m < 1) return { year: prev.year - 1, month: 12 };
+      if (m > 12) return { year: prev.year + 1, month: 1 };
+      return { year: prev.year, month: m };
+    });
+  }
+
+  const now = new Date();
+  const isCurrent = period.year === now.getUTCFullYear() && period.month === now.getUTCMonth() + 1;
+  const periodLabel = report?.period.label
+    ?? new Date(Date.UTC(period.year, period.month - 1, 1)).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-xl px-4 py-3">
+        <button onClick={() => shift(-1)} className="text-sm font-mono text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors">
+          ← {t('portfolio.report.previousMonth')}
+        </button>
+        <p className="text-sm font-bold capitalize">{t('portfolio.report.title', { month: periodLabel })}</p>
+        <button onClick={() => shift(1)} disabled={isCurrent}
+          className="text-sm font-mono text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+          {t('portfolio.report.nextMonth')} →
+        </button>
+      </div>
+
+      {loading && (
+        <div className="text-center py-20 text-sm text-black/40 dark:text-white/40 font-mono">{t('portfolio.report.loading')}</div>
+      )}
+
+      {error && !loading && (
+        <div className="text-center py-20 text-sm text-red-500 font-mono">{error}</div>
+      )}
+
+      {report && !loading && (
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: t('portfolio.report.startValue'), value: fmtBRL(report.startValue) },
+              { label: t('portfolio.report.endValue'), value: fmtBRL(report.endValue) },
+              {
+                label: t('portfolio.report.periodPnl'),
+                value: `${fmtBRL(report.periodPnl)} (${fmtPct(report.periodPnlPct)})`,
+                tone: report.periodPnl >= 0 ? 'pos' : 'neg',
+              },
+              { label: t('portfolio.report.maxDrawdown'), value: fmtPct(report.maxDrawdownPct), tone: 'neg' },
+            ].map(s => (
+              <div key={s.label} className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-xl p-4">
+                <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-1">{s.label}</p>
+                <p className={`text-base font-bold font-mono ${s.tone === 'pos' ? 'text-emerald-500' : s.tone === 'neg' ? 'text-red-500' : ''}`}>{s.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: t('portfolio.report.tradesTotal'), value: `${report.trades.total} (${report.trades.buys}↗ / ${report.trades.sells}↘)` },
+              { label: t('portfolio.report.tradesVolume'), value: fmtBRL(report.trades.volume) },
+              { label: t('portfolio.report.topTradedAsset'), value: report.trades.topAsset?.name ?? t('portfolio.report.noTopAsset') },
+              { label: t('portfolio.report.alertsTriggered'), value: `${report.alertsTriggered}` },
+            ].map(s => (
+              <div key={s.label} className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-xl p-4">
+                <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-1">{s.label}</p>
+                <p className="text-base font-bold font-mono truncate">{s.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-emerald-500/[0.04] border border-emerald-500/20 rounded-xl p-5">
+              <p className="text-xs font-mono tracking-widest text-emerald-600 dark:text-emerald-400 uppercase mb-3">{t('portfolio.report.topWinners')}</p>
+              {report.topWinners.length === 0 ? (
+                <p className="text-sm text-black/40 dark:text-white/40">{t('portfolio.report.noWinners')}</p>
+              ) : (
+                <ul className="space-y-2">
+                  {report.topWinners.map(w => (
+                    <li key={w.assetId} className="flex justify-between text-sm">
+                      <span className="font-medium">{w.assetName}</span>
+                      <span className="font-mono text-emerald-500">{fmtPct(w.pnlPct)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="bg-red-500/[0.04] border border-red-500/20 rounded-xl p-5">
+              <p className="text-xs font-mono tracking-widest text-red-600 dark:text-red-400 uppercase mb-3">{t('portfolio.report.topLosers')}</p>
+              {report.topLosers.length === 0 ? (
+                <p className="text-sm text-black/40 dark:text-white/40">{t('portfolio.report.noLosers')}</p>
+              ) : (
+                <ul className="space-y-2">
+                  {report.topLosers.map(l => (
+                    <li key={l.assetId} className="flex justify-between text-sm">
+                      <span className="font-medium">{l.assetName}</span>
+                      <span className="font-mono text-red-500">{fmtPct(l.pnlPct)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl p-5">
+            <p className="text-xs font-mono tracking-widest text-black/40 dark:text-white/40 uppercase mb-3">✦ {t('portfolio.report.aiSummary')}</p>
+            <p className="text-sm leading-relaxed whitespace-pre-line text-black/80 dark:text-white/80">{report.aiSummary}</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Portfolio Page ─────────────────────────────────────────────────────────
 
 export default function PortfolioPage() {
@@ -332,6 +469,8 @@ export default function PortfolioPage() {
     { id: 'positions',    label: t('portfolio.tabs.positions') },
     { id: 'transactions', label: t('portfolio.tabs.transactions') },
     { id: 'alerts',       label: t('portfolio.tabs.alerts') },
+    { id: 'compare',      label: t('portfolio.tabs.compare') },
+    { id: 'report',       label: t('portfolio.tabs.report') },
   ];
 
   return (
@@ -462,6 +601,12 @@ export default function PortfolioPage() {
 
         {/* Alerts */}
         {tab === 'alerts' && <AlertsTab assets={assets} />}
+
+        {/* Compare */}
+        {tab === 'compare' && <ComparisonTab assets={assets} />}
+
+        {/* Report */}
+        {tab === 'report' && <ReportTab />}
       </main>
 
       {/* Price chart drawer */}
