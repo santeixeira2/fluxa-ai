@@ -1,21 +1,10 @@
 import { getChartData } from "./price.service";
 import { getCached, setCached } from "@/utils/cache";
+import { stddev, trailingMean } from "@/utils/stats";
 import { getAsset, ASSETS } from "@/config/assets.config";
 import type { Regime, RegimeResult } from "@/types";
 
 const REGIME_TTL_MS = 60_000;
-
-const stddev = (values: number[]): number => {
-  if (values.length < 2) return 0;
-  const mean = values.reduce((sum, value) => sum + value, 0)/values.length;
-  const variance = values.reduce((sum, value) => sum + (value - mean)**2, 0)/(values.length - 1);
-  return Math.sqrt(variance);
-}
-
-const trailingMean = (values: number[], window: number): number => {
-  const slice = values.slice(-window);
-  return slice.reduce((sum, value) => sum + value, 0) / slice.length;
-}
 
 interface Point {
   time: number;

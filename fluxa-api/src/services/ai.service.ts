@@ -1,4 +1,5 @@
-import { generateContent, generateStream } from '../providers/ollama.provider';
+import { generateContent, generateStream } from '../providers/groq.provider';
+import { config } from '../config';
 import { getPriceBatch } from './price.service';
 import { ASSETS } from '../config/assets.config';
 import { detectRegime, detectAssetFromMessage, formatRegimeForPrompt } from './analysis.service';
@@ -101,6 +102,7 @@ Regras obrigatórias:
 - Se o usuário tem posições abertas, leve em conta a carteira dele ao responder.
 - Mencione o preço atual do ativo se relevante.
 - Aponte os principais fatores que podem fazer o ativo SUBIR ou CAIR (resultados, juros, macro, concorrência, etc).
+- **Sempre que listar um fator factual, cite a fonte como link markdown inline ao final do item.** Use busca web para encontrar fontes recentes (notícias, releases oficiais, dados de mercado). Formato: \`- Fator descrito aqui. ([fonte](https://url-real-encontrada.com))\`. Se não encontrar fonte verificável para um fator, omita o item — não invente URLs.
 - Se um regime de mercado for fornecido abaixo, use-o para contextualizar a análise.
 - Termine com: "Tendência: pode [SUBIR/CAIR/LATERAL] nos próximos meses por [motivo]."
 - Última linha sempre: "⚠️ Análise até ${today}. Não é recomendação de investimento."
@@ -111,7 +113,7 @@ ${priceContext}
 
 Pergunta: ${message}`;
 
-  yield* generateStream(prompt);
+  yield* generateStream(prompt, { model: config.groqChatModel });
 }
 
 function parseJsonSafely<T>(text: string): T {

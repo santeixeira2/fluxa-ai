@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as simulationService from '../services/simulation.service';
 import * as priceService from '../services/price.service';
-import { simulationSchema, historicalSimulationSchema } from '../schemas/simulation.schema';
+import { simulationSchema, historicalSimulationSchema, dcaSchema } from '../schemas/simulation.schema';
 
 export async function simulate(req: Request, res: Response) {
   const parsed = simulationSchema.parse(req.body);
@@ -45,6 +45,24 @@ export async function simulateHistorical(req: Request, res: Response) {
     priceAtPurchase,
     currentPrice,
     purchaseDate: parsed.purchaseDate,
+  });
+
+  res.json(result);
+}
+
+export async function dca(req: Request, res: Response) {
+  const parsed = dcaSchema.parse(req.body);
+
+  const today = new Date().toISOString().split('T')[0];
+  const endDate = parsed.endDate && parsed.endDate <= today ? parsed.endDate : today;
+
+  const result = await simulationService.simulateDCA({
+    asset: parsed.asset,
+    amount: parsed.amount,
+    frequency: parsed.frequency,
+    startDate: parsed.startDate,
+    endDate,
+    currency: parsed.currency,
   });
 
   res.json(result);

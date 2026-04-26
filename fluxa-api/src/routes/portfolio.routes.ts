@@ -12,5 +12,6 @@ router.post('/buy', asyncHandler(portfolioController.buy));
 router.post('/sell', asyncHandler(portfolioController.sell));
 router.get('/transactions', asyncHandler(portfolioController.transactions));
 router.get('/performance', asyncHandler(portfolioController.performance));
+router.get('/report', asyncHandler(portfolioController.monthlyReport));
 
 export default router;

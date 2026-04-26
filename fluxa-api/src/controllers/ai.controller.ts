@@ -33,6 +33,10 @@ export async function chat(req: Request, res: Response) {
     for await (const token of aiService.chatStream(message, portfolio)) {
       res.write(`data: ${JSON.stringify({ token })}\n\n`);
     }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[ai.chat] stream error:', msg, err);
+    res.write(`data: ${JSON.stringify({ error: msg })}\n\n`);
   } finally {
     res.write('data: [DONE]\n\n');
     res.end();

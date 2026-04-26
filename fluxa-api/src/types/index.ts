@@ -49,3 +49,52 @@ export interface RegimeResult {
     directionalBias: number;
   }
 }
+
+export type ComparisonPeriod = '1M' | '1Y' | '5Y';
+
+export interface ComparisonAssetMetrics {
+  totalReturn: number;
+  annualizedVol: number;
+  sharpe: number;
+  maxDrawdown: number;
+}
+
+export interface ComparisonAsset {
+  id: string;
+  name: string;
+  symbol: string;
+  series: { time: number; normalized: number }[];
+  metrics: ComparisonAssetMetrics;
+}
+
+export interface ComparisonResult {
+  period: ComparisonPeriod;
+  assets: [ComparisonAsset, ComparisonAsset];
+  correlation: number;
+}
+
+export type DCAFrequency = 'weekly' | 'monthly';
+
+export interface DCAScheduleItem {
+  date: string;
+  price: number;
+  quantity: number;
+  cumulative: number;
+}
+
+export interface DCAResult {
+  schedule: DCAScheduleItem[];
+  totalInvested: number;
+  totalQuantity: number;
+  averagePrice: number;
+  currentPrice: number;
+  currentValue: number;
+  profit: number;
+  roi: number;
+  lumpSum: {
+    quantity: number;
+    currentValue: number;
+    profit: number;
+    roi: number;
+  };
+}

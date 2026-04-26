@@ -1,6 +1,5 @@
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
-import { OAuth2Client } from 'google-auth-library';
 import { prisma } from '@/utils/prisma';
 import { redis } from '@/utils/redis';
 import { config } from '@/config';
@@ -9,7 +8,6 @@ import type { AuthToken, AuthPayload } from '@/types';
 
 const ACCESS_TTL = '15m';
 const REFRESH_TTL = 60 * 60 * 24 * 7;
-const googleClient = new OAuth2Client(config.googleClientId);
 
 function generateToken(payload: AuthPayload): AuthToken {
   const accessToken = jwt.sign(payload, String(config.jwtSecret), { expiresIn: ACCESS_TTL });
@@ -46,23 +44,27 @@ export async function login(email: string, password: string): Promise<AuthToken>
   return token;
 }
 
-export async function loginWithGoogle(idToken: string): Promise<AuthToken> {
-  let payload: { email?: string; name?: string; email_verified?: boolean } | undefined;
-  try {
-    const ticket = await googleClient.verifyIdToken({
-      idToken,
-      audience: config.googleClientId,
-    });
-    payload = ticket.getPayload() ?? undefined;
-  } catch {
+export async function loginWithGoogle(accessToken: string): Promise<AuthToken> {
+  const tokenRes = await fetch(
+    `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`,
+  );
+  if (!tokenRes.ok) throw new Error('Invalid Google token');
+  const tokenInfo = (await tokenRes.json()) as {
+    aud?: string;
+    email?: string;
+    email_verified?: string;
+  };
+  if (tokenInfo.aud !== config.googleClientId) throw new Error('Invalid Google token');
+  if (!tokenInfo.email || tokenInfo.email_verified !== 'true') {
     throw new Error('Invalid Google token');
   }
 
-  if (!payload?.email || !payload.email_verified) {
-    throw new Error('Invalid Google token');
-  }
+  const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!userRes.ok) throw new Error('Invalid Google token');
+  const { email, name } = (await userRes.json()) as { email: string; name?: string };
 
-  const { email, name } = payload;
   const user = await prisma.user.upsert({
     where: { email },
     update: {},
