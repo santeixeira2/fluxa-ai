@@ -427,7 +427,7 @@ export type Regime = 'trending_up' | 'trending_down' | 'volatile' | 'mean_revert
 export interface RegimeResult {
   regime: Regime;
   confidence: number;
-  metrics: {
+  metrics?: {
     realizedVol: number;
     smaSlope: number;
     directionalBias: number;
@@ -459,6 +459,32 @@ export interface ComparisonResult {
   period: ComparisonPeriod;
   assets: [ComparisonAsset, ComparisonAsset];
   correlation: number;
+}
+
+// ── Earnings Sentiment ─────────────────────────────────────────────────────
+
+export type EarningsGuidance = 'raised' | 'lowered' | 'maintained' | 'none';
+export type EarningsTone = 'confident' | 'cautious' | 'neutral';
+
+export interface SentimentQuarter {
+  period: string;
+  date: string;
+  sentiment: number;
+  guidance: EarningsGuidance;
+  tone: EarningsTone;
+  beats_estimates: boolean | null;
+  summary: string;
+}
+
+export interface SentimentResult {
+  ticker: string;
+  available: boolean;
+  quarters: SentimentQuarter[];
+  error: string | null;
+}
+
+export function getSentiment(assetId: string): Promise<SentimentResult> {
+  return request(`/analysis/sentiment?asset=${encodeURIComponent(assetId)}`);
 }
 
 export function getComparison(

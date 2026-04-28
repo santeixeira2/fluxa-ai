@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { asyncHandler } from '@/utils/asyncHandler';
-import { detectRegime } from '@/services/analysis.service';
+import { detectRegime, getSentiment } from '@/services/analysis.service';
 import { compareAssets } from '@/services/comparison.service';
 import { z } from 'zod';
 
@@ -24,6 +24,12 @@ router.get('/compare', asyncHandler(async (req, res) => {
         return res.status(400).json({ error: 'Exactly two asset ids are required (comma-separated)' });
     }
     const result = await compareAssets(ids[0], ids[1], period);
+    res.status(200).json(result);
+}));
+
+router.get('/sentiment', asyncHandler(async (req, res) => {
+    const { asset } = z.object({ asset: z.string().min(1) }).parse(req.query);
+    const result = await getSentiment(asset);
     res.status(200).json(result);
 }));
 

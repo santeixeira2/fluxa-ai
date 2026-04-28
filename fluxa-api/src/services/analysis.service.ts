@@ -1,122 +1,62 @@
-import { getChartData } from "./price.service";
 import { getCached, setCached } from "@/utils/cache";
-import { stddev, trailingMean } from "@/utils/stats";
 import { getAsset, ASSETS } from "@/config/assets.config";
-import type { Regime, RegimeResult } from "@/types";
+import type { Regime, RegimeResult, SentimentResult } from "@/types";
 
-const REGIME_TTL_MS = 60_000;
+const ML_URL = process.env.ML_SERVICE_URL ?? 'http://localhost:8000';
+const REGIME_TTL_MS = 15 * 60_000;
 
-interface Point {
-  time: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-}
-
-const computeMetrics = (monthPoints: Point[], baselineVol: number) => {
-  const closes = monthPoints.map(p => p.close);
-  const n = closes.length;
-
-  const returns: number[] = [];
-  for (let i = 1; i < n; i++) {
-    if (closes[i - 1] !== 0) {
-      returns.push(closes[i] / closes[i - 1] - 1);
-    }
-  }
-
-  const volWindow   = Math.max(7, Math.floor(returns.length / 2));
-  const realizedVol = stddev(returns.slice(-volWindow));
-
-  const smaWindow = Math.max(5, Math.floor(n / 3));
-  const lookback  = Math.max(2, Math.floor(n / 6));
-  const smaNow    = trailingMean(closes, smaWindow);
-  const smaPrev   = trailingMean(closes.slice(0, n - lookback), smaWindow);
-  const smaSlope  = smaPrev !== 0 ? (smaNow - smaPrev) / smaPrev : 0;
-
-  const recentCandles = monthPoints.slice(-Math.max(7, Math.floor(n / 3)));
-  const ups = recentCandles.filter(p => p.close >= p.open).length;
-  const directionalBias = Math.abs(ups / recentCandles.length - 0.5) * 2;
-
-  return {
-    realizedVol: parseFloat(realizedVol.toFixed(4)),
-    smaSlope: parseFloat(smaSlope.toFixed(4)),
-    directionalBias: parseFloat(directionalBias.toFixed(4)),
-    baselineVol,
-  }
-}
-
-const classify = (metrics: ReturnType<typeof computeMetrics>): RegimeResult => {
-  const { realizedVol, smaSlope, directionalBias, baselineVol } = metrics;
-
-  const SLOPE_THRESHOLD = 0.02;
-  const DIR_THRESHOLD = 0.3;
-  const VOL_MULTIPLIER = 1.5;
-
-  const slopeAbs= Math.abs(smaSlope);
-  const isTrending = slopeAbs > SLOPE_THRESHOLD && directionalBias > DIR_THRESHOLD;
-  const isVolatile = realizedVol > baselineVol * VOL_MULTIPLIER;
-
-  let regime: Regime;
-  let confidence: number;
-
-  if (isTrending) { 
-    regime = smaSlope > 0 ? 'trending_up' : 'trending_down';
-    const slopeConfidence = Math.min(slopeAbs / (SLOPE_THRESHOLD * 2), 1);
-    confidence = 0.5 + slopeConfidence * 0.3 + directionalBias * 0.2;
-  } else if (isVolatile) {
-    regime = 'volatile';
-    confidence = Math.min(0.5 + (realizedVol / (baselineVol * VOL_MULTIPLIER) - 1) * 0.5, 0.95);
-  } else {
-    regime = 'mean_reverting';
-    const flatness = Math.max(0, 1 - slopeAbs / SLOPE_THRESHOLD);
-    const calmness = Math.max(0, 1 - realizedVol / (baselineVol * VOL_MULTIPLIER));
-    confidence = 0.5 * flatness + 0.5 * calmness;
-  }
-
-  return {
-    regime,
-    confidence: parseFloat(Math.min(1, Math.max(0, confidence)).toFixed(2)),
-    metrics: {
-      realizedVol: metrics.realizedVol,
-      smaSlope: metrics.smaSlope,
-      directionalBias: metrics.directionalBias,
-    }
-  }
-}
+const toMlTicker = (assetId: string): string => {
+  const asset = getAsset(assetId);
+  if (!asset) throw new Error(`Unknown asset: ${assetId}`);
+  if (asset.provider === 'exchangerate') throw new Error('Regime detection not available for forex pairs');
+  if (asset.provider === 'cryptocompare') return `${asset.ccSymbol}-USD`;
+  return asset.yahooTicker!;
+};
 
 export const detectRegime = async (assetId: string): Promise<RegimeResult> => {
   const cacheKey = `regime:${assetId}`;
   const cached = getCached<RegimeResult>(cacheKey);
   if (cached) return cached;
 
-  const asset = getAsset(assetId);
-  if (!asset) throw new Error(`Unknown asset: ${assetId}`);
-  if (asset.provider === 'exchangerate') throw new Error('Regime detection not available for forex pairs');
-
-  const [yearPoints, monthPoints] = await Promise.all([
-    getChartData(assetId, '1Y', 'brl'),
-    getChartData(assetId, '1M', 'brl'),
-  ]);
-
-  if (monthPoints.length < 10) throw new Error('Not enough data for analysis');
-
-  const yearCloses = (yearPoints as Point[]).map(p => p.close);
-  const yearReturns: number[] = [];
-
-  for (let i = 1; i < yearCloses.length; i++) {
-    if (yearCloses[i - 1] !== 0) {
-      yearReturns.push((yearCloses[i] - yearCloses[i - 1]) / yearCloses[i - 1]);
-    }
+  const ticker = toMlTicker(assetId);
+  const res = await fetch(`${ML_URL}/regime?asset=${encodeURIComponent(ticker)}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`ML service error for ${ticker}: ${body}`);
   }
-  const baselineVol = stddev(yearReturns);
 
-  const metrics = computeMetrics(monthPoints as Point[], baselineVol);
-  const result = classify(metrics);
+  const data = await res.json() as { regime: Regime; confidence: number };
+  const result: RegimeResult = { regime: data.regime, confidence: data.confidence };
 
-  setCached(cacheKey, result, 15 * REGIME_TTL_MS);
+  setCached(cacheKey, result, REGIME_TTL_MS);
   return result;
 }
+
+const SENTIMENT_TTL_MS = 24 * 60 * 60_000; // earnings are quarterly — cache 24h
+
+export const getSentiment = async (assetId: string): Promise<SentimentResult> => {
+  const cacheKey = `sentiment:${assetId}`;
+  const cached = getCached<SentimentResult>(cacheKey);
+  if (cached) return cached;
+
+  const asset = getAsset(assetId);
+  if (!asset) throw new Error(`Unknown asset: ${assetId}`);
+
+  // Only Yahoo-provider US stocks have EDGAR filings; others return not_supported
+  const ticker = asset.yahooTicker ?? asset.id;
+
+  const res = await fetch(`${ML_URL}/sentiment?asset=${encodeURIComponent(ticker)}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`ML service error for ${ticker}: ${body}`);
+  }
+
+  const result = await res.json() as SentimentResult;
+  if (result.available) {
+    setCached(cacheKey, result, SENTIMENT_TTL_MS);
+  }
+  return result;
+};
 
 export const detectAssetFromMessage = (message: string): string | null => {
   const lower = message.toLowerCase();

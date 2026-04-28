@@ -6,6 +6,7 @@ import Select from '../components/Select';
 import PortfolioChart from '../components/PortfolioChart';
 import PriceChart from '../components/PriceChart';
 import ComparisonTab from '../components/ComparisonTab';
+import EarningsSentiment from '../components/EarningsSentiment';
 import {
   getPortfolio, buyAsset, sellAsset, getPortfolioTransactions, getAssets,
   listAlerts, createAlert, deleteAlert, getMonthlyReport,
@@ -417,6 +418,55 @@ function ReportTab() {
   );
 }
 
+// ── Asset Drawer ───────────────────────────────────────────────────────────
+
+type DrawerTab = 'chart' | 'analysis';
+
+function AssetDrawer({ assetId, assetName, onClose }: { assetId: string; assetName: string; onClose: () => void }) {
+  const [drawerTab, setDrawerTab] = useState<DrawerTab>('chart');
+
+  return (
+    <div
+      className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-4 sm:pb-0"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-[700px] bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <h2 className="text-sm font-bold">{assetName}</h2>
+            <div className="flex gap-1">
+              {(['chart', 'analysis'] as DrawerTab[]).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setDrawerTab(tab)}
+                  className={`text-[10px] font-mono tracking-widest uppercase px-2.5 py-1 rounded-lg transition-colors ${
+                    drawerTab === tab
+                      ? 'bg-black/10 dark:bg-white/10 text-black dark:text-white'
+                      : 'text-black/40 dark:text-white/40 hover:text-black/70 dark:hover:text-white/70'
+                  }`}
+                >
+                  {tab === 'chart' ? 'Gráfico' : 'Análise'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={onClose} className="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {drawerTab === 'chart' && <PriceChart assetId={assetId} />}
+        {drawerTab === 'analysis' && <EarningsSentiment assetId={assetId} />}
+      </div>
+    </div>
+  );
+}
+
 // ── Portfolio Page ─────────────────────────────────────────────────────────
 
 export default function PortfolioPage() {
@@ -611,19 +661,11 @@ export default function PortfolioPage() {
 
       {/* Price chart drawer */}
       {chartAsset && (
-        <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-4 sm:pb-0"
-          onClick={() => setChartAsset(null)}>
-          <div className="w-full max-w-[700px] bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 rounded-2xl p-6 shadow-2xl"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-bold">{chartAsset.name}</h2>
-              <button onClick={() => setChartAsset(null)} className="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <PriceChart assetId={chartAsset.id} />
-          </div>
-        </div>
+        <AssetDrawer
+          assetId={chartAsset.id}
+          assetName={chartAsset.name}
+          onClose={() => setChartAsset(null)}
+        />
       )}
 
       {trade && (
