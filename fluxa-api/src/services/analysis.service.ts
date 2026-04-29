@@ -1,6 +1,7 @@
 import { getCached, setCached } from "@/utils/cache";
 import { getAsset, ASSETS } from "@/config/assets.config";
-import type { Regime, RegimeResult, SentimentResult } from "@/types";
+import { prisma } from "@/utils/prisma";
+import type { Regime, RegimeResult, SentimentResult, EarningsGuidance, EarningsTone } from "@/types";
 
 const ML_URL = process.env.ML_SERVICE_URL ?? 'http://localhost:8000';
 const REGIME_TTL_MS = 15 * 60_000;
@@ -32,19 +33,37 @@ export const detectRegime = async (assetId: string): Promise<RegimeResult> => {
   return result;
 }
 
-const SENTIMENT_TTL_MS = 24 * 60 * 60_000; // earnings are quarterly — cache 24h
-
 export const getSentiment = async (assetId: string): Promise<SentimentResult> => {
-  const cacheKey = `sentiment:${assetId}`;
-  const cached = getCached<SentimentResult>(cacheKey);
-  if (cached) return cached;
-
   const asset = getAsset(assetId);
   if (!asset) throw new Error(`Unknown asset: ${assetId}`);
 
-  // Only Yahoo-provider US stocks have EDGAR filings; others return not_supported
-  const ticker = asset.yahooTicker ?? asset.id;
+  const ticker = (asset.yahooTicker ?? asset.id).toUpperCase();
 
+  // DB is the source of truth — return stored quarters if available
+  const rows = await prisma.earningsSentiment.findMany({
+    where: { ticker },
+    orderBy: { filingDate: 'desc' },
+    take: 4,
+  });
+
+  if (rows.length > 0) {
+    return {
+      ticker,
+      available: true,
+      quarters: rows.map(r => ({
+        period: r.period,
+        date: r.filingDate.toISOString().slice(0, 10),
+        sentiment: r.sentiment,
+        guidance: r.guidance as EarningsGuidance,
+        tone: r.tone as EarningsTone,
+        beats_estimates: r.beatsEstimates,
+        summary: r.summary,
+      })),
+      error: null,
+    };
+  }
+
+  // Not in DB yet — fetch from ML service and persist
   const res = await fetch(`${ML_URL}/sentiment?asset=${encodeURIComponent(ticker)}`);
   if (!res.ok) {
     const body = await res.text();
@@ -52,10 +71,64 @@ export const getSentiment = async (assetId: string): Promise<SentimentResult> =>
   }
 
   const result = await res.json() as SentimentResult;
-  if (result.available) {
-    setCached(cacheKey, result, SENTIMENT_TTL_MS);
+
+  if (result.available && result.quarters.length > 0) {
+    await prisma.earningsSentiment.createMany({
+      data: result.quarters.map(q => ({
+        ticker,
+        period: q.period,
+        filingDate: new Date(q.date),
+        sentiment: q.sentiment,
+        guidance: q.guidance,
+        tone: q.tone,
+        beatsEstimates: q.beats_estimates,
+        summary: q.summary,
+      })),
+      skipDuplicates: true,
+    });
   }
+
   return result;
+};
+
+// Used by the scheduled refresh job — fetches from ML and upserts any new quarters
+export const refreshSentiment = async (assetId: string): Promise<{ ticker: string; newQuarters: number }> => {
+  const asset = getAsset(assetId);
+  if (!asset) throw new Error(`Unknown asset: ${assetId}`);
+
+  const ticker = (asset.yahooTicker ?? asset.id).toUpperCase();
+
+  const res = await fetch(`${ML_URL}/sentiment?asset=${encodeURIComponent(ticker)}`);
+  if (!res.ok) return { ticker, newQuarters: 0 };
+
+  const result = await res.json() as SentimentResult;
+  if (!result.available || result.quarters.length === 0) return { ticker, newQuarters: 0 };
+
+  const existing = await prisma.earningsSentiment.findMany({
+    where: { ticker },
+    select: { period: true },
+  });
+  const existingPeriods = new Set(existing.map(r => r.period));
+
+  const newQuarterData = result.quarters.filter(q => !existingPeriods.has(q.period));
+
+  if (newQuarterData.length > 0) {
+    await prisma.earningsSentiment.createMany({
+      data: newQuarterData.map(q => ({
+        ticker,
+        period: q.period,
+        filingDate: new Date(q.date),
+        sentiment: q.sentiment,
+        guidance: q.guidance,
+        tone: q.tone,
+        beatsEstimates: q.beats_estimates,
+        summary: q.summary,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  return { ticker, newQuarters: newQuarterData.length };
 };
 
 export const detectAssetFromMessage = (message: string): string | null => {
@@ -82,6 +155,6 @@ export const formatRegimeForPrompt = (assetId: string, result: RegimeResult): st
     volatile: 'alta volatilidade sem direção clara',
     mean_reverting: 'consolidação ou reversão à média',
   }
-  
+
   return `REGIME ATUAL DE ${name.toUpperCase()}: ${labels[result.regime]} (confiança: ${Math.round(result.confidence * 100)}%)`;
 }

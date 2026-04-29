@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { asyncHandler } from '@/utils/asyncHandler';
-import { detectRegime, getSentiment } from '@/services/analysis.service';
+import { detectRegime, getSentiment, refreshSentiment } from '@/services/analysis.service';
 import { compareAssets } from '@/services/comparison.service';
+import { ASSETS } from '@/config/assets.config';
 import { z } from 'zod';
 
 const router = Router();
@@ -31,6 +32,18 @@ router.get('/sentiment', asyncHandler(async (req, res) => {
     const { asset } = z.object({ asset: z.string().min(1) }).parse(req.query);
     const result = await getSentiment(asset);
     res.status(200).json(result);
+}));
+
+// Internal endpoint called by the scheduled job — refreshes all supported tickers
+router.post('/sentiment/refresh', asyncHandler(async (req, res) => {
+    const EARNINGS_ASSET_IDS = ['aapl', 'msft', 'nvda', 'tsla', 'amzn', 'googl', 'meta', 'nflx', 'brkb', 'jpm', 'v', 'coin'];
+    const results = await Promise.allSettled(EARNINGS_ASSET_IDS.map(id => refreshSentiment(id)));
+    const summary = results.map((r, i) =>
+        r.status === 'fulfilled'
+            ? r.value
+            : { ticker: EARNINGS_ASSET_IDS[i], newQuarters: 0, error: (r.reason as Error).message }
+    );
+    res.status(200).json({ refreshed: summary });
 }));
 
 export default router;

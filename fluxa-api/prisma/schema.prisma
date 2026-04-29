@@ -116,3 +116,20 @@ enum TransactionType {
   BUY
   SELL
 }
+
+model EarningsSentiment {
+  id             BigInt    @id @default(autoincrement())
+  ticker         String
+  period         String
+  filingDate     DateTime  @map("filing_date") @db.Date
+  sentiment      Float
+  guidance       String
+  tone           String
+  beatsEstimates Boolean?  @map("beats_estimates")
+  summary        String
+  analyzedAt     DateTime  @default(now()) @map("analyzed_at") @db.Timestamptz(6)
+
+  @@unique([ticker, period])
+  @@index([ticker, filingDate(sort: Desc)])
+  @@map("earnings_sentiment")
+}

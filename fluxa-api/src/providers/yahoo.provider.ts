@@ -92,18 +92,18 @@ export async function fetchMarketDataYahoo(ticker: string): Promise<{
     currency: string;
 }> {
     const { data } = await client.get<YahooChartResponse>(`/chart/${ticker}`, {
-        params: { interval: '1d', range: '1d' },
+        params: { interval: '1d', range: '5d' },
     });
 
     const result = data.chart.result?.[0];
     if (!result) throw new Error(`Yahoo Finance: no data for ${ticker}`);
 
-    return {
-        price: result.meta.regularMarketPrice,
-        change: result.meta.regularMarketChange,
-        changePercent: result.meta.regularMarketChangePercent,
-        currency: result.meta.currency,
-    };
+    const price = result.meta.regularMarketPrice;
+    const prevClose = (result.meta as unknown as Record<string, number>)['chartPreviousClose'] ?? price;
+    const change = result.meta.regularMarketChange ?? (price - prevClose);
+    const changePercent = result.meta.regularMarketChangePercent ?? (prevClose > 0 ? ((price - prevClose) / prevClose) * 100 : 0);
+
+    return { price, change, changePercent, currency: result.meta.currency };
 }
 
 export async function fetchHistoricalPriceYahoo(ticker: string, isoDate: string): Promise<{ price: number; currency: string }> {
