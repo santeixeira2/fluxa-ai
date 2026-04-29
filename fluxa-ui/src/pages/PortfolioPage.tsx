@@ -15,7 +15,9 @@ import {
 } from '../api/client';
 import type { Portfolio, PortfolioTransaction, AssetInfo, Alert, AlertType, MonthlyReport } from '../api/client';
 
-const EARNINGS_SUPPORTED = new Set(['aapl', 'msft', 'nvda', 'tsla', 'amzn', 'googl', 'meta', 'nflx', 'brkb', 'jpm', 'v', 'coin']);
+const EARNINGS_SUPPORTED_US = new Set(['aapl', 'msft', 'nvda', 'tsla', 'amzn', 'googl', 'meta', 'nflx', 'brkb', 'jpm', 'v', 'coin']);
+const EARNINGS_SUPPORTED_B3 = new Set(['petr4', 'vale3', 'itub4', 'bbdc4', 'bbas3', 'wege3', 'mglu3', 'b3sa3']);
+const EARNINGS_SUPPORTED = new Set([...EARNINGS_SUPPORTED_US, ...EARNINGS_SUPPORTED_B3]);
 
 function sentimentBar(score: number) {
   const pct = Math.round(((score + 1) / 2) * 100);
@@ -24,6 +26,7 @@ function sentimentBar(score: number) {
 }
 
 function SentimentPreview({ assetId }: { assetId: string }) {
+  const isBR = EARNINGS_SUPPORTED_B3.has(assetId);
   const [result, setResult] = useState<SentimentResult | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -87,7 +90,9 @@ function SentimentPreview({ assetId }: { assetId: string }) {
           );
         })}
       </div>
-      <p className="text-[9px] text-white/20 mt-2">Fonte: SEC EDGAR · Análise via IA</p>
+      <p className="text-[9px] text-white/20 mt-2">
+        Fonte: {isBR ? 'CVM ITR · Dados Abertos' : 'SEC EDGAR'} · Análise via IA
+      </p>
     </div>
   );
 }
