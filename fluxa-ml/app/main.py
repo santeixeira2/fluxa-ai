@@ -1,13 +1,36 @@
+import asyncio
 import datetime
+import logging
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 
 from app.data import fetch_features
-from app.earnings import get_earnings_sentiment
+from app.earnings import get_earnings_sentiment, SUPPORTED_TICKERS
 from app.hmm import load, predict, predict_history, train
 from app.schemas import RegimeHistoryResponse, RegimeResponse, SentimentResponse, TrainRequest, TrainResponse
 
-app = FastAPI(title="Fluxa ML", version="2.0.0")
+logger = logging.getLogger("fluxa.ml")
+
+
+async def _warm_sentiment_cache() -> None:
+    async def _fetch(ticker: str) -> None:
+        try:
+            await get_earnings_sentiment(ticker)
+            logger.info("sentiment cache warmed: %s", ticker)
+        except Exception as exc:
+            logger.warning("sentiment cache warm failed for %s: %s", ticker, exc)
+
+    await asyncio.gather(*[_fetch(t) for t in SUPPORTED_TICKERS])
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(_warm_sentiment_cache())
+    yield
+
+
+app = FastAPI(title="Fluxa ML", version="2.0.0", lifespan=lifespan)
 
 
 @app.get("/health")

@@ -4,7 +4,9 @@ import asyncio
 import json
 import os
 import re
+import time
 from html.parser import HTMLParser
+from pathlib import Path
 from typing import TypedDict
 
 import httpx
@@ -15,17 +17,46 @@ load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "qwen/qwen3-32b")
 EDGAR_ARCHIVES = "https://www.sec.gov/Archives/edgar/data"
-# EDGAR requires a User-Agent identifying the requester
 _HEADERS = {"User-Agent": "Fluxa AI santhiago2k17@gmail.com"}
 
-# Only US-listed stocks with EDGAR filings
 SUPPORTED_TICKERS = frozenset({
     "AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "GOOGL", "META",
     "NFLX", "BRK-B", "JPM", "V", "COIN",
 })
 
+_CACHE_DIR = Path(os.getenv("ML_CACHE_DIR", "/tmp/fluxa_ml_cache"))
+_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+_SENTIMENT_TTL = 24 * 3600  # 24h in seconds
+
 _cik_cache: dict[str, str] = {}
 _sentiment_cache: dict[str, "SentimentResult"] = {}
+
+
+def _cache_path(ticker: str) -> Path:
+    return _CACHE_DIR / f"sentiment_{ticker}.json"
+
+
+def _load_disk_cache(ticker: str) -> "SentimentResult | None":
+    path = _cache_path(ticker)
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text())
+        if time.time() - data.get("_cached_at", 0) > _SENTIMENT_TTL:
+            path.unlink(missing_ok=True)
+            return None
+        data.pop("_cached_at", None)
+        return data  # type: ignore[return-value]
+    except Exception:
+        return None
+
+
+def _save_disk_cache(ticker: str, result: "SentimentResult") -> None:
+    try:
+        payload = {**result, "_cached_at": time.time()}
+        _cache_path(ticker).write_text(json.dumps(payload))
+    except Exception:
+        pass
 
 
 # ── CIK lookup ─────────────────────────────────────────────────────────────
@@ -245,6 +276,25 @@ class SentimentResult(TypedDict):
     error: str | None
 
 
+async def _process_filing(cik: str, filing: dict) -> SentimentQuarter | None:
+    try:
+        text = await _fetch_exhibit_text(cik, filing["accession"], filing.get("primary_doc", ""))
+        if not text or len(text) < 300:
+            return None
+        data = await _analyze_sentiment(text)
+        return SentimentQuarter(
+            period=filing["period"],
+            date=filing["date"],
+            sentiment=float(data.get("sentiment", 0)),
+            guidance=str(data.get("guidance", "none")),
+            tone=str(data.get("tone", "neutral")),
+            beats_estimates=data.get("beats_estimates"),
+            summary=str(data.get("summary", "")),
+        )
+    except Exception:
+        return None
+
+
 async def get_earnings_sentiment(ticker: str) -> SentimentResult:
     ticker_upper = ticker.upper()
 
@@ -253,6 +303,11 @@ async def get_earnings_sentiment(ticker: str) -> SentimentResult:
 
     if ticker_upper in _sentiment_cache:
         return _sentiment_cache[ticker_upper]
+
+    cached = _load_disk_cache(ticker_upper)
+    if cached is not None:
+        _sentiment_cache[ticker_upper] = cached
+        return cached
 
     try:
         cik = await _ticker_to_cik(ticker_upper)
@@ -263,24 +318,8 @@ async def get_earnings_sentiment(ticker: str) -> SentimentResult:
     if not filings:
         return SentimentResult(ticker=ticker, available=False, quarters=[], error="no_filings")
 
-    quarters: list[SentimentQuarter] = []
-    for filing in filings:
-        try:
-            text = await _fetch_exhibit_text(cik, filing["accession"], filing.get("primary_doc", ""))
-            if not text or len(text) < 300:
-                continue
-            data = await _analyze_sentiment(text)
-            quarters.append(SentimentQuarter(
-                period=filing["period"],
-                date=filing["date"],
-                sentiment=float(data.get("sentiment", 0)),
-                guidance=str(data.get("guidance", "none")),
-                tone=str(data.get("tone", "neutral")),
-                beats_estimates=data.get("beats_estimates"),
-                summary=str(data.get("summary", "")),
-            ))
-        except Exception:
-            continue
+    results = await asyncio.gather(*[_process_filing(cik, f) for f in filings])
+    quarters = [q for q in results if q is not None]
 
     result = SentimentResult(
         ticker=ticker,
@@ -290,4 +329,5 @@ async def get_earnings_sentiment(ticker: str) -> SentimentResult:
     )
     if result["available"]:
         _sentiment_cache[ticker_upper] = result
+        _save_disk_cache(ticker_upper, result)
     return result
