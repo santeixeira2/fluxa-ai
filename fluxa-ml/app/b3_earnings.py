@@ -7,6 +7,7 @@ import json
 import os
 import re
 import time
+import unicodedata
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -101,7 +102,7 @@ def _save_disk_cache(ticker: str, result: "SentimentResult") -> None:
 # ── CVM ITR DRE data fetch ──────────────────────────────────────────────────
 
 def _cvm_zip_url(year: int) -> str:
-    return f"https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_con_{year}.zip"
+    return f"https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_{year}.zip"
 
 
 def _zip_cache_path(year: int) -> Path:
@@ -188,12 +189,18 @@ class _PeriodMetrics(TypedDict):
     lucro_liquido: float | None
 
 
+def _ascii(s: str) -> str:
+    """Normalize accented chars to ASCII for comparison (ÚLTIMO → ULTIMO)."""
+    return unicodedata.normalize("NFD", s.upper()).encode("ascii", "ignore").decode()
+
+
 def _group_periods(rows: list[_DRERow], order_filter: str = "ÚLTIMO") -> list[_PeriodMetrics]:
     """Group DRE rows by reference date, keeping only the specified ORDEM_EXERC."""
+    target = _ascii(order_filter)
     by_period: dict[str, dict] = {}
 
     for row in rows:
-        if row["order"].upper().replace("I", "I") not in (order_filter.upper(), "ULTIMO", "ÚLTIMO"):
+        if _ascii(row["order"]) != target:
             continue
         key = row["dt_refer"]
         if key not in by_period:
@@ -370,22 +377,21 @@ async def get_b3_earnings_sentiment(ticker: str) -> SentimentResult:
     cnpj = B3_TICKERS[ticker_clean]
     current_year = datetime.now().year
 
-    zips = await asyncio.gather(
-        _fetch_year_zip(current_year),
-        _fetch_year_zip(current_year - 1),
-        return_exceptions=True,
-    )
+    # Try current year and previous year; use whichever has data.
+    # The CVM typically publishes the current year's ZIP only after Q1 is filed
+    # (~May), so in Q1 we fall back to the previous year automatically.
+    all_rows: list[_DRERow] = []
+    for year in [current_year, current_year - 1]:
+        try:
+            zip_data = await _fetch_year_zip(year)
+            all_rows.extend(_extract_dre_rows(zip_data, cnpj))
+        except Exception:
+            continue
 
-    current_rows: list[_DRERow] = []
-    prior_rows: list[_DRERow] = []
-
-    if not isinstance(zips[0], Exception):
-        current_rows = _extract_dre_rows(zips[0], cnpj)  # type: ignore[arg-type]
-    if not isinstance(zips[1], Exception):
-        prior_rows = _extract_dre_rows(zips[1], cnpj)  # type: ignore[arg-type]
-
-    current_periods = _group_periods(current_rows)
-    prior_periods = _group_periods(prior_rows)
+    # ÚLTIMO rows = actual quarterly periods (use as current)
+    # PENÚLTIMO rows = prior-year comparison rows bundled in the same filing
+    current_periods = _group_periods(all_rows, "ÚLTIMO")
+    prior_periods = _group_periods(all_rows, "PENÚLTIMO")
 
     if not current_periods:
         return SentimentResult(ticker=ticker_clean, available=False, quarters=[], error="no_data")
