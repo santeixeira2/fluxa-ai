@@ -36,7 +36,12 @@ router.get('/sentiment', asyncHandler(async (req, res) => {
 
 // Internal endpoint called by the scheduled job — refreshes all supported tickers
 router.post('/sentiment/refresh', asyncHandler(async (req, res) => {
-    const EARNINGS_ASSET_IDS = ['aapl', 'msft', 'nvda', 'tsla', 'amzn', 'googl', 'meta', 'nflx', 'brkb', 'jpm', 'v', 'coin'];
+    const EARNINGS_ASSET_IDS = [
+        // US stocks (SEC EDGAR)
+        'aapl', 'msft', 'nvda', 'tsla', 'amzn', 'googl', 'meta', 'nflx', 'brkb', 'jpm', 'v', 'coin',
+        // B3 stocks (CVM ITR)
+        'petr4', 'vale3', 'itub4', 'bbdc4', 'bbas3', 'wege3', 'mglu3', 'b3sa3',
+    ];
     const results = await Promise.allSettled(EARNINGS_ASSET_IDS.map(id => refreshSentiment(id)));
     const summary = results.map((r, i) =>
         r.status === 'fulfilled'

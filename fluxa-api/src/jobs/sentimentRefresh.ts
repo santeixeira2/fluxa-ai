@@ -2,7 +2,12 @@ import cron from 'node-cron';
 import { refreshSentiment } from '@/services/analysis.service';
 import { logger } from '@/utils/logger';
 
-const EARNINGS_ASSET_IDS = ['aapl', 'msft', 'nvda', 'tsla', 'amzn', 'googl', 'meta', 'nflx', 'brkb', 'jpm', 'v', 'coin'];
+const EARNINGS_ASSET_IDS = [
+    // US stocks (SEC EDGAR)
+    'aapl', 'msft', 'nvda', 'tsla', 'amzn', 'googl', 'meta', 'nflx', 'brkb', 'jpm', 'v', 'coin',
+    // B3 stocks (CVM ITR)
+    'petr4', 'vale3', 'itub4', 'bbdc4', 'bbas3', 'wege3', 'mglu3', 'b3sa3',
+];
 
 async function run() {
   logger.info('Earnings sentiment refresh started');
