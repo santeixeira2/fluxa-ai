@@ -7,11 +7,90 @@ import PortfolioChart from '../components/PortfolioChart';
 import PriceChart from '../components/PriceChart';
 import ComparisonTab from '../components/ComparisonTab';
 import EarningsSentiment from '../components/EarningsSentiment';
+import { getSentiment } from '../api/client';
+import type { SentimentResult } from '../api/client';
 import {
   getPortfolio, buyAsset, sellAsset, getPortfolioTransactions, getAssets,
   listAlerts, createAlert, deleteAlert, getMonthlyReport,
 } from '../api/client';
 import type { Portfolio, PortfolioTransaction, AssetInfo, Alert, AlertType, MonthlyReport } from '../api/client';
+
+const EARNINGS_SUPPORTED = new Set(['aapl', 'msft', 'nvda', 'tsla', 'amzn', 'googl', 'meta', 'nflx', 'brkb', 'jpm', 'v', 'coin']);
+
+function sentimentBar(score: number) {
+  const pct = Math.round(((score + 1) / 2) * 100);
+  const color = score >= 0.2 ? 'bg-emerald-400' : score <= -0.2 ? 'bg-red-400' : 'bg-white/30';
+  return { pct, color };
+}
+
+function SentimentPreview({ assetId }: { assetId: string }) {
+  const [result, setResult] = useState<SentimentResult | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setResult(null);
+    getSentiment(assetId)
+      .then(r => { if (!cancelled) { setResult(r); setLoading(false); } })
+      .catch(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [assetId]);
+
+  if (loading) {
+    return (
+      <div className="mt-4 space-y-2">
+        <div className="h-3 w-32 rounded bg-white/[0.06] animate-pulse" />
+        <div className="h-14 rounded-xl bg-white/[0.03] animate-pulse" />
+        <div className="h-14 rounded-xl bg-white/[0.03] animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!result?.available || result.quarters.length === 0) return null;
+
+  const quarters = result.quarters.slice(0, 2);
+
+  return (
+    <div className="mt-4 border-t border-white/[0.06] pt-4">
+      <p className="text-[10px] font-mono tracking-widest text-white/30 uppercase mb-2">
+        ✦ Sentiment — últimos resultados
+      </p>
+      <div className="space-y-2">
+        {quarters.map(q => {
+          const { pct, color } = sentimentBar(q.sentiment);
+          return (
+            <div key={q.period} className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-mono tracking-widest text-white/50 uppercase">{q.period}</span>
+                <div className="flex gap-1">
+                  {q.beats_estimates !== null && (
+                    <span className={`text-[9px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded border ${q.beats_estimates ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20'}`}>
+                      {q.beats_estimates ? 'Beat' : 'Miss'}
+                    </span>
+                  )}
+                  {q.guidance !== 'none' && (
+                    <span className={`text-[9px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded border ${q.guidance === 'raised' ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : q.guidance === 'lowered' ? 'text-red-400 bg-red-400/10 border-red-400/20' : 'text-blue-400 bg-blue-400/10 border-blue-400/20'}`}>
+                      {q.guidance === 'raised' ? 'Guidance ↑' : q.guidance === 'lowered' ? 'Guidance ↓' : 'Guidance →'}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="h-[2px] rounded-full bg-white/[0.06] overflow-hidden">
+                <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+              </div>
+              <div className="flex justify-between mt-1">
+                <span className="text-[9px] text-white/30 font-mono">{q.tone}</span>
+                <span className="text-[9px] text-white/30 font-mono">{q.sentiment >= 0 ? '+' : ''}{q.sentiment.toFixed(2)}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-[9px] text-white/20 mt-2">Fonte: SEC EDGAR · Análise via IA</p>
+    </div>
+  );
+}
 
 const fmtBRL = (n: number) =>
   n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -84,6 +163,9 @@ function TradeModal({ mode, assetId: initialAsset, maxQuantity, assets, balance,
               placeholder={t('portfolio.tradeModal.selectAsset')}
               options={assets.map(a => ({ value: a.id, label: a.name, sublabel: a.symbol }))}
             />
+            {mode === 'buy' && assetId && EARNINGS_SUPPORTED.has(assetId) && (
+              <SentimentPreview assetId={assetId} />
+            )}
           </div>
 
           {mode === 'buy' ? (
