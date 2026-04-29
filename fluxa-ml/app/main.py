@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 
 from app.data import fetch_features
+from app.b3_earnings import get_b3_earnings_sentiment, SUPPORTED_B3_TICKERS
 from app.earnings import get_earnings_sentiment, SUPPORTED_TICKERS
 from app.hmm import load, predict, predict_history, train
 from app.schemas import RegimeHistoryResponse, RegimeResponse, SentimentResponse, TrainRequest, TrainResponse
@@ -14,14 +15,24 @@ logger = logging.getLogger("fluxa.ml")
 
 
 async def _warm_sentiment_cache() -> None:
-    async def _fetch(ticker: str) -> None:
+    async def _fetch_us(ticker: str) -> None:
         try:
             await get_earnings_sentiment(ticker)
-            logger.info("sentiment cache warmed: %s", ticker)
+            logger.info("US sentiment cache warmed: %s", ticker)
         except Exception as exc:
-            logger.warning("sentiment cache warm failed for %s: %s", ticker, exc)
+            logger.warning("US sentiment warm failed for %s: %s", ticker, exc)
 
-    await asyncio.gather(*[_fetch(t) for t in SUPPORTED_TICKERS])
+    async def _fetch_b3(ticker: str) -> None:
+        try:
+            await get_b3_earnings_sentiment(ticker)
+            logger.info("B3 sentiment cache warmed: %s", ticker)
+        except Exception as exc:
+            logger.warning("B3 sentiment warm failed for %s: %s", ticker, exc)
+
+    await asyncio.gather(
+        *[_fetch_us(t) for t in SUPPORTED_TICKERS],
+        *[_fetch_b3(t) for t in SUPPORTED_B3_TICKERS],
+    )
 
 
 @asynccontextmanager
@@ -76,7 +87,13 @@ def get_regime_history(asset: str, period: str = "2y"):
 
 @app.get("/sentiment", response_model=SentimentResponse)
 async def get_sentiment(asset: str):
-    result = await get_earnings_sentiment(asset)
+    # B3 tickers arrive with .SA suffix (Yahoo Finance format); strip to check
+    import re as _re
+    bare = _re.sub(r"\.SA$", "", asset.upper())
+    if bare in SUPPORTED_B3_TICKERS:
+        result = await get_b3_earnings_sentiment(asset)
+    else:
+        result = await get_earnings_sentiment(asset)
     return SentimentResponse(**result)
 
 
