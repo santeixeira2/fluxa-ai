@@ -432,6 +432,7 @@ export interface RegimeResult {
     smaSlope: number;
     directionalBias: number;
   };
+  aiSummary?: string;
 }
 
 export function getRegime(assetId: string): Promise<RegimeResult> {
@@ -459,6 +460,7 @@ export interface ComparisonResult {
   period: ComparisonPeriod;
   assets: [ComparisonAsset, ComparisonAsset];
   correlation: number;
+  aiSummary?: string;
 }
 
 // ── Earnings Sentiment ─────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { getMarkets } from '../api/client';
 import type { MarketsData, MarketCategory, MarketItem } from '../api/client';
 import Reveal from './Reveal';
@@ -19,24 +20,32 @@ function fmt(value: number, currency: string): string {
 }
 
 function MarketRow({ item, index }: { item: MarketItem; index: number }) {
+  const navigate = useNavigate();
   const pct = item.changePercent ?? 0;
   const up = pct >= 0;
   return (
-    <div 
-      className="flex items-center justify-between py-3 border-b border-black/[0.04] dark:border-white/[0.04] last:border-0 transition-colors hover:bg-black/[0.02] dark:hover:bg-white/[0.02] px-2 -mx-2 rounded-lg"
+    <button
+      type="button"
+      onClick={() => navigate(`/analysis?asset=${item.id}`)}
+      className="w-full flex items-center justify-between py-3 border-b border-black/[0.04] dark:border-white/[0.04] last:border-0 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.04] px-2 -mx-2 rounded-lg cursor-pointer group"
       style={{ animationDelay: `${index * 60}ms` }}
     >
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-black dark:text-white truncate">{item.name}</p>
+      <div className="flex-1 min-w-0 text-left">
+        <p className="text-sm font-medium text-black dark:text-white truncate group-hover:text-black dark:group-hover:text-white">{item.name}</p>
         <p className="text-xs text-black/30 dark:text-white/30 font-mono">{item.symbol}</p>
       </div>
-      <div className="text-right ml-4">
-        <p className="text-sm font-mono font-medium text-black dark:text-white">{fmt(item.price, item.currency)}</p>
-        <p className={`text-xs font-mono ${up ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-          {pct !== 0 ? `${up ? '+' : ''}${pct.toFixed(2)}%` : '—'}
-        </p>
+      <div className="text-right ml-4 flex items-center gap-3">
+        <div>
+          <p className="text-sm font-mono font-medium text-black dark:text-white">{fmt(item.price, item.currency)}</p>
+          <p className={`text-xs font-mono ${up ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+            {pct !== 0 ? `${up ? '+' : ''}${pct.toFixed(2)}%` : '—'}
+          </p>
+        </div>
+        <svg className="w-3.5 h-3.5 text-black/20 dark:text-white/20 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
       </div>
-    </div>
+    </button>
   );
 }
 

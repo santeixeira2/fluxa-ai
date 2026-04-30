@@ -15,16 +15,29 @@ const fmtNum = (n: number) => n.toFixed(2);
 
 interface Props {
   assets: AssetInfo[];
+  preselectedA?: string;
 }
 
-export default function ComparisonTab({ assets }: Props) {
+function defaultB(assets: AssetInfo[], idA: string): string {
+  const typeA = assets.find(a => a.id === idA)?.type;
+  return assets.find(a => a.id !== idA && a.type === typeA)?.id ?? 'ethereum';
+}
+
+export default function ComparisonTab({ assets, preselectedA }: Props) {
   const { t } = useTranslation();
-  const [idA, setIdA] = useState<string>('bitcoin');
-  const [idB, setIdB] = useState<string>('ethereum');
+  const [idA, setIdA] = useState<string>(preselectedA ?? 'bitcoin');
+  const [idB, setIdB] = useState<string>(() => defaultB(assets, preselectedA ?? 'bitcoin'));
   const [period, setPeriod] = useState<ComparisonPeriod>('1Y');
   const [result, setResult] = useState<ComparisonResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  function handleSetIdA(newId: string) {
+    const newType = assets.find(a => a.id === newId)?.type;
+    const curBType = assets.find(a => a.id === idB)?.type;
+    setIdA(newId);
+    if (newType !== curBType) setIdB(defaultB(assets, newId));
+  }
 
   useEffect(() => {
     if (!idA || !idB || idA === idB) return;
@@ -38,10 +51,13 @@ export default function ComparisonTab({ assets }: Props) {
     return () => { cancelled = true; };
   }, [idA, idB, period, t]);
 
-  const optionsA = assets
+  const typeA = assets.find(a => a.id === idA)?.type;
+  const sameTypeAssets = typeA ? assets.filter(a => a.type === typeA) : assets;
+
+  const optionsA = sameTypeAssets
     .filter(a => a.id !== idB)
     .map(a => ({ value: a.id, label: a.name, sublabel: a.symbol }));
-  const optionsB = assets
+  const optionsB = sameTypeAssets
     .filter(a => a.id !== idA)
     .map(a => ({ value: a.id, label: a.name, sublabel: a.symbol }));
 
@@ -55,7 +71,7 @@ export default function ComparisonTab({ assets }: Props) {
               <span className="w-2 h-2 rounded-full" style={{ background: COLOR_A }} />
               {t('portfolio.compare.assetA')}
             </label>
-            <Select value={idA} onChange={setIdA} options={optionsA} />
+            <Select value={idA} onChange={handleSetIdA} options={optionsA} />
           </div>
           <div>
             <label className="text-[10px] font-mono tracking-widest text-black/40 dark:text-white/40 uppercase mb-1.5 flex items-center gap-2">
@@ -103,6 +119,12 @@ export default function ComparisonTab({ assets }: Props) {
           <MetricsGrid a={result.assets[0]} b={result.assets[1]} />
           <CorrelationBanner value={result.correlation} />
           <ComparisonChart result={result} />
+          {result.aiSummary && (
+            <div className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl p-5">
+              <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">✦ Fluxa AI</p>
+              <p className="text-sm leading-relaxed text-black/80 dark:text-white/80">{result.aiSummary}</p>
+            </div>
+          )}
         </>
       )}
     </div>

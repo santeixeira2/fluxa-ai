@@ -2,6 +2,7 @@ import { getChartData } from "./price.service";
 import { getCached, setCached } from "@/utils/cache";
 import { mean, stddev, correlation } from "@/utils/stats";
 import { getAsset, type AssetConfig } from "@/config/assets.config";
+import { getOrGenerateInsight } from "./analysis.service";
 import type {
   ComparisonAsset,
   ComparisonAssetMetrics,
@@ -137,10 +138,23 @@ export const compareAssets = async (
 
   const corr = parseFloat(correlation(returnsA, returnsB).toFixed(2));
 
+  const insightKey = `${[idA, idB].sort().join(':')}:${period}`;
+  const ma = assetResultA.metrics;
+  const mb = assetResultB.metrics;
+  const prompt = `Comparação ${period}: ${assetResultA.name} (${assetResultA.symbol}) vs ${assetResultB.name} (${assetResultB.symbol})
+${assetResultA.symbol}: retorno ${ma.totalReturn}% | vol ${ma.annualizedVol}% | Sharpe ${ma.sharpe} | max drawdown ${ma.maxDrawdown}%
+${assetResultB.symbol}: retorno ${mb.totalReturn}% | vol ${mb.annualizedVol}% | Sharpe ${mb.sharpe} | max drawdown ${mb.maxDrawdown}%
+Correlação: ${corr}
+
+Em 2 a 3 frases curtas em português, como analista financeiro, aponte qual ativo performou melhor neste período e por quê, considerando retorno ajustado ao risco. Seja direto e não repita os dados — interprete-os.`;
+
+  const aiSummary = await getOrGenerateInsight('compare', insightKey, prompt);
+
   const result: ComparisonResult = {
     period,
     assets: [assetResultA, assetResultB],
     correlation: corr,
+    ...(aiSummary ? { aiSummary } : {}),
   };
 
   setCached(cacheKey, result, COMPARISON_TTL_MS);

@@ -1,8 +1,37 @@
 import { getCached, setCached } from "@/utils/cache";
 import { getAsset, ASSETS } from "@/config/assets.config";
 import { prisma } from "@/utils/prisma";
+import { generateContent } from "@/providers/groq.provider";
 import type { Regime, RegimeResult, SentimentResult, EarningsGuidance, EarningsTone, RiskResult } from "@/types";
 import { getPortfolio } from "./portfolio.service";
+
+const INSIGHT_TTL: Record<string, number> = {
+  regime:  24 * 3_600_000,
+  compare: 12 * 3_600_000,
+};
+
+export async function getOrGenerateInsight(
+  type: string,
+  key: string,
+  prompt: string,
+): Promise<string | null> {
+  try {
+    const existing = await prisma.aiInsight.findUnique({ where: { type_key: { type, key } } });
+    if (existing) {
+      const age = Date.now() - existing.generatedAt.getTime();
+      if (age < (INSIGHT_TTL[type] ?? 24 * 3_600_000)) return existing.content;
+    }
+    const content = await generateContent(prompt, { responseMimeType: 'text/plain' });
+    await prisma.aiInsight.upsert({
+      where: { type_key: { type, key } },
+      create: { type, key, content },
+      update: { content, generatedAt: new Date() },
+    });
+    return content;
+  } catch {
+    return null;
+  }
+}
 
 const ML_URL = process.env.ML_SERVICE_URL ?? 'http://localhost:8000';
 const REGIME_TTL_MS = 15 * 60_000;
@@ -30,8 +59,24 @@ export const detectRegime = async (assetId: string): Promise<RegimeResult> => {
   const data = await res.json() as { regime: Regime; confidence: number };
   const result: RegimeResult = { regime: data.regime, confidence: data.confidence };
 
-  setCached(cacheKey, result, REGIME_TTL_MS);
-  return result;
+  const asset = getAsset(assetId);
+  const name = asset ? `${asset.name} (${asset.symbol})` : assetId;
+  const regimeLabels: Record<Regime, string> = {
+    trending_up:    'tendência de alta',
+    trending_down:  'tendência de baixa',
+    volatile:       'alta volatilidade sem direção clara',
+    mean_reverting: 'consolidação / reversão à média',
+  };
+  const prompt = `Ativo: ${name}
+Regime detectado: ${regimeLabels[result.regime]} com ${Math.round(result.confidence * 100)}% de confiança.
+
+Em 2 a 3 frases curtas em português, como analista financeiro, explique o que esse regime significa para quem considera comprar esse ativo agora. Seja direto, prático e não repita os dados — interprete-os.`;
+
+  const aiSummary = await getOrGenerateInsight('regime', assetId, prompt);
+  const fullResult: RegimeResult = { ...result, ...(aiSummary ? { aiSummary } : {}) };
+
+  setCached(cacheKey, fullResult, REGIME_TTL_MS);
+  return fullResult;
 }
 
 export const getSentiment = async (assetId: string): Promise<SentimentResult> => {

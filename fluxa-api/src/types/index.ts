@@ -48,6 +48,7 @@ export interface RegimeResult {
     smaSlope: number;
     directionalBias: number;
   };
+  aiSummary?: string;
 }
 
 export type ComparisonPeriod = '1M' | '1Y' | '5Y';
@@ -71,6 +72,7 @@ export interface ComparisonResult {
   period: ComparisonPeriod;
   assets: [ComparisonAsset, ComparisonAsset];
   correlation: number;
+  aiSummary?: string;
 }
 
 // ── Earnings Sentiment ──────────────────────────────────────────────────────
