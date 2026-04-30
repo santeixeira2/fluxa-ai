@@ -1,10 +1,9 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import SimulatorContainer, { type SimFormData } from '../components/containers/SimulatorContainer';
 import HistoricalCalculator from '../components/HistoricalCalculator';
 import DCACalculator from '../components/DCACalculator';
-import PriceChart from '../components/PriceChart';
 import Reveal from '../components/Reveal';
 import Select from '../components/Select';
 import { getFiatRate, getPrice } from '../api/client';
@@ -76,7 +75,6 @@ function cryptoAssetId(code: string) {
 
 const NAV_SECTIONS = [
   { id: 'converter', labelKey: 'calculadoras.nav.converter' },
-  { id: 'chart',     labelKey: 'calculadoras.nav.chart'     },
   { id: 'simulator', labelKey: 'calculadoras.nav.simulator' },
   { id: 'historico', labelKey: 'calculadoras.nav.historical'},
   { id: 'dca',       labelKey: 'calculadoras.nav.dca'       },
@@ -120,11 +118,7 @@ const CONVERTER_DEFAULTS: Record<ConverterTab, { from: string; to: string }> = {
   crypto: { from: 'BTC', to: 'BRL' },
 };
 
-interface ConverterProps {
-  onChartChange: (assetId: string) => void;
-}
-
-function CurrencyConverter({ onChartChange }: ConverterProps) {
+function CurrencyConverter() {
   const { t } = useTranslation();
   const [tab,    setTab]    = useState<ConverterTab>('forex');
   const [from,   setFrom]   = useState('USD');
@@ -181,11 +175,6 @@ function CurrencyConverter({ onChartChange }: ConverterProps) {
 
   useEffect(() => { convert(); }, [convert]);
 
-  // Notify parent so chart stays in sync
-  useEffect(() => {
-    const assetId = CURRENCY_CHART_MAP[from] ?? CURRENCY_CHART_MAP[to] ?? 'usd-brl';
-    onChartChange(assetId);
-  }, [from, to, onChartChange]);
 
   const result = rate != null && amount ? Number(amount) * rate : null;
   const allCurrencies = [...FIAT_CURRENCIES, ...CRYPTO_CURRENCIES];
@@ -317,16 +306,11 @@ function CurrencyConverter({ onChartChange }: ConverterProps) {
 export default function CalculadorasPage() {
   const { t } = useTranslation();
   const [prefill, setPrefill] = useState<SimFormData | null>(null);
-  const [chartAsset, setChartAsset] = useState('usd-brl');
   const [activeSection, setActiveSection] = useState('converter');
-
-  const handleChartChange = useCallback((assetId: string) => {
-    setChartAsset(assetId);
-  }, []);
 
   // Scroll spy for sidebar
   useEffect(() => {
-    const ids = ['converter', 'chart', 'simulator', 'historico', 'dca'];
+    const ids = ['converter', 'simulator', 'historico', 'dca'];
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(e => { if (e.isIntersecting) setActiveSection(e.target.id); });
@@ -349,26 +333,11 @@ export default function CalculadorasPage() {
 
           {/* Content — 6 cols */}
           <main className="col-span-1 lg:col-span-6 min-w-0">
-            <CurrencyConverter onChartChange={handleChartChange} />
-
-            <section className="py-12 px-6 border-t border-black/[0.05] dark:border-white/[0.05]" id="chart">
-              <Reveal delay={0}>
-                <div className="text-center mb-10">
-                  <span className="section-label">{t('calculadoras.chart.badge')}</span>
-                  <h2 className="text-4xl md:text-5xl font-bold tracking-tight mt-2 text-black dark:text-white">{t('calculadoras.chart.headline')}</h2>
-                </div>
-              </Reveal>
-              <Reveal delay={150}>
-                <div className="glass-card p-8">
-                  <PriceChart assetId={chartAsset} />
-                </div>
-              </Reveal>
-            </section>
+            <CurrencyConverter />
 
             <SimulatorContainer
               prefill={prefill}
               onPrefillConsumed={() => setPrefill(null)}
-              onAssetChange={handleChartChange}
             />
 
             <HistoricalCalculator />

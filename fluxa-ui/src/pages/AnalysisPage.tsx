@@ -2,103 +2,34 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar';
 import ComparisonTab from '../components/ComparisonTab';
+import PriceChart from '../components/PriceChart';
 import Select from '../components/Select';
-import { getAssets, getRegime, getRiskAnalysis } from '../api/client';
-import type { AssetInfo, RegimeResult, RiskResult } from '../api/client';
+import { getAssets, getRegime } from '../api/client';
+import type { AssetInfo, RegimeResult } from '../api/client';
 
-type Tab = 'risk' | 'compare' | 'regime';
+type Tab = 'chart' | 'compare' | 'regime';
 
-// ── Risk Tab ────────────────────────────────────────────────────────────────
+// ── Chart Tab ───────────────────────────────────────────────────────────────
 
-function RiskTab() {
+function ChartTab({ assets }: { assets: AssetInfo[] }) {
   const { t } = useTranslation();
-  const [result, setResult] = useState<RiskResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    getRiskAnalysis()
-      .then(setResult)
-      .catch(e => setError(e instanceof Error ? e.message : t('portfolio.riskTab.loadError')))
-      .finally(() => setLoading(false));
-  }, [t]);
-
-  if (loading) return (
-    <div className="space-y-3 pt-4">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="h-20 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] animate-pulse" />
-      ))}
-    </div>
-  );
-
-  if (error) return (
-    <div className="py-20 text-center text-sm text-red-500 font-mono">{error}</div>
-  );
-
-  if (!result) return null;
-
-  const stats = [
-    { label: t('portfolio.riskTab.annualizedVol'), value: `${(result.annualizedVol * 100).toFixed(1)}%`, tone: 'neutral' as const },
-    { label: t('portfolio.riskTab.annualizedReturn'), value: `${result.annualizedReturn >= 0 ? '+' : ''}${(result.annualizedReturn * 100).toFixed(1)}%`, tone: (result.annualizedReturn >= 0 ? 'pos' : 'neg') as 'pos' | 'neg' },
-    { label: t('portfolio.riskTab.sharpe'), value: result.sharpe.toFixed(2), tone: (result.sharpe >= 1 ? 'pos' : result.sharpe >= 0 ? 'neutral' : 'neg') as 'pos' | 'neg' | 'neutral' },
-    { label: t('portfolio.riskTab.marketFactor'), value: `${(result.marketFactorExposure * 100).toFixed(1)}%`, tone: 'neutral' as const },
-  ];
+  const [assetId, setAssetId] = useState('bitcoin');
 
   return (
-    <div className="space-y-6">
-      <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">
-        ✦ {t('portfolio.riskTab.title')}
-      </p>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {stats.map(s => (
-          <div key={s.label} className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-xl p-4">
-            <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-1">{s.label}</p>
-            <p className={`text-lg font-bold font-mono ${s.tone === 'pos' ? 'text-emerald-500' : s.tone === 'neg' ? 'text-red-500' : ''}`}>
-              {s.value}
-            </p>
-          </div>
-        ))}
-      </div>
-
+    <div className="space-y-4">
       <div className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl p-5">
-        <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-4">
-          {t('portfolio.riskTab.riskByAsset')}
-        </p>
-        <div className="space-y-3">
-          {result.assetContributions
-            .slice()
-            .sort((a, b) => b.riskContribution - a.riskContribution)
-            .map(ac => {
-              const pct = Math.max(0, ac.riskContribution * 100);
-              return (
-                <div key={ac.ticker}>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-xs font-mono text-black/60 dark:text-white/60">{ac.ticker}</span>
-                    <span className="text-xs font-mono text-black/40 dark:text-white/40">{pct.toFixed(1)}%</span>
-                  </div>
-                  <div className="h-[3px] rounded-full bg-black/[0.06] dark:bg-white/[0.06] overflow-hidden">
-                    <div className="h-full rounded-full bg-blue-400/70" style={{ width: `${Math.min(100, pct)}%` }} />
-                  </div>
-                </div>
-              );
-            })}
-        </div>
+        <label className="text-[10px] font-mono tracking-widest text-black/40 dark:text-white/40 uppercase mb-2 block">
+          {t('analysis.chart.selectAsset')}
+        </label>
+        <Select
+          value={assetId}
+          onChange={setAssetId}
+          options={assets.map(a => ({ value: a.id, label: a.name, sublabel: a.symbol }))}
+        />
       </div>
-
-      {result.stressLoss !== null && (
-        <div className="border border-red-500/20 bg-red-500/[0.03] rounded-2xl p-5">
-          <p className="text-[10px] font-mono tracking-widest text-red-500/60 uppercase mb-2">
-            {t('portfolio.riskTab.stressTest', { period: result.stressPeriod })}
-          </p>
-          <p className="text-2xl font-bold font-mono text-red-500">
-            {(result.stressLoss * 100).toFixed(1)}%
-          </p>
-          <p className="text-xs text-black/40 dark:text-white/40 mt-1">
-            {t('portfolio.riskTab.stressDesc')}
-          </p>
-        </div>
-      )}
+      <div className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl p-5">
+        <PriceChart assetId={assetId} />
+      </div>
     </div>
   );
 }
@@ -226,7 +157,7 @@ export default function AnalysisPage() {
   }, []);
 
   const TABS: { id: Tab; label: string }[] = [
-    { id: 'risk',    label: t('analysis.tabs.risk') },
+    { id: 'chart',   label: t('analysis.tabs.chart') },
     { id: 'compare', label: t('analysis.tabs.compare') },
     { id: 'regime',  label: t('analysis.tabs.regime') },
   ];
@@ -259,7 +190,7 @@ export default function AnalysisPage() {
           ))}
         </div>
 
-        {tab === 'risk'    && <RiskTab />}
+        {tab === 'chart'   && <ChartTab assets={assets} />}
         {tab === 'compare' && <ComparisonTab assets={assets} />}
         {tab === 'regime'  && <RegimeTab assets={assets} />}
       </main>

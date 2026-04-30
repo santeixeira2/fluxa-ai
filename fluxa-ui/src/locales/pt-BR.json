@@ -449,9 +449,12 @@
     "title": "Análise",
     "subtitle": "Avalie risco, compare ativos e detecte regimes de mercado antes de investir.",
     "tabs": {
-      "risk": "Risco",
+      "chart": "Gráfico",
       "compare": "Comparação",
       "regime": "Regime"
+    },
+    "chart": {
+      "selectAsset": "Selecione um ativo"
     },
     "regime": {
       "label": "Regime detectado",

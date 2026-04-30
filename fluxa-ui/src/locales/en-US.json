@@ -449,9 +449,12 @@
     "title": "Analysis",
     "subtitle": "Assess risk, compare assets and detect market regimes before investing.",
     "tabs": {
-      "risk": "Risk",
+      "chart": "Chart",
       "compare": "Compare",
       "regime": "Regime"
+    },
+    "chart": {
+      "selectAsset": "Select an asset"
     },
     "regime": {
       "label": "Detected regime",

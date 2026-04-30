@@ -8,8 +8,8 @@ import Select from '../components/Select';
 import PortfolioChart from '../components/PortfolioChart';
 import PriceChart from '../components/PriceChart';
 import EarningsSentiment from '../components/EarningsSentiment';
-import { getSentiment } from '../api/client';
-import type { SentimentResult } from '../api/client';
+import { getSentiment, getRiskAnalysis } from '../api/client';
+import type { SentimentResult, RiskResult } from '../api/client';
 import {
   getPortfolio, buyAsset, sellAsset, getPortfolioTransactions, getAssets,
   listAlerts, createAlert, deleteAlert, getMonthlyReport,
@@ -106,7 +106,7 @@ const fmtDate = (iso: string) => {
   return new Date(iso).toLocaleDateString(loc, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 };
 
-type Tab = 'positions' | 'transactions' | 'alerts' | 'report';
+type Tab = 'positions' | 'transactions' | 'alerts' | 'report' | 'risk';
 type TradeMode = 'buy' | 'sell';
 
 // ── Trade Modal ────────────────────────────────────────────────────────────
@@ -560,6 +560,98 @@ function AssetDrawer({ assetId, assetName, onClose }: { assetId: string; assetNa
   );
 }
 
+// ── Risk Tab ───────────────────────────────────────────────────────────────
+
+function RiskTab() {
+  const { t } = useTranslation();
+  const [result, setResult] = useState<RiskResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    getRiskAnalysis()
+      .then(setResult)
+      .catch(e => setError(e instanceof Error ? e.message : t('portfolio.riskTab.loadError')))
+      .finally(() => setLoading(false));
+  }, [t]);
+
+  if (loading) return (
+    <div className="space-y-3 pt-4">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="h-20 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] animate-pulse" />
+      ))}
+    </div>
+  );
+
+  if (error) return (
+    <div className="py-20 text-center text-sm text-red-500 font-mono">{error}</div>
+  );
+
+  if (!result) return null;
+
+  const stats = [
+    { label: t('portfolio.riskTab.annualizedVol'), value: `${(result.annualizedVol * 100).toFixed(1)}%`, tone: 'neutral' as const },
+    { label: t('portfolio.riskTab.annualizedReturn'), value: `${result.annualizedReturn >= 0 ? '+' : ''}${(result.annualizedReturn * 100).toFixed(1)}%`, tone: (result.annualizedReturn >= 0 ? 'pos' : 'neg') as 'pos' | 'neg' },
+    { label: t('portfolio.riskTab.sharpe'), value: result.sharpe.toFixed(2), tone: (result.sharpe >= 1 ? 'pos' : result.sharpe >= 0 ? 'neutral' : 'neg') as 'pos' | 'neg' | 'neutral' },
+    { label: t('portfolio.riskTab.marketFactor'), value: `${(result.marketFactorExposure * 100).toFixed(1)}%`, tone: 'neutral' as const },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">
+        ✦ {t('portfolio.riskTab.title')}
+      </p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {stats.map(s => (
+          <div key={s.label} className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-xl p-4">
+            <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-1">{s.label}</p>
+            <p className={`text-lg font-bold font-mono ${s.tone === 'pos' ? 'text-emerald-500' : s.tone === 'neg' ? 'text-red-500' : ''}`}>
+              {s.value}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl p-5">
+        <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-4">
+          {t('portfolio.riskTab.riskByAsset')}
+        </p>
+        <div className="space-y-3">
+          {result.assetContributions
+            .slice()
+            .sort((a, b) => b.riskContribution - a.riskContribution)
+            .map(ac => {
+              const pct = Math.max(0, ac.riskContribution * 100);
+              return (
+                <div key={ac.ticker}>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs font-mono text-black/60 dark:text-white/60">{ac.ticker}</span>
+                    <span className="text-xs font-mono text-black/40 dark:text-white/40">{pct.toFixed(1)}%</span>
+                  </div>
+                  <div className="h-[3px] rounded-full bg-black/[0.06] dark:bg-white/[0.06] overflow-hidden">
+                    <div className="h-full rounded-full bg-blue-400/70" style={{ width: `${Math.min(100, pct)}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </div>
+      {result.stressLoss !== null && (
+        <div className="border border-red-500/20 bg-red-500/[0.03] rounded-2xl p-5">
+          <p className="text-[10px] font-mono tracking-widest text-red-500/60 uppercase mb-2">
+            {t('portfolio.riskTab.stressTest', { period: result.stressPeriod })}
+          </p>
+          <p className="text-2xl font-bold font-mono text-red-500">
+            {(result.stressLoss * 100).toFixed(1)}%
+          </p>
+          <p className="text-xs text-black/40 dark:text-white/40 mt-1">
+            {t('portfolio.riskTab.stressDesc')}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Portfolio Page ─────────────────────────────────────────────────────────
 
 export default function PortfolioPage() {
@@ -613,6 +705,7 @@ export default function PortfolioPage() {
     { id: 'positions',    label: t('portfolio.tabs.positions') },
     { id: 'transactions', label: t('portfolio.tabs.transactions') },
     { id: 'alerts',       label: t('portfolio.tabs.alerts') },
+    { id: 'risk',         label: t('portfolio.tabs.risk') },
     { id: 'report',       label: t('portfolio.tabs.report') },
   ];
 
@@ -744,6 +837,14 @@ export default function PortfolioPage() {
 
         {/* Alerts */}
         {tab === 'alerts' && <AlertsTab assets={assets} />}
+
+        {/* Risk */}
+        {tab === 'risk' && portfolio.positions.length > 0 && <RiskTab />}
+        {tab === 'risk' && portfolio.positions.length === 0 && (
+          <div className="text-center py-20 text-black/30 dark:text-white/30 text-sm">
+            {t('portfolio.riskTab.needPositions')}
+          </div>
+        )}
 
         {/* Report */}
         {tab === 'report' && <ReportTab />}
