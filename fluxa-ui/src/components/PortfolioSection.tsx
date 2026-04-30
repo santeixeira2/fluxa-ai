@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDisplayCurrency } from '../contexts/DisplayCurrencyContext';
 import { getPriceBatch, getFiatRate } from '../api/client';
 import Sparkline, { generateSparkData } from './Sparkline';
 
@@ -17,17 +18,9 @@ const WATCHLIST_ASSETS = [
 
 const ALL_IDS = [...new Set([...CRYPTO_ASSETS, ...WATCHLIST_ASSETS].map(a => a.id))];
 
-function formatBRL(value: number): string {
-  return value.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
 export default function PortfolioSection() {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const [prices, setPrices]   = useState<Record<string, number>>({});
   const [usdRate, setUsdRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,7 +84,7 @@ export default function PortfolioSection() {
             {loading ? (
               <span className="shimmer-loading" style={{ width: 200, height: 36, display: 'inline-block' }}>&nbsp;</span>
             ) : (
-              formatBRL(totalValue)
+              formatFromBrl(totalValue)
             )}
           </div>
           <div className="portfolio-change positive">
@@ -142,7 +135,7 @@ export default function PortfolioSection() {
                 </div>
                 <div className="portfolio-card-bottom">
                   <span className="portfolio-card-price mono">
-                    {loading && !price ? t('common.dash') : price ? formatBRL(price) : t('common.dash')}
+                    {loading && !price ? t('common.dash') : price ? formatFromBrl(price) : t('common.dash')}
                   </span>
                   <span className={`portfolio-card-change ${isUp ? 'up' : 'down'}`}>
                     {isUp ? '↗' : '↘'} {isUp ? '+' : ''}{change.toFixed(2)}%
@@ -172,7 +165,7 @@ export default function PortfolioSection() {
             </div>
             <div className="portfolio-card-bottom">
               <span className="portfolio-card-price mono">
-                {loading && !usdRate ? t('common.dash') : usdRate ? formatBRL(usdRate) : t('common.dash')}
+                {loading && !usdRate ? t('common.dash') : usdRate ? formatFromBrl(usdRate) : t('common.dash')}
               </span>
               <span className={`portfolio-card-change ${(changes['usd'] || 0) >= 0 ? 'up' : 'down'}`}>
                 {(changes['usd'] || 0) >= 0 ? '↗' : '↘'} {(changes['usd'] || 0) >= 0 ? '+' : ''}{(changes['usd'] || 0).toFixed(2)}%
@@ -217,7 +210,7 @@ export default function PortfolioSection() {
                 </div>
                 <div className="watchlist-row-right">
                   <span className="watchlist-row-price mono">
-                    {loading && !price ? t('common.dash') : price ? formatBRL(price) : t('common.dash')}
+                    {loading && !price ? t('common.dash') : price ? formatFromBrl(price) : t('common.dash')}
                   </span>
                   <span className={`watchlist-row-change ${isUp ? 'up' : 'down'}`}>
                     {isUp ? '↗' : '↘'} {isUp ? '+' : ''}{change.toFixed(2)}%

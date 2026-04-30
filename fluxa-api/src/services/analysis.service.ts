@@ -1,7 +1,8 @@
 import { getCached, setCached } from "@/utils/cache";
 import { getAsset, ASSETS } from "@/config/assets.config";
 import { prisma } from "@/utils/prisma";
-import type { Regime, RegimeResult, SentimentResult, EarningsGuidance, EarningsTone } from "@/types";
+import type { Regime, RegimeResult, SentimentResult, EarningsGuidance, EarningsTone, RiskResult } from "@/types";
+import { getPortfolio } from "./portfolio.service";
 
 const ML_URL = process.env.ML_SERVICE_URL ?? 'http://localhost:8000';
 const REGIME_TTL_MS = 15 * 60_000;
@@ -157,4 +158,37 @@ export const formatRegimeForPrompt = (assetId: string, result: RegimeResult): st
   }
 
   return `REGIME ATUAL DE ${name.toUpperCase()}: ${labels[result.regime]} (confiança: ${Math.round(result.confidence * 100)}%)`;
+}
+
+export const getRiskAnalysis = async (userId: string): Promise<RiskResult> => {
+  const portfolio = await getPortfolio(userId);
+
+  if (portfolio.positions.length === 0) {
+    throw new Error('No positions in portfolio');
+  }
+
+  const investedValue = portfolio.positions.reduce((s, p) => s + p.currentValue, 0);
+  
+  if (investedValue === 0) throw new Error('Portfolio has no invested value');
+
+  const tickers = portfolio.positions.map(p => {
+    const asset = getAsset(p.assetId);
+    return asset?.yahooTicker ?? p.assetId.toUpperCase();
+  });
+
+  const weights = portfolio.positions.map(p => p.currentValue / investedValue);
+
+  const res = await fetch(`${ML_URL}/risk`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tickers, weights }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`ML risk service error: ${body}`);
+  }
+
+  return await res.json() as Promise<RiskResult>;
+  
 }

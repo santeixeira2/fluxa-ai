@@ -1,6 +1,7 @@
 import { Router } from 'express';
+import { authMiddleware } from '@/middleware/auth.middleware';
 import { asyncHandler } from '@/utils/asyncHandler';
-import { detectRegime, getSentiment, refreshSentiment } from '@/services/analysis.service';
+import { detectRegime, getRiskAnalysis, getSentiment, refreshSentiment } from '@/services/analysis.service';
 import { compareAssets } from '@/services/comparison.service';
 import { ASSETS } from '@/config/assets.config';
 import { z } from 'zod';
@@ -49,6 +50,12 @@ router.post('/sentiment/refresh', asyncHandler(async (req, res) => {
             : { ticker: EARNINGS_ASSET_IDS[i], newQuarters: 0, error: (r.reason as Error).message }
     );
     res.status(200).json({ refreshed: summary });
+}));
+
+router.get('/risk', authMiddleware, asyncHandler(async (req, res) => {
+    const userId = req.user!.sub;
+    const result = await getRiskAnalysis(userId);
+    res.status(200).json(result);
 }));
 
 export default router;

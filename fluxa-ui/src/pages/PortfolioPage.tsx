@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import i18n from '../i18n';
+import { useDisplayCurrency } from '../contexts/DisplayCurrencyContext';
 import Navbar from '../components/Navbar';
 import Select from '../components/Select';
 import PortfolioChart from '../components/PortfolioChart';
 import PriceChart from '../components/PriceChart';
-import ComparisonTab from '../components/ComparisonTab';
 import EarningsSentiment from '../components/EarningsSentiment';
 import { getSentiment } from '../api/client';
 import type { SentimentResult } from '../api/client';
@@ -26,6 +27,7 @@ function sentimentBar(score: number) {
 }
 
 function SentimentPreview({ assetId }: { assetId: string }) {
+  const { t } = useTranslation();
   const isBR = EARNINGS_SUPPORTED_B3.has(assetId);
   const [result, setResult] = useState<SentimentResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,7 +59,7 @@ function SentimentPreview({ assetId }: { assetId: string }) {
   return (
     <div className="mt-4 border-t border-white/[0.06] pt-4">
       <p className="text-[10px] font-mono tracking-widest text-white/30 uppercase mb-2">
-        ✦ Sentiment — últimos resultados
+        ✦ {t('earningsSentiment.previewTitle')}
       </p>
       <div className="space-y-2">
         {quarters.map(q => {
@@ -69,12 +71,12 @@ function SentimentPreview({ assetId }: { assetId: string }) {
                 <div className="flex gap-1">
                   {q.beats_estimates !== null && (
                     <span className={`text-[9px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded border ${q.beats_estimates ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20'}`}>
-                      {q.beats_estimates ? 'Beat' : 'Miss'}
+                      {q.beats_estimates ? t('earningsSentiment.beat') : t('earningsSentiment.miss')}
                     </span>
                   )}
                   {q.guidance !== 'none' && (
                     <span className={`text-[9px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded border ${q.guidance === 'raised' ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : q.guidance === 'lowered' ? 'text-red-400 bg-red-400/10 border-red-400/20' : 'text-blue-400 bg-blue-400/10 border-blue-400/20'}`}>
-                      {q.guidance === 'raised' ? 'Guidance ↑' : q.guidance === 'lowered' ? 'Guidance ↓' : 'Guidance →'}
+                      {q.guidance === 'raised' ? t('earningsSentiment.guidanceRaised') : q.guidance === 'lowered' ? t('earningsSentiment.guidanceLowered') : t('earningsSentiment.guidanceMaintained')}
                     </span>
                   )}
                 </div>
@@ -83,7 +85,7 @@ function SentimentPreview({ assetId }: { assetId: string }) {
                 <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
               </div>
               <div className="flex justify-between mt-1">
-                <span className="text-[9px] text-white/30 font-mono">{q.tone}</span>
+                <span className="text-[9px] text-white/30 font-mono">{t(`earningsSentiment.tone.${q.tone}`, { defaultValue: q.tone })}</span>
                 <span className="text-[9px] text-white/30 font-mono">{q.sentiment >= 0 ? '+' : ''}{q.sentiment.toFixed(2)}</span>
               </div>
             </div>
@@ -91,22 +93,20 @@ function SentimentPreview({ assetId }: { assetId: string }) {
         })}
       </div>
       <p className="text-[9px] text-white/20 mt-2">
-        Fonte: {isBR ? 'CVM ITR · Dados Abertos' : 'SEC EDGAR'} · Análise via IA
+        {isBR ? t('earningsSentiment.previewFooterBR') : t('earningsSentiment.previewFooterUS')}
       </p>
     </div>
   );
 }
 
-const fmtBRL = (n: number) =>
-  n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
 
-const fmtPct = (n: number) =>
-  `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`;
+const fmtDate = (iso: string) => {
+  const loc = i18n.language?.startsWith('en') ? 'en-US' : 'pt-BR';
+  return new Date(iso).toLocaleDateString(loc, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+};
 
-const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-
-type Tab = 'positions' | 'transactions' | 'alerts' | 'report' | 'compare';
+type Tab = 'positions' | 'transactions' | 'alerts' | 'report';
 type TradeMode = 'buy' | 'sell';
 
 // ── Trade Modal ────────────────────────────────────────────────────────────
@@ -123,6 +123,7 @@ interface TradeModalProps {
 
 function TradeModal({ mode, assetId: initialAsset, maxQuantity, assets, balance, onClose, onDone }: TradeModalProps) {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const [assetId, setAssetId] = useState(initialAsset ?? '');
   const [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
@@ -139,7 +140,7 @@ function TradeModal({ mode, assetId: initialAsset, maxQuantity, assets, balance,
       else await sellAsset(assetId, num);
       onDone();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao executar operação.');
+      setError(err instanceof Error ? err.message : t('portfolio.tradeExecuteError'));
     } finally {
       setLoading(false);
     }
@@ -178,7 +179,7 @@ function TradeModal({ mode, assetId: initialAsset, maxQuantity, assets, balance,
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-[10px] font-mono tracking-widest text-black/40 dark:text-white/40 uppercase">{t('portfolio.tradeModal.amountBRL')}</label>
                 <button type="button" onClick={() => setValue(balance.toFixed(2))} className="text-[10px] font-mono text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors">
-                  {t('portfolio.tradeModal.useAll')} · {fmtBRL(balance)}
+                  {t('portfolio.tradeModal.useAll')} · {formatFromBrl(balance)}
                 </button>
               </div>
               <input type="number" step="any" min="0" max={balance} value={value} onChange={e => setValue(e.target.value)} placeholder="R$ 0,00" className={inputCls} />
@@ -212,6 +213,7 @@ function TradeModal({ mode, assetId: initialAsset, maxQuantity, assets, balance,
 
 function AlertsTab({ assets }: { assets: AssetInfo[] }) {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [assetId, setAssetId] = useState('');
@@ -239,7 +241,7 @@ function AlertsTab({ assets }: { assets: AssetInfo[] }) {
       setThreshold(''); setAssetId('');
       await load();
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Erro ao criar alerta.');
+      setFormError(err instanceof Error ? err.message : t('portfolio.alertCreateError'));
     } finally {
       setCreating(false);
     }
@@ -317,7 +319,7 @@ function AlertsTab({ assets }: { assets: AssetInfo[] }) {
                     <div>
                       <p className="text-sm font-medium">{asset?.name ?? alert.asset_id}</p>
                       <p className="text-xs text-black/40 dark:text-white/40 font-mono mt-0.5">
-                        {isBuy ? t('portfolio.alerts.below') : t('portfolio.alerts.above')} {fmtBRL(Number(alert.threshold))}
+                        {isBuy ? t('portfolio.alerts.below') : t('portfolio.alerts.above')} {formatFromBrl(Number(alert.threshold))}
                       </p>
                     </div>
                   </div>
@@ -352,7 +354,7 @@ function AlertsTab({ assets }: { assets: AssetInfo[] }) {
                     <div>
                       <p className="text-sm font-medium">{asset?.name ?? alert.asset_id}</p>
                       <p className="text-xs text-black/40 dark:text-white/40 font-mono mt-0.5">
-                        {trigger?.message ?? `Alvo: ${fmtBRL(Number(alert.threshold))}`}
+                        {trigger?.message ?? t('portfolio.alerts.targetFallback', { price: formatFromBrl(Number(alert.threshold)) })}
                       </p>
                     </div>
                   </div>
@@ -372,7 +374,8 @@ function AlertsTab({ assets }: { assets: AssetInfo[] }) {
 // ── Report Tab ─────────────────────────────────────────────────────────────
 
 function ReportTab() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const [period, setPeriod] = useState(() => {
     const now = new Date();
     return { year: now.getUTCFullYear(), month: now.getUTCMonth() + 1 };
@@ -391,7 +394,7 @@ function ReportTab() {
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('portfolio.report.error')); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [period, t]);
+  }, [period, t, i18n.language]);
 
   function shift(delta: number) {
     setPeriod(prev => {
@@ -404,8 +407,10 @@ function ReportTab() {
 
   const now = new Date();
   const isCurrent = period.year === now.getUTCFullYear() && period.month === now.getUTCMonth() + 1;
-  const periodLabel = report?.period.label
-    ?? new Date(Date.UTC(period.year, period.month - 1, 1)).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  const loc = i18n.language?.startsWith('en') ? 'en-US' : 'pt-BR';
+  const periodLabel =
+    report?.period.label ??
+    new Date(Date.UTC(period.year, period.month - 1, 1)).toLocaleDateString(loc, { month: 'long', year: 'numeric' });
 
   return (
     <div className="space-y-6">
@@ -432,11 +437,11 @@ function ReportTab() {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: t('portfolio.report.startValue'), value: fmtBRL(report.startValue) },
-              { label: t('portfolio.report.endValue'), value: fmtBRL(report.endValue) },
+              { label: t('portfolio.report.startValue'), value: formatFromBrl(report.startValue) },
+              { label: t('portfolio.report.endValue'), value: formatFromBrl(report.endValue) },
               {
                 label: t('portfolio.report.periodPnl'),
-                value: `${fmtBRL(report.periodPnl)} (${fmtPct(report.periodPnlPct)})`,
+                value: `${formatFromBrl(report.periodPnl)} (${fmtPct(report.periodPnlPct)})`,
                 tone: report.periodPnl >= 0 ? 'pos' : 'neg',
               },
               { label: t('portfolio.report.maxDrawdown'), value: fmtPct(report.maxDrawdownPct), tone: 'neg' },
@@ -451,7 +456,7 @@ function ReportTab() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: t('portfolio.report.tradesTotal'), value: `${report.trades.total} (${report.trades.buys}↗ / ${report.trades.sells}↘)` },
-              { label: t('portfolio.report.tradesVolume'), value: fmtBRL(report.trades.volume) },
+              { label: t('portfolio.report.tradesVolume'), value: formatFromBrl(report.trades.volume) },
               { label: t('portfolio.report.topTradedAsset'), value: report.trades.topAsset?.name ?? t('portfolio.report.noTopAsset') },
               { label: t('portfolio.report.alertsTriggered'), value: `${report.alertsTriggered}` },
             ].map(s => (
@@ -510,6 +515,7 @@ function ReportTab() {
 type DrawerTab = 'chart' | 'analysis';
 
 function AssetDrawer({ assetId, assetName, onClose }: { assetId: string; assetName: string; onClose: () => void }) {
+  const { t } = useTranslation();
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('chart');
 
   return (
@@ -535,7 +541,7 @@ function AssetDrawer({ assetId, assetName, onClose }: { assetId: string; assetNa
                       : 'text-black/40 dark:text-white/40 hover:text-black/70 dark:hover:text-white/70'
                   }`}
                 >
-                  {tab === 'chart' ? 'Gráfico' : 'Análise'}
+                  {tab === 'chart' ? t('portfolio.assetDrawer.chart') : t('portfolio.assetDrawer.analysis')}
                 </button>
               ))}
             </div>
@@ -558,6 +564,7 @@ function AssetDrawer({ assetId, assetName, onClose }: { assetId: string; assetNa
 
 export default function PortfolioPage() {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const navigate = useNavigate();
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [transactions, setTransactions] = useState<PortfolioTransaction[]>([]);
@@ -606,7 +613,6 @@ export default function PortfolioPage() {
     { id: 'positions',    label: t('portfolio.tabs.positions') },
     { id: 'transactions', label: t('portfolio.tabs.transactions') },
     { id: 'alerts',       label: t('portfolio.tabs.alerts') },
-    { id: 'compare',      label: t('portfolio.tabs.compare') },
     { id: 'report',       label: t('portfolio.tabs.report') },
   ];
 
@@ -620,9 +626,9 @@ export default function PortfolioPage() {
           <span className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">{t('portfolio.badge')}</span>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mt-3">
             <div>
-              <p className="text-4xl font-bold tracking-tight font-mono">{fmtBRL(portfolio.totalValue)}</p>
+              <p className="text-4xl font-bold tracking-tight font-mono">{formatFromBrl(portfolio.totalValue)}</p>
               <p className={`mt-1 text-sm font-mono ${pnlPositive ? 'text-emerald-500' : 'text-red-500'}`}>
-                {pnlPositive ? '↗' : '↘'} {fmtBRL(portfolio.totalPnl)} ({fmtPct(portfolio.totalPnlPct)}) total
+                {pnlPositive ? '↗' : '↘'} {formatFromBrl(portfolio.totalPnl)} ({fmtPct(portfolio.totalPnlPct)}) {t('portfolio.totalPnlLabel')}
               </p>
             </div>
             <div className="flex gap-2">
@@ -644,8 +650,8 @@ export default function PortfolioPage() {
         {/* Stats strip */}
         <div className="grid grid-cols-3 gap-3 mb-8">
           {[
-            { label: t('portfolio.freeBalance'),    value: fmtBRL(portfolio.currentBalance) },
-            { label: t('portfolio.initialCapital'), value: fmtBRL(portfolio.initialBalance) },
+            { label: t('portfolio.freeBalance'),    value: formatFromBrl(portfolio.currentBalance) },
+            { label: t('portfolio.initialCapital'), value: formatFromBrl(portfolio.initialBalance) },
             { label: t('portfolio.positions'),       value: `${portfolio.positions.length}` },
           ].map(s => (
             <div key={s.label} className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-xl p-4">
@@ -681,16 +687,16 @@ export default function PortfolioPage() {
                     onClick={() => setChartAsset({ id: pos.assetId, name: pos.assetName })}>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold truncate">{pos.assetName}</p>
-                      <p className="text-xs text-black/40 dark:text-white/40 font-mono mt-0.5">{pos.quantity} × {fmtBRL(pos.avgPrice)} avg</p>
+                      <p className="text-xs text-black/40 dark:text-white/40 font-mono mt-0.5">{pos.quantity} × {formatFromBrl(pos.avgPrice)} {t('portfolio.positionAvg')}</p>
                     </div>
                     <div className="text-right mx-6 hidden sm:block">
                       <p className="text-xs text-black/40 dark:text-white/40 font-mono">{t('portfolio.currentPrice')}</p>
-                      <p className="text-sm font-mono">{fmtBRL(pos.currentPrice)}</p>
+                      <p className="text-sm font-mono">{formatFromBrl(pos.currentPrice)}</p>
                     </div>
                     <div className="text-right mx-6">
-                      <p className="text-sm font-bold font-mono">{fmtBRL(pos.currentValue)}</p>
+                      <p className="text-sm font-bold font-mono">{formatFromBrl(pos.currentValue)}</p>
                       <p className={`text-xs font-mono ${up ? 'text-emerald-500' : 'text-red-500'}`}>
-                        {up ? '↗' : '↘'} {fmtBRL(pos.pnl)} ({fmtPct(pos.pnlPct)})
+                        {up ? '↗' : '↘'} {formatFromBrl(pos.pnl)} ({fmtPct(pos.pnlPct)})
                       </p>
                     </div>
                     <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -722,11 +728,11 @@ export default function PortfolioPage() {
                       <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${isBuy ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>{tx.type}</span>
                       <div>
                         <p className="text-sm font-medium">{asset?.name ?? tx.assetId}</p>
-                        <p className="text-xs text-black/40 dark:text-white/40 font-mono">{tx.quantity} × {fmtBRL(tx.price)}</p>
+                        <p className="text-xs text-black/40 dark:text-white/40 font-mono">{tx.quantity} × {formatFromBrl(tx.price)}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold font-mono">{fmtBRL(tx.total)}</p>
+                      <p className="text-sm font-bold font-mono">{formatFromBrl(tx.total)}</p>
                       <p className="text-xs text-black/30 dark:text-white/30 font-mono">{fmtDate(tx.executedAt)}</p>
                     </div>
                   </div>
@@ -738,9 +744,6 @@ export default function PortfolioPage() {
 
         {/* Alerts */}
         {tab === 'alerts' && <AlertsTab assets={assets} />}
-
-        {/* Compare */}
-        {tab === 'compare' && <ComparisonTab assets={assets} />}
 
         {/* Report */}
         {tab === 'report' && <ReportTab />}

@@ -14,6 +14,7 @@ export async function ensurePortfolio(userId: string) {
 }
 
 export async function getPortfolio(userId: string) {
+  if (!userId) throw new Error('userId is required');
   const portfolio = await prisma.simulatedPortfolio.findUnique({
     where: { userId },
     include: { positions: true },

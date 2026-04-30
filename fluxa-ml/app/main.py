@@ -9,7 +9,8 @@ from app.data import fetch_features
 from app.b3_earnings import get_b3_earnings_sentiment, SUPPORTED_B3_TICKERS
 from app.earnings import get_earnings_sentiment, SUPPORTED_TICKERS
 from app.hmm import load, predict, predict_history, train
-from app.schemas import RegimeHistoryResponse, RegimeResponse, SentimentResponse, TrainRequest, TrainResponse
+from app.schemas import RegimeHistoryResponse, RegimeResponse, SentimentResponse, TrainRequest, TrainResponse, RiskRequest, RiskResponse
+from app.risk import portfolio_risk, fetch_returns
 
 logger = logging.getLogger("fluxa.ml")
 
@@ -96,6 +97,17 @@ async def get_sentiment(asset: str):
         result = await get_earnings_sentiment(asset)
     return SentimentResponse(**result)
 
+@app.post("/risk", response_model=RiskResponse)
+async def risk_endpoint(req: RiskRequest):
+    if len(req.tickers) != len(req.weights):
+        raise HTTPException(status_code=400, detail="Tickers and weights must have the same length")
+    if abs(sum(req.weights) - 1) > 1e-6:
+        raise HTTPException(status_code=400, detail="Weights must sum to 1")
+    try:
+        result = portfolio_risk(req.tickers, req.weights)
+        return result
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 @app.post("/train", response_model=TrainResponse)
 def train_assets(req: TrainRequest):

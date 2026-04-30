@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDisplayCurrency } from '../contexts/DisplayCurrencyContext';
 import { explainSimulation, type SimulationResult } from '../api/client';
 import { useApi } from '../hooks/useApi';
 
@@ -8,17 +9,9 @@ interface ResultCardProps {
   lastRequest: { investment: number; futurePrice: number } | null;
 }
 
-function formatBRL(value: number): string {
-  return value.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
 export default function ResultCard({ result, lastRequest }: ResultCardProps) {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const explainApi = useApi<{ explanation: string }>();
   const [explanation, setExplanation] = useState<string | null>(null);
 
@@ -72,11 +65,11 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
         <div className="result-big-value">
           <div className="result-big-value-label">{t('resultCard.finalValue')}</div>
           <div className={`result-big-number ${valueClass}`}>
-            {formatBRL(result.finalValue)}
+            {formatFromBrl(result.finalValue)}
           </div>
           <div className={`result-big-change`} style={{ color: isProfit ? 'var(--color-profit)' : 'var(--color-loss)' }}>
             <span>{isProfit ? '↑' : '↓'}</span>
-            <span>{isProfit ? '+' : ''}{formatBRL(result.profit)}</span>
+            <span>{isProfit ? '+' : ''}{formatFromBrl(result.profit)}</span>
           </div>
         </div>
 
@@ -84,20 +77,20 @@ export default function ResultCard({ result, lastRequest }: ResultCardProps) {
         <div className="result-metrics">
           <div className="result-metric">
             <div className="result-metric-label">{t('resultCard.currentPrice')}</div>
-            <div className="result-metric-value">{formatBRL(result.currentPrice)}</div>
+            <div className="result-metric-value">{formatFromBrl(result.currentPrice)}</div>
           </div>
           <div className="result-metric">
             <div className="result-metric-label">{t('resultCard.targetPrice')}</div>
-            <div className="result-metric-value">{lastRequest ? formatBRL(lastRequest.futurePrice) : t('common.dash')}</div>
+            <div className="result-metric-value">{lastRequest ? formatFromBrl(lastRequest.futurePrice) : t('common.dash')}</div>
           </div>
           <div className="result-metric">
             <div className="result-metric-label">{t('resultCard.invested')}</div>
-            <div className="result-metric-value">{lastRequest ? formatBRL(lastRequest.investment) : t('common.dash')}</div>
+            <div className="result-metric-value">{lastRequest ? formatFromBrl(lastRequest.investment) : t('common.dash')}</div>
           </div>
           <div className="result-metric">
             <div className="result-metric-label">{t('resultCard.profitLoss')}</div>
             <div className={`result-metric-value ${valueClass}`}>
-              {isProfit ? '+' : ''}{formatBRL(result.profit)}
+              {isProfit ? '+' : ''}{formatFromBrl(result.profit)}
             </div>
           </div>
         </div>

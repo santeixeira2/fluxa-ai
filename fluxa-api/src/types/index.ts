@@ -120,3 +120,18 @@ export interface DCAResult {
     roi: number;
   };
 }
+
+export interface AssetRiskContribution {
+  ticker: string;
+  riskContribution: number;
+}
+
+export interface RiskResult {
+  annualizedVol: number;
+  annualizedReturn: number;
+  sharpe: number;
+  marketFactorExposure: number;
+  assetContributions: AssetRiskContribution[];
+  stressLoss: number | null;
+  stressPeriod: string;
+}

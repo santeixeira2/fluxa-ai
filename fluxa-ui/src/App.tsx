@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import PortfolioPage from './pages/PortfolioPage';
 import ProfilePage from './pages/ProfilePage';
 import CalculadorasPage from './pages/CalculadorasPage';
+import AnalysisPage from './pages/AnalysisPage';
 
 function App() {
   const location = useLocation();
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginForm />} />
         <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
+        <Route path="/analysis" element={<ProtectedRoute><AnalysisPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/calculadoras" element={<CalculadorasPage />} />
         <Route path="/" element={<HomePage />} />

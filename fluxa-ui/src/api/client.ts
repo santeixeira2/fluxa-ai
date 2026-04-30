@@ -564,3 +564,24 @@ export function getNotifications(): Promise<Notification[]> {
 export function markNotificationsRead(): Promise<void> {
   return request('/notifications/read', { method: 'POST' });
 }
+
+// ── Risk Analysis ──────────────────────────────────────────────────────────
+
+export interface AssetRiskContribution {
+  ticker: string;
+  riskContribution: number;
+}
+
+export interface RiskResult {
+  annualizedVol: number;
+  annualizedReturn: number;
+  sharpe: number;
+  marketFactorExposure: number;
+  assetContributions: AssetRiskContribution[];
+  stressLoss: number | null;
+  stressPeriod: string;
+}
+
+export function getRiskAnalysis(): Promise<RiskResult> {
+  return request('/analysis/risk');
+}

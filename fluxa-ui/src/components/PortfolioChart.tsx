@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDisplayCurrency } from '../contexts/DisplayCurrencyContext';
 import { createChart, ColorType, CrosshairMode, LineStyle, AreaSeries } from 'lightweight-charts';
 import { getPortfolioPerformance } from '../api/client';
 import type { PerformancePoint } from '../api/client';
 
-const fmtBRL = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
 export default function PortfolioChart() {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const containerRef = useRef<HTMLDivElement>(null);
   const [points, setPoints] = useState<PerformancePoint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,7 +90,7 @@ export default function PortfolioChart() {
       <div className="flex items-baseline gap-3 mb-3">
         <p className="text-xs font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">{t('common.performance')}</p>
         <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-          {pnl >= 0 ? '+' : ''}{fmtBRL(pnl)} ({pnl >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%)
+          {pnl >= 0 ? '+' : ''}{formatFromBrl(pnl)} ({pnl >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%)
         </span>
       </div>
       <div ref={containerRef} className="w-full rounded-xl overflow-hidden" />

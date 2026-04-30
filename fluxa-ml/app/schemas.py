@@ -3,6 +3,23 @@ from typing import Literal, Optional
 
 RegimeType = Literal[ "trending_up", "trending_down", "volatile", "mean_reverting" ]
 
+class RiskRequest(BaseModel):
+    tickers: list[str]
+    weights: list[float]
+
+class assetContribution(BaseModel):
+    ticker: str
+    riskContribution: float
+
+class RiskResponse(BaseModel):
+    annualizedVol: float
+    annualizedReturn: float
+    sharpe: float
+    marketFactorExposure: float
+    assetContributions: list[assetContribution]
+    stressLoss: float | None
+    stressPeriod: str
+
 class RegimeResponse(BaseModel):
     asset: str
     regime: RegimeType

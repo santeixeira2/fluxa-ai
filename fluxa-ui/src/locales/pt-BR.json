@@ -3,6 +3,7 @@
     "home": "Home",
     "calculadoras": "Calculadoras",
     "portfolio": "Portfolio",
+    "analysis": "Análise",
     "signIn": "Entrar / Cadastrar",
     "editProfile": "Editar perfil",
     "signOut": "Sair",
@@ -87,8 +88,29 @@
       "transactions": "Histórico",
       "alerts": "Alertas",
       "compare": "Comparar",
+      "risk": "Risco",
       "report": "Relatório"
     },
+    "assetDrawer": {
+      "chart": "Gráfico",
+      "analysis": "Análise"
+    },
+    "riskTab": {
+      "title": "Análise de risco do portfólio",
+      "annualizedVol": "Volatilidade anual",
+      "annualizedReturn": "Retorno anual est.",
+      "sharpe": "Sharpe",
+      "marketFactor": "Fator mercado (PC1)",
+      "riskByAsset": "Contribuição de risco por ativo",
+      "stressTest": "⚠ Stress test — crash {{period}}",
+      "stressDesc": "Retorno acumulado do portfólio no período de maior queda recente",
+      "loadError": "Erro ao carregar análise de risco.",
+      "needPositions": "Adicione posições ao portfólio para ver a análise de risco."
+    },
+    "positionAvg": "média",
+    "totalPnlLabel": "total",
+    "tradeExecuteError": "Erro ao executar operação.",
+    "alertCreateError": "Erro ao criar alerta.",
     "compare": {
       "assetA": "Ativo A",
       "assetB": "Ativo B",
@@ -166,7 +188,8 @@
       "noActive": "Nenhum alerta ativo.",
       "below": "Abaixo de",
       "above": "Acima de",
-      "fillFields": "Preencha todos os campos."
+      "fillFields": "Preencha todos os campos.",
+      "targetFallback": "Alvo: {{price}}"
     }
   },
   "profile": {
@@ -401,6 +424,57 @@
       "mar": "Mar",
       "apr": "Abr",
       "may": "Mai"
+    }
+  },
+  "earningsSentiment": {
+    "noData": "Dados não disponíveis para este ativo",
+    "header": "Sentimento — resultados trimestrais",
+    "footer": "Fonte: SEC EDGAR · Análise via IA · Clique para expandir",
+    "guidanceRaised": "Guidance ↑",
+    "guidanceLowered": "Guidance ↓",
+    "guidanceMaintained": "Guidance →",
+    "beat": "Beat",
+    "miss": "Miss",
+    "tone": {
+      "confident": "Confiante",
+      "cautious": "Cauteloso",
+      "neutral": "Neutro"
+    },
+    "previewTitle": "Sentimento — últimos resultados",
+    "previewFooterUS": "Fonte: SEC EDGAR · Análise via IA",
+    "previewFooterBR": "Fonte: CVM ITR · Dados abertos · Análise via IA"
+  },
+  "analysis": {
+    "badge": "[ Análise ]",
+    "title": "Análise",
+    "subtitle": "Avalie risco, compare ativos e detecte regimes de mercado antes de investir.",
+    "tabs": {
+      "risk": "Risco",
+      "compare": "Comparação",
+      "regime": "Regime"
+    },
+    "regime": {
+      "label": "Regime detectado",
+      "selectAsset": "Selecione um ativo",
+      "hint": "Selecione um ativo para detectar o regime de mercado atual.",
+      "loading": "Detectando regime...",
+      "error": "Erro ao detectar regime.",
+      "confidence": "Confiança",
+      "realizedVol": "Volatilidade realizada",
+      "smaSlope": "Slope SMA",
+      "directionalBias": "Viés direcional",
+      "regimes": {
+        "trending_up": "Em Alta",
+        "trending_down": "Em Queda",
+        "volatile": "Volátil",
+        "mean_reverting": "Reversão à Média"
+      },
+      "descriptions": {
+        "trending_up": "O ativo está em tendência de alta sustentada. Momento favorável para posições compradas.",
+        "trending_down": "O ativo está em tendência de queda sustentada. Cautela com novas entradas.",
+        "volatile": "Alta volatilidade sem direção clara. Risco elevado, spreads maiores.",
+        "mean_reverting": "O ativo tende a reverter à sua média histórica. Estratégias de reversão podem ser aplicadas."
+      }
     }
   },
   "common": {

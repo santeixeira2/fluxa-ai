@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDisplayCurrency } from '../contexts/DisplayCurrencyContext';
 import { simulate, type SimulationResult } from '../api/client';
 import { useApi } from '../hooks/useApi';
 import { useAssets } from '../hooks/useAssets';
@@ -26,6 +27,7 @@ const TAB_TYPES: Record<TabType, string[]> = {
 
 export default function Simulator({ prefill, onPrefillConsumed }: SimulatorProps) {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const { assets } = useAssets();
   const [tab, setTab] = useState<TabType>('crypto');
 
@@ -81,8 +83,6 @@ export default function Simulator({ prefill, onPrefillConsumed }: SimulatorProps
       simulate({ asset, investment: inv, futurePrice: fp, currency: 'brl' })
     );
   }
-
-  const formatBRL = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   const result = simApi.data;
   const isProfit = result && result.profit >= 0;
@@ -181,7 +181,7 @@ export default function Simulator({ prefill, onPrefillConsumed }: SimulatorProps
                 <div>
                   <span className="text-[10px] font-mono tracking-widest uppercase text-black/30 dark:text-white/30">{t('calculadoras.simulator.projectedPortfolio')}</span>
                   <div className="text-5xl font-bold tracking-tighter mt-2 text-black dark:text-white">
-                    {formatBRL(result.finalValue)}
+                    {formatFromBrl(result.finalValue)}
                   </div>
                 </div>
                 <div className="px-4 py-2 rounded-full border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] flex items-center gap-2">
@@ -194,9 +194,9 @@ export default function Simulator({ prefill, onPrefillConsumed }: SimulatorProps
 
               <div className="grid grid-cols-2 gap-px bg-black/[0.05] dark:bg-white/[0.05] rounded-3xl overflow-hidden border border-black/[0.05] dark:border-white/[0.05]">
                 {[
-                  { label: t('calculadoras.simulator.currentPrice'), value: formatBRL(result.currentPrice) },
-                  { label: t('calculadoras.simulator.projection'), value: formatBRL(parseFloat(futurePrice)) },
-                  { label: t('calculadoras.simulator.pnlRealized'), value: (isProfit ? '+' : '') + formatBRL(result.profit) },
+                  { label: t('calculadoras.simulator.currentPrice'), value: formatFromBrl(result.currentPrice) },
+                  { label: t('calculadoras.simulator.projection'), value: formatFromBrl(parseFloat(futurePrice)) },
+                  { label: t('calculadoras.simulator.pnlRealized'), value: (isProfit ? '+' : '') + formatFromBrl(result.profit) },
                   { label: t('calculadoras.simulator.marketWeight'), value: t('calculadoras.simulator.leverageValue') }
                 ].map((item, i) => (
                   <div key={i} className="bg-white dark:bg-[#050505] p-6 flex flex-col gap-1 transition-colors hover:bg-black/[0.02] dark:hover:bg-white/[0.02]">

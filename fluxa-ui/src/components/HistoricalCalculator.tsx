@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDisplayCurrency } from '../contexts/DisplayCurrencyContext';
 import { simulateHistorical, type HistoricalSimulationResult } from '../api/client';
 import { useApi } from '../hooks/useApi';
 import { useAssets } from '../hooks/useAssets';
@@ -16,6 +17,7 @@ const TAB_TYPES: Record<TabType, string[]> = {
 
 export default function HistoricalCalculator() {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const { assets } = useAssets();
   const [tab, setTab] = useState<TabType>('crypto');
   const [asset, setAsset] = useState('');
@@ -60,7 +62,6 @@ export default function HistoricalCalculator() {
     );
   }
 
-  const formatBRL = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const formatDate = (iso: string) => {
     const [y, m, d] = iso.split('-');
     return `${d}/${m}/${y}`;
@@ -160,7 +161,7 @@ export default function HistoricalCalculator() {
                 <div>
                   <span className="text-[10px] font-mono tracking-widest uppercase text-black/30 dark:text-white/30">{t('calculadoras.historical.currentAppraisal')}</span>
                   <div className="text-5xl font-bold tracking-tighter mt-2 text-black dark:text-white">
-                    {formatBRL(result.currentValue)}
+                    {formatFromBrl(result.currentValue)}
                   </div>
                 </div>
                 <div className="px-4 py-2 rounded-full border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.03] flex items-center gap-2">
@@ -173,23 +174,23 @@ export default function HistoricalCalculator() {
 
               <div className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.05] dark:border-white/[0.05] p-6 rounded-3xl">
                 <p className="text-sm text-black/40 dark:text-white/40 leading-relaxed font-medium">
-                  {t('calculadoras.historical.resultSentence', { amount: formatBRL(parseFloat(investment)), asset: asset.toUpperCase(), date: formatDate(result.purchaseDate) })}
+                  {t('calculadoras.historical.resultSentence', { amount: formatFromBrl(parseFloat(investment)), asset: asset.toUpperCase(), date: formatDate(result.purchaseDate) })}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-8 px-4">
                 <div className="flex flex-col gap-1">
                   <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-black/20 dark:text-white/20">{t('calculadoras.historical.purchasePrice')}</span>
-                  <span className="font-mono text-black/80 dark:text-white/80 text-sm">{formatBRL(result.priceAtPurchase)}</span>
+                  <span className="font-mono text-black/80 dark:text-white/80 text-sm">{formatFromBrl(result.priceAtPurchase)}</span>
                 </div>
                 <div className="flex flex-col gap-1">
                   <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-black/20 dark:text-white/20">{t('calculadoras.historical.marketPrice')}</span>
-                  <span className="font-mono text-black/80 dark:text-white/80 text-sm">{formatBRL(result.currentPrice)}</span>
+                  <span className="font-mono text-black/80 dark:text-white/80 text-sm">{formatFromBrl(result.currentPrice)}</span>
                 </div>
                 <div className="flex flex-col gap-1">
                   <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-black/20 dark:text-white/20">{t('calculadoras.historical.totalPnl')}</span>
                   <span className={`font-mono text-sm font-bold ${isProfit ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {isProfit ? '+' : ''}{formatBRL(result.profit)}
+                    {isProfit ? '+' : ''}{formatFromBrl(result.profit)}
                   </span>
                 </div>
               </div>

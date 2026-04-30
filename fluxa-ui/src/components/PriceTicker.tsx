@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDisplayCurrency } from '../contexts/DisplayCurrencyContext';
 import { getPriceBatch, getFiatRate } from '../api/client';
 
 const ASSET_IDS = [
@@ -12,6 +13,7 @@ const ASSET_IDS = [
 
 export default function PriceTicker() {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const [prices, setPrices]   = useState<Record<string, number>>({});
   const [usdRate, setUsdRate] = useState<number | null>(null);
 
@@ -47,8 +49,6 @@ export default function PriceTicker() {
 
   const items = useMemo(() => [...allItems, ...allItems, ...allItems, ...allItems], [allItems]);
 
-  const formatCurrency = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
   return (
     <div 
       className="w-full border-b border-black/[0.05] dark:border-white/[0.05] bg-black/[0.01] dark:bg-white/[0.01] overflow-hidden py-2" 
@@ -62,7 +62,7 @@ export default function PriceTicker() {
               <div className="flex items-center gap-3">
                 <span className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">{item.symbol}</span>
                 <span className="font-mono text-sm text-black/80 dark:text-white/90">
-                  {item.price ? formatCurrency(item.price) : t('common.dash')}
+                  {item.price ? formatFromBrl(item.price) : t('common.dash')}
                 </span>
                 <span className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded ${isUp ? 'text-emerald-600 dark:text-[#00ff9d] bg-emerald-500/10 dark:bg-[#00ff9d]/10' : 'text-red-600 dark:text-[#ff4d4d] bg-red-500/10 dark:bg-[#ff4d4d]/10'}`}>
                   {isUp ? '↑' : '↓'} {(Math.random() * 2).toFixed(2)}%

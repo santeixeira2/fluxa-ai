@@ -19,6 +19,9 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
 
     try {
         const payload = jwt.verify(header.split(' ')[1], String(config.jwtSecret)) as AuthPayload;
+        if (!payload.userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
         req.user = { sub: payload.userId, email: payload.email };
         next();
     } catch (error) {
@@ -31,7 +34,9 @@ export function optionalAuthMiddleware(req: Request, _res: Response, next: NextF
     if (header?.startsWith('Bearer ')) {
         try {
             const payload = jwt.verify(header.split(' ')[1], String(config.jwtSecret)) as AuthPayload;
-            req.user = { sub: payload.userId, email: payload.email };
+            if (payload.userId) {
+                req.user = { sub: payload.userId, email: payload.email };
+            }
         } catch { /* token inválido — ignora */ }
     }
     next();

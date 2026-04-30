@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDisplayCurrency } from '../contexts/DisplayCurrencyContext';
 import {
   createChart,
   ColorType,
@@ -111,6 +112,7 @@ function DCAChart({ result }: { result: DCAResult }) {
 
 export default function DCACalculator() {
   const { t } = useTranslation();
+  const { formatFromBrl } = useDisplayCurrency();
   const { assets } = useAssets();
   const [tab, setTab] = useState<TabType>('crypto');
   const [asset, setAsset] = useState('');
@@ -161,7 +163,6 @@ export default function DCACalculator() {
     );
   }
 
-  const formatBRL = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const formatQty = (val: number) =>
     val < 0.01
       ? val.toLocaleString('pt-BR', { minimumFractionDigits: 6, maximumFractionDigits: 8 })
@@ -332,7 +333,7 @@ export default function DCACalculator() {
                       {t('calculadoras.dca.totalInvested')}
                     </span>
                     <p className="font-mono text-lg font-bold text-black dark:text-white mt-1">
-                      {formatBRL(result.totalInvested)}
+                      {formatFromBrl(result.totalInvested)}
                     </p>
                     <span className="text-[10px] font-mono text-black/30 dark:text-white/30">
                       {t('calculadoras.dca.entries', { count: result.schedule.length })}
@@ -345,7 +346,7 @@ export default function DCACalculator() {
                       {t('calculadoras.dca.currentValue')}
                     </span>
                     <p className="font-mono text-lg font-bold text-black dark:text-white mt-1">
-                      {formatBRL(result.currentValue)}
+                      {formatFromBrl(result.currentValue)}
                     </p>
                   </div>
 
@@ -355,7 +356,7 @@ export default function DCACalculator() {
                       {t('calculadoras.dca.profit')}
                     </span>
                     <p className={`font-mono text-lg font-bold mt-1 ${isProfit ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                      {isProfit ? '+' : ''}{formatBRL(result.profit)}
+                      {isProfit ? '+' : ''}{formatFromBrl(result.profit)}
                     </p>
                   </div>
 
@@ -377,7 +378,7 @@ export default function DCACalculator() {
                       {t('calculadoras.dca.avgPrice')}
                     </span>
                     <span className="font-mono text-sm font-bold text-black dark:text-white">
-                      {formatBRL(result.averagePrice)}
+                      {formatFromBrl(result.averagePrice)}
                     </span>
                   </div>
                   <div className="flex flex-col gap-0.5 text-right">
@@ -404,7 +405,7 @@ export default function DCACalculator() {
                         {(result.roi * 100).toFixed(2)}%
                       </p>
                       <p className="font-mono text-xs text-black/40 dark:text-white/40">
-                        {formatBRL(result.currentValue)}
+                        {formatFromBrl(result.currentValue)}
                       </p>
                     </div>
                     <div className={`p-4 rounded-xl border transition-all ${lumpWon ? 'border-emerald-500/30 bg-emerald-500/[0.05]' : 'border-black/[0.06] dark:border-white/[0.06]'}`}>
@@ -415,7 +416,7 @@ export default function DCACalculator() {
                         {(result.lumpSum.roi * 100).toFixed(2)}%
                       </p>
                       <p className="font-mono text-xs text-black/40 dark:text-white/40">
-                        {formatBRL(result.lumpSum.currentValue)}
+                        {formatFromBrl(result.lumpSum.currentValue)}
                       </p>
                     </div>
                   </div>
@@ -468,7 +469,7 @@ export default function DCACalculator() {
                               className="border-t border-black/[0.04] dark:border-white/[0.04]"
                             >
                               <td className="py-2.5 text-black/60 dark:text-white/60">{formatDate(item.date)}</td>
-                              <td className="py-2.5 text-right text-black/80 dark:text-white/80">{formatBRL(item.price)}</td>
+                              <td className="py-2.5 text-right text-black/80 dark:text-white/80">{formatFromBrl(item.price)}</td>
                               <td className="py-2.5 text-right text-black/80 dark:text-white/80">{formatQty(item.quantity)}</td>
                             </tr>
                           ))}

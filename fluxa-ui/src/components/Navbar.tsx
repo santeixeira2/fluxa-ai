@@ -5,18 +5,17 @@ import Logo from './Logo';
 import PriceTicker from './PriceTicker';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeContext } from '../contexts/ThemeContext';
+import { useDisplayCurrency } from '../contexts/DisplayCurrencyContext';
 import { useNotifications } from '../hooks/useNotifications';
-
-const fmtBRL = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { theme, setTheme } = useThemeContext();
+  const { currency, setCurrency, formatFromBrl } = useDisplayCurrency();
   const { t, i18n } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
-  const [cfgCurrency, setCfgCurrency] = useState('BRL');
   const { notifications, markRead } = useNotifications();
   const notifRef = useRef<HTMLDivElement>(null);
   const currentLang = i18n.language === 'en-US' ? 'EN-US' : 'PT-BR';
@@ -64,6 +63,11 @@ export default function Navbar() {
                 {t('nav.portfolio')}
               </Link>
             )}
+            {user && (
+              <Link to="/analysis" className="text-[13px] font-medium text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors">
+                {t('nav.analysis')}
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -108,7 +112,7 @@ export default function Navbar() {
                                   {new Date(n.triggered_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                 </p>
                               </div>
-                              <span className="text-xs font-mono text-black/40 dark:text-white/40 flex-shrink-0">{fmtBRL(Number(n.price_brl))}</span>
+                              <span className="text-xs font-mono text-black/40 dark:text-white/40 flex-shrink-0">{formatFromBrl(Number(n.price_brl))}</span>
                             </div>
                           </li>
                         );
@@ -208,8 +212,8 @@ export default function Navbar() {
                 <div className="p-3">
                   <div className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">{t('nav.currency')}</div>
                   <div className="flex gap-2">
-                    <button onClick={() => setCfgCurrency('BRL')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${cfgCurrency === 'BRL' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>BRL (R$)</button>
-                    <button onClick={() => setCfgCurrency('USD')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${cfgCurrency === 'USD' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>USD ($)</button>
+                    <button type="button" onClick={() => setCurrency('BRL')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${currency === 'BRL' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>BRL (R$)</button>
+                    <button type="button" onClick={() => setCurrency('USD')} className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${currency === 'USD' ? 'bg-black dark:bg-white text-white dark:text-black' : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/10'}`}>USD ($)</button>
                   </div>
                 </div>
 

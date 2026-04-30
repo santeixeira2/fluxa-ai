@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { store } from './store'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { DisplayCurrencyProvider } from './contexts/DisplayCurrencyContext'
 import './index.css'
 import './i18n'
 import App from './App'
@@ -15,11 +16,13 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
 const tree = (
   <Provider store={store}>
     <ThemeProvider>
+      <DisplayCurrencyProvider>
       <BrowserRouter>
         <AuthProvider>
           <App />
         </AuthProvider>
       </BrowserRouter>
+      </DisplayCurrencyProvider>
     </ThemeProvider>
   </Provider>
 )

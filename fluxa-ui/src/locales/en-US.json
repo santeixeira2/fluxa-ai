@@ -3,6 +3,7 @@
     "home": "Home",
     "calculadoras": "Calculators",
     "portfolio": "Portfolio",
+    "analysis": "Analysis",
     "signIn": "Sign in / Sign up",
     "editProfile": "Edit profile",
     "signOut": "Sign out",
@@ -60,6 +61,18 @@
       {
         "q": "Does Fluxa replace a broker?",
         "a": "No. Fluxa is an analysis and simulation tool. We don't execute real orders or connect to your brokerage account."
+      },
+      {
+        "q": "What is the watchlist?",
+        "a": "The watchlist is a list of assets you want to monitor. You can add assets to get notifications when their prices change."
+      },
+      {
+        "q": "What are alerts?",
+        "a": "Alerts are notifications you receive when an asset's price reaches a certain level. You can create alerts for assets you want to monitor."
+      },
+      {
+        "q": "How does the investment simulation work?",
+        "a": "The investment simulation lets you simulate investing in an asset so you can see how much you could gain or lose under different scenarios."
       }
     ]
   },
@@ -75,8 +88,29 @@
       "transactions": "History",
       "alerts": "Alerts",
       "compare": "Compare",
+      "risk": "Risk",
       "report": "Report"
     },
+    "assetDrawer": {
+      "chart": "Chart",
+      "analysis": "Analysis"
+    },
+    "riskTab": {
+      "title": "Portfolio risk analysis",
+      "annualizedVol": "Annualized volatility",
+      "annualizedReturn": "Est. annual return",
+      "sharpe": "Sharpe ratio",
+      "marketFactor": "Market factor (PC1)",
+      "riskByAsset": "Risk contribution by asset",
+      "stressTest": "⚠ Stress test — crash {{period}}",
+      "stressDesc": "Portfolio cumulative return during the worst recent drawdown period",
+      "loadError": "Could not load risk analysis.",
+      "needPositions": "Add positions to your portfolio to see risk analysis."
+    },
+    "positionAvg": "avg",
+    "totalPnlLabel": "total",
+    "tradeExecuteError": "Could not complete the trade.",
+    "alertCreateError": "Could not create alert.",
     "compare": {
       "assetA": "Asset A",
       "assetB": "Asset B",
@@ -154,7 +188,8 @@
       "noActive": "No active alerts.",
       "below": "Below",
       "above": "Above",
-      "fillFields": "Please fill in all fields."
+      "fillFields": "Please fill in all fields.",
+      "targetFallback": "Target: {{price}}"
     }
   },
   "profile": {
@@ -389,6 +424,57 @@
       "mar": "Mar",
       "apr": "Apr",
       "may": "May"
+    }
+  },
+  "earningsSentiment": {
+    "noData": "No data available for this asset",
+    "header": "Sentiment — quarterly results",
+    "footer": "Source: SEC EDGAR · AI analysis · Tap to expand",
+    "guidanceRaised": "Guidance ↑",
+    "guidanceLowered": "Guidance ↓",
+    "guidanceMaintained": "Guidance →",
+    "beat": "Beat",
+    "miss": "Miss",
+    "tone": {
+      "confident": "Confident",
+      "cautious": "Cautious",
+      "neutral": "Neutral"
+    },
+    "previewTitle": "Sentiment — latest results",
+    "previewFooterUS": "Source: SEC EDGAR · AI analysis",
+    "previewFooterBR": "Source: CVM ITR · Open data · AI analysis"
+  },
+  "analysis": {
+    "badge": "[ Analysis ]",
+    "title": "Analysis",
+    "subtitle": "Assess risk, compare assets and detect market regimes before investing.",
+    "tabs": {
+      "risk": "Risk",
+      "compare": "Compare",
+      "regime": "Regime"
+    },
+    "regime": {
+      "label": "Detected regime",
+      "selectAsset": "Select an asset",
+      "hint": "Select an asset to detect the current market regime.",
+      "loading": "Detecting regime...",
+      "error": "Could not detect regime.",
+      "confidence": "Confidence",
+      "realizedVol": "Realized volatility",
+      "smaSlope": "SMA slope",
+      "directionalBias": "Directional bias",
+      "regimes": {
+        "trending_up": "Trending Up",
+        "trending_down": "Trending Down",
+        "volatile": "Volatile",
+        "mean_reverting": "Mean Reverting"
+      },
+      "descriptions": {
+        "trending_up": "The asset is in a sustained upward trend. Favorable conditions for long positions.",
+        "trending_down": "The asset is in a sustained downward trend. Exercise caution with new entries.",
+        "volatile": "High volatility without a clear direction. Elevated risk, wider spreads.",
+        "mean_reverting": "The asset tends to revert to its historical mean. Mean-reversion strategies may apply."
+      }
     }
   },
   "common": {
