@@ -152,7 +152,7 @@ export default function Hero({ onParsed }: HeroProps) {
                       <span className="text-[10px] font-mono tracking-widest uppercase text-black/40 dark:text-white/40">{t('hero.fluxaAI')}</span>
                     </div>
                     <div className="text-black/80 dark:text-white/80 text-sm md:text-base leading-relaxed">
-                      <ChatMarkdown text={advice} />
+                      <ChatMarkdown text={advice ?? ''} />
                       {isAdvising && <span className="inline-block w-1.5 h-4 ml-0.5 bg-black/60 dark:bg-white/60 animate-pulse align-middle" />}
                     </div>
                   </>

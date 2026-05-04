@@ -55,7 +55,7 @@ const CRYPTO_CURRENCIES = [
 ];
 
 // Maps converter currency code → chart asset id
-const CURRENCY_CHART_MAP: Record<string, string> = {
+const _CURRENCY_CHART_MAP: Record<string, string> = {
   USD: 'usd-brl', EUR: 'eur-brl', GBP: 'gbp-brl', JPY: 'jpy-brl',
   CAD: 'cad-brl', AUD: 'aud-brl', CHF: 'chf-brl',
   MXN: 'mxn-brl', ARS: 'ars-brl', CLP: 'clp-brl',
@@ -304,7 +304,6 @@ function CurrencyConverter() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function CalculadorasPage() {
-  const { t } = useTranslation();
   const [prefill, setPrefill] = useState<SimFormData | null>(null);
   const [activeSection, setActiveSection] = useState('converter');
 
