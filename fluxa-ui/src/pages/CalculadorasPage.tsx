@@ -55,6 +55,7 @@ const CRYPTO_CURRENCIES = [
 ];
 
 // Maps converter currency code → chart asset id
+// @ts-ignore — kept for reference
 const _CURRENCY_CHART_MAP: Record<string, string> = {
   USD: 'usd-brl', EUR: 'eur-brl', GBP: 'gbp-brl', JPY: 'jpy-brl',
   CAD: 'cad-brl', AUD: 'aud-brl', CHF: 'chf-brl',
