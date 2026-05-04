@@ -152,7 +152,84 @@ Supported tickers: AAPL, MSFT, NVDA, TSLA, AMZN, GOOGL, META, NFLX, BRK-B, JPM, 
 | 1 | ✅ Done | Statistical regime detector (Node.js, rolling metrics) |
 | 2 | ✅ Done | HMM microservice (Python, hmmlearn, 41 assets trained) |
 | 3 | ✅ Done | Earnings sentiment (SEC EDGAR + Groq, 12 US stocks) |
-| 4 | Planned | Factor Risk Model — PCA over portfolio returns, stress testing |
+| 3.5 | ✅ Done | Earnings sentiment B3 (CVM ITR + Groq, 8 BR stocks) |
+| 4 | ✅ Done | Factor Risk Model — PCA, momentum/size/volatility factors, stress testing |
+
+---
+
+## Pre-Release Infrastructure Plan
+
+Target architecture for the first public release. All cost estimates assume low traffic (< 1k users).
+
+```
+                        ┌─────────────────────────────┐
+  Users                 │        AWS (us-east-1)       │
+    │                   │                              │
+    ├──HTTPS──▶ CloudFront ──▶ S3 (fluxa-ui static)   │
+    │                   │                              │
+    └──HTTPS──▶ EC2 t2.micro (free tier)               │
+               │  ├── Nginx (reverse proxy, TLS)       │
+               │  ├── fluxa-api (Docker)               │
+               │  └── Redis (Docker)                   │
+               │                   │                   │
+               │           RDS db.t3.micro             │
+               │           (PostgreSQL, free tier)     │
+               │                   │                   │
+               │         SES (transactional email)     │
+               └─────────────────────────────────────-─┘
+                    │  Tailscale (private mesh)
+                    ▼
+          ┌─────────────────────┐
+          │  Oracle Cloud       │
+          │  Free Tier ARM VM   │
+          │  (4 vCPU, 24GB RAM) │
+          │  fluxa-ml (Docker)  │
+          └─────────────────────┘
+```
+
+### Service placement
+
+| Service | Host | Rationale |
+|---|---|---|
+| `fluxa-ui` | S3 + CloudFront | Static assets — effectively free, global CDN |
+| `fluxa-api` + Redis | EC2 t2.micro | AWS free tier (750h/month for 12 months) |
+| PostgreSQL | RDS db.t3.micro | Managed backups, free tier |
+| `fluxa-ml` | Oracle Cloud ARM VM | Free forever, 24GB RAM fits HMM + PCA comfortably |
+| Transactional email | AWS SES | Free when sending from EC2 (62k emails/month) |
+
+### Connectivity
+
+- EC2 and Oracle VM join the same **Tailscale** private network
+- `fluxa-api` calls `fluxa-ml` via Tailscale IP (`100.x.x.x`) — never exposed to the public internet
+- If `fluxa-ml` is unreachable, API degrades gracefully (ML endpoints return 503, core features stay up)
+
+### Cost estimate
+
+| Item | Monthly cost |
+|---|---|
+| EC2 t2.micro + RDS db.t3.micro | $0 (free tier, 12 months) |
+| S3 + CloudFront | ~$0 (well within free tier) |
+| Oracle Cloud VM | $0 (free forever) |
+| AWS SES | $0 (free from EC2) |
+| Route 53 hosted zone | ~$0.50 |
+| Domain | ~$1 (amortized) |
+| **Total** | **~$1.50/month** |
+
+### CI/CD
+
+GitHub Actions on push to `main`:
+1. Build Docker images
+2. SSH into EC2 → `docker compose pull && docker compose up -d`
+3. SSH into Oracle VM → same for `fluxa-ml`
+4. Build `fluxa-ui` → sync to S3 → CloudFront invalidation
+
+### AWS free tier guardrails
+
+- **Billing alert** at $10/month — configured on account creation
+- **Free Tier Usage Alerts** enabled in Billing Preferences
+- Redis runs on EC2 (not ElastiCache — not in free tier)
+- No NAT Gateway, no Application Load Balancer (Nginx on EC2 replaces both)
+- Elastic IP released if EC2 instance is stopped
 
 ---
 
