@@ -4,7 +4,7 @@
   "description": "Production-ready financial simulation API",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --require tsconfig-paths/register --respawn --transpile-only src/server.ts",
     "db:migrate": "prisma migrate deploy",
@@ -34,6 +34,7 @@
     "node-cron": "^4.2.1",
     "pg": "^8.20.0",
     "prisma": "^7.7.0",
+    "tsc-alias": "^1.8.17",
     "zod": "^3.22.4"
   },
   "devDependencies": {
