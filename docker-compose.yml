@@ -63,6 +63,8 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET: fluxa-files
+    volumes:
+      - ./fluxa-api/prisma/migrations:/app/prisma/migrations
     command: sh -c "node_modules/.bin/prisma migrate deploy && node dist/server.js"
     depends_on:
       postgres:
