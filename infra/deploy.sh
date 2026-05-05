@@ -8,7 +8,7 @@ set -e
 EC2_IP="${1:?Usage: $0 <EC2_IP>}"
 EC2_USER="ubuntu"
 KEY="$HOME/fluxa/infra/.fluxa-key.pem"
-DOCKERHUB_USER="santeixeira2"
+DOCKERHUB_USER="santeixeira"
 
 echo "==> Building images..."
 docker build -t "$DOCKERHUB_USER/fluxa-api:latest" ./fluxa-api
