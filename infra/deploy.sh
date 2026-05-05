@@ -13,10 +13,12 @@ DOCKERHUB_USER="santeixeira"
 echo "==> Building images..."
 docker build -t "$DOCKERHUB_USER/fluxa-api:latest" ./fluxa-api
 docker build -t "$DOCKERHUB_USER/fluxa-ui:latest" ./fluxa-ui
+docker build -t "$DOCKERHUB_USER/fluxa-ml:latest" ./fluxa-ml
 
 echo "==> Pushing to Docker Hub..."
 docker push "$DOCKERHUB_USER/fluxa-api:latest"
 docker push "$DOCKERHUB_USER/fluxa-ui:latest"
+docker push "$DOCKERHUB_USER/fluxa-ml:latest"
 
 echo "==> Deploying to EC2 ($EC2_IP)..."
 ssh -i "$KEY" "$EC2_USER@$EC2_IP" "
