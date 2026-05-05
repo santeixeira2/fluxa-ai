@@ -666,17 +666,25 @@ export default function PortfolioPage() {
   const [trade, setTrade] = useState<{ mode: TradeMode; assetId?: string; maxQuantity?: number } | null>(null);
   const [chartAsset, setChartAsset] = useState<{ id: string; name: string } | null>(null);
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const load = useCallback(async () => {
     try {
       const [p, a] = await Promise.all([getPortfolio(), getAssets()]);
       setPortfolio(p);
       setAssets(a);
-    } catch {
-      navigate('/login');
+      setLoadError(null);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.toLowerCase().includes('sessão') || msg.toLowerCase().includes('unauthorized')) {
+        navigate('/login');
+      } else {
+        setLoadError(msg || t('portfolio.loadError'));
+      }
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, t]);
 
   const loadTransactions = useCallback(async () => {
     try { setTransactions(await getPortfolioTransactions()); }
@@ -693,6 +701,15 @@ export default function PortfolioPage() {
       <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center pt-[104px]">
         <Navbar />
         <div className="text-black/30 dark:text-white/30 text-sm font-mono">{t('common.loading')}</div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center pt-[104px]">
+        <Navbar />
+        <p className="text-red-500 text-sm font-mono text-center px-4">{loadError}</p>
       </div>
     );
   }
