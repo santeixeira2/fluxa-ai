@@ -64,7 +64,6 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET: fluxa-files
-      ML_SERVICE_URL: http://fluxa-ml:8000
     volumes:
       - ./fluxa-api/prisma/migrations:/app/prisma/migrations
     command: sh -c "node_modules/.bin/prisma migrate deploy && node dist/server.js"
