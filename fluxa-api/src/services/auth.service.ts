@@ -72,7 +72,7 @@ export async function login(
   return token;
 }
 
-export async function loginWithGoogle(accessToken: string): Promise<AuthToken> {
+export async function loginWithGoogle(accessToken: string): Promise<LoginResult> {
   const tokenRes = await fetch(
     `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`,
   );
@@ -97,12 +97,19 @@ export async function loginWithGoogle(accessToken: string): Promise<AuthToken> {
     where: { email },
     update: {},
     create: { email, name: name ?? email },
-    select: { id: true, email: true, name: true },
+    select: { id: true, email: true, name: true, totpEnabled: true, totpSecret: true },
   });
+
+  await ensurePortfolio(user.id);
+
+  if (user.totpEnabled && user.totpSecret) {
+    const mfaToken = crypto.randomUUID();
+    await redis.set(`mfa:${mfaToken}`, user.id, 'EX', MFA_TTL);
+    return { mfaPending: true, mfaToken };
+  }
 
   const token = generateToken({ userId: user.id, email: user.email, name: user.name ?? undefined });
   await saveRefresh(user.id, token.refreshToken);
-  await ensurePortfolio(user.id);
   return token;
 }
 
