@@ -11,8 +11,9 @@ variable "key_pair_name" {
 }
 
 variable "ssh_allowed_cidr" {
-  description = "Your IP in CIDR notation (ex: 189.x.x.x/32)"
+  description = "Your IP in CIDR notation (ex: 189.x.x.x/32). Defaults to open — restrict in production."
   type        = string
+  default     = "0.0.0.0/0"
 }
 
 variable "alert_email" {
