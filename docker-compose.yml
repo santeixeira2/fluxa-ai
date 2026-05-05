@@ -64,6 +64,7 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET: fluxa-files
+      ML_SERVICE_URL: http://fluxa-ml:8000
     volumes:
       - ./fluxa-api/prisma/migrations:/app/prisma/migrations
     command: sh -c "node_modules/.bin/prisma migrate deploy && node dist/server.js"
@@ -74,6 +75,19 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+
+  fluxa-ml:
+    image: santeixeira/fluxa-ml:latest
+    build:
+      context: ./fluxa-ml
+      dockerfile: Dockerfile
+    container_name: fluxa-ml
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   fluxa-ui:
     image: santeixeira/fluxa-ui:latest
