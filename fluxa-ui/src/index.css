@@ -109,6 +109,16 @@
   100% { opacity: 0.8; transform: translateX(-50%) scale(1.05); }
 }
 
+@keyframes quantum-ring {
+  0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.35; }
+  100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+}
+
+@keyframes orb-breathe {
+  0%, 100% { box-shadow: 0 0 60px rgba(255,255,255,0.22), 0 0 140px rgba(255,255,255,0.10), 0 0 320px rgba(255,255,255,0.05); }
+  50%       { box-shadow: 0 0 80px rgba(255,255,255,0.30), 0 0 180px rgba(255,255,255,0.14), 0 0 400px rgba(255,255,255,0.07); }
+}
+
 @keyframes ticker {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }

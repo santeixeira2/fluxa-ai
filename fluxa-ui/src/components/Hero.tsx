@@ -10,6 +10,19 @@ interface HeroProps {
   onParsed: (data: SimFormData) => void;
 }
 
+// Shared ring style — quantum ripple effect
+const ringBase: React.CSSProperties = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  width: '420px',
+  height: '420px',
+  borderRadius: '50%',
+  border: '1px solid rgba(255,255,255,0.12)',
+  animation: 'quantum-ring 4s ease-out infinite',
+  pointerEvents: 'none',
+};
+
 export default function Hero({ onParsed }: HeroProps) {
   const { t } = useTranslation();
   const [message, setMessage] = useState('');
@@ -24,43 +37,39 @@ export default function Hero({ onParsed }: HeroProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!message.trim()) return;
-
     setIsAdvising(true);
     setAdvice(null);
     setErrorMsg(null);
-
     try {
       if (looksLikeSimulation(message)) {
         const parsed = await parseUserInput(message);
-
         if (parsed?.asset && parsed?.investment) {
           onParsed({
             asset: parsed.asset,
             investment: parsed.investment.toString(),
             futurePrice: parsed.futurePrice ? parsed.futurePrice.toString() : '',
           });
-
           const priceRes = await getPrice(parsed.asset.toLowerCase(), 'brl').catch(() => null);
-
           if (priceRes && parsed.futurePrice) {
             const cp = priceRes.price;
             const inv = parsed.investment;
             const fp = parsed.futurePrice;
-            const finalValue = (inv / cp) * fp;
-            const profit = finalValue - inv;
-            const roi = (profit / inv) * 100;
-
-            const explanation = await explainSimulation({ currentPrice: cp, finalValue, profit, roi, investment: inv, futurePrice: fp });
+            const explanation = await explainSimulation({
+              currentPrice: cp,
+              finalValue: (inv / cp) * fp,
+              profit: (inv / cp) * fp - inv,
+              roi: (((inv / cp) * fp - inv) / inv) * 100,
+              investment: inv,
+              futurePrice: fp,
+            });
             setAdvice(explanation.explanation);
           } else {
             setAdvice(`Simulação configurada para ${parsed.asset.toUpperCase()}! Role para baixo para ver o resultado.`);
           }
-
           setMessage('');
           return;
         }
       }
-
       setAdvice('');
       setMessage('');
       await chatAiStream(message, (token) => {
@@ -74,99 +83,143 @@ export default function Hero({ onParsed }: HeroProps) {
   }
 
   return (
-    <section className="relative pt-36 pb-32 px-6 overflow-hidden bg-black text-white">
+    <section className="relative overflow-hidden bg-black text-white" style={{ minHeight: '100vh' }}>
 
-      {/* ── Grid lines ── */}
+      {/* ── Subtle grid lines ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage:
-            'repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,0.025) 79px, rgba(255,255,255,0.025) 80px)',
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,0.022) 79px, rgba(255,255,255,0.022) 80px)',
+          zIndex: 1,
         }}
         aria-hidden="true"
       />
 
-      {/* ── Atmospheric glow (radial from top center) ── */}
+      {/* ── Grand atmospheric glow — behind the orb ── */}
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] pointer-events-none"
+        className="absolute pointer-events-none"
         style={{
-          background:
-            'radial-gradient(ellipse 65% 55% at 50% 0%, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.04) 45%, transparent 70%)',
+          top: '0',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '1200px',
+          height: '700px',
+          background: 'radial-gradient(ellipse 55% 60% at 50% 5%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 35%, transparent 70%)',
+          zIndex: 2,
         }}
         aria-hidden="true"
       />
 
       {/* ── Content ── */}
-      <div className="relative z-10 max-w-[860px] mx-auto text-center">
+      <div className="relative flex flex-col items-center text-center px-6 pt-28 pb-24" style={{ zIndex: 10 }}>
 
-        {/* ── Orb ── */}
+        {/* ── Orb + quantum rings ── */}
         <Reveal delay={0}>
-          <div className="flex justify-center mb-14">
-            <div className="relative">
-              {/* Outer diffuse glow */}
+          <div
+            className="relative flex items-center justify-center mb-16"
+            style={{ width: '420px', height: '300px' }}
+          >
+            {/* Quantum rings — staggered delays */}
+            <div style={{ ...ringBase, animationDelay: '0s' }} />
+            <div style={{ ...ringBase, animationDelay: '1.3s' }} />
+            <div style={{ ...ringBase, animationDelay: '2.6s' }} />
+
+            {/* The main orb */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '320px',
+                height: '320px',
+                borderRadius: '50%',
+                // Spherical shading — top lighter, bottom darker
+                background: `
+                  radial-gradient(circle at 50% 20%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.03) 45%, transparent 70%),
+                  radial-gradient(circle at 50% 80%, rgba(0,0,0,0.4) 0%, transparent 60%)
+                `,
+                border: '1px solid rgba(255,255,255,0.22)',
+                animation: 'orb-breathe 5s ease-in-out infinite',
+              }}
+            />
+
+            {/* Inner ring — tighter, brighter */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '260px',
+                height: '260px',
+                borderRadius: '50%',
+                border: '1px solid rgba(255,255,255,0.08)',
+                pointerEvents: 'none',
+              }}
+            />
+
+            {/* Logo badge — sits at apex of orb */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 'calc(50% - 160px)',   // top edge of the 320px orb
+                left: '50%',
+                transform: 'translateX(-50%) translateY(-50%)',
+                zIndex: 20,
+              }}
+            >
               <div
-                className="absolute rounded-full pointer-events-none"
                 style={{
-                  inset: '-56px',
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 68%)',
-                }}
-                aria-hidden="true"
-              />
-              {/* Mid ring */}
-              <div
-                className="absolute rounded-full pointer-events-none"
-                style={{
-                  inset: '-24px',
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%)',
-                  boxShadow: '0 0 60px rgba(255,255,255,0.08)',
-                }}
-                aria-hidden="true"
-              />
-              {/* Orb */}
-              <div
-                className="relative w-[76px] h-[76px] rounded-full flex items-center justify-center"
-                style={{
-                  background:
-                    'radial-gradient(circle at 38% 32%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.07) 55%, rgba(0,0,0,0.15) 100%)',
-                  border: '1px solid rgba(255,255,255,0.18)',
-                  boxShadow:
-                    '0 0 32px rgba(255,255,255,0.18), 0 0 80px rgba(255,255,255,0.09), 0 0 160px rgba(255,255,255,0.04)',
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle at 40% 35%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 60%)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  boxShadow: '0 0 24px rgba(255,255,255,0.25), 0 0 60px rgba(255,255,255,0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backdropFilter: 'blur(12px)',
                 }}
               >
-                <Logo size={38} className="rounded-full" />
+                <Logo size={34} className="rounded-full" />
               </div>
             </div>
           </div>
         </Reveal>
 
         {/* ── Headline ── */}
-        <Reveal delay={120}>
-          <h1 className="text-[clamp(3rem,8vw,6rem)] font-bold tracking-[-0.04em] leading-[1.05] mb-6 text-white">
+        <Reveal delay={150}>
+          <h1
+            className="font-bold text-white leading-[1.05] tracking-[-0.04em] mb-6"
+            style={{ fontSize: 'clamp(2.8rem, 7.5vw, 5.5rem)' }}
+          >
             {t('hero.headline')}<br />
-            <span className="text-white/45">{t('hero.headlineMuted')}</span>
+            <span className="text-white/40">{t('hero.headlineMuted')}</span>
           </h1>
         </Reveal>
 
-        {/* ── Subheadline ── */}
-        <Reveal delay={240}>
-          <p className="text-white/40 text-lg md:text-xl max-w-[520px] mx-auto mb-12 leading-relaxed">
+        {/* ── Subtitle ── */}
+        <Reveal delay={280}>
+          <p className="text-white/40 text-lg max-w-[480px] mx-auto mb-12 leading-relaxed">
             {t('hero.subheadline')}
           </p>
         </Reveal>
 
         {/* ── AI Input ── */}
-        <Reveal delay={360}>
-          <div className="max-w-xl mx-auto mb-16">
+        <Reveal delay={400}>
+          <div className="w-full max-w-xl mb-16">
             <form
               onSubmit={handleSubmit}
-              className="relative flex items-center p-1.5 rounded-full border border-white/[0.12] bg-white/[0.04] backdrop-blur-xl focus-within:border-white/30 transition-all duration-300 hover:bg-white/[0.06]"
+              className="relative flex items-center p-1.5 rounded-full border border-white/[0.12] bg-white/[0.04] backdrop-blur-xl focus-within:border-white/[0.28] transition-all duration-300 hover:bg-white/[0.06]"
             >
               <input
                 type="text"
                 placeholder={t('hero.placeholder')}
                 className="flex-1 bg-transparent border-none text-white focus:outline-none focus:ring-0 px-6 py-3 text-sm placeholder:text-white/25"
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={e => setMessage(e.target.value)}
                 disabled={isAdvising}
               />
               <button
@@ -179,10 +232,9 @@ export default function Hero({ onParsed }: HeroProps) {
             </form>
 
             {errorMsg && (
-              <p className="mt-4 text-white/30 text-xs font-mono tracking-tight">{errorMsg}</p>
+              <p className="mt-4 text-white/30 text-xs font-mono">{errorMsg}</p>
             )}
 
-            {/* ── AI Response ── */}
             {(advice !== null || isAdvising) && (
               <div className="mt-5 border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl rounded-2xl p-6 text-left">
                 {isAdvising && !advice ? (
@@ -208,7 +260,7 @@ export default function Hero({ onParsed }: HeroProps) {
         </Reveal>
 
         {/* ── Trust indicators ── */}
-        <Reveal delay={480}>
+        <Reveal delay={520}>
           <div className="flex flex-wrap justify-center items-center gap-8 text-white/20">
             {[t('hero.trust1'), t('hero.trust2'), t('hero.trust3')].map((item, i) => (
               <span key={i} className="text-[11px] font-mono tracking-widest uppercase flex items-center gap-2">
