@@ -4,7 +4,7 @@ import { prisma } from '@/utils/prisma';
 export async function getProfile(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, name: true, phone: true, createdAt: true, passwordHash: true },
+    select: { id: true, email: true, name: true, phone: true, createdAt: true, passwordHash: true, totpEnabled: true },
   });
   if (!user) throw new Error('User not found');
   return {
@@ -14,6 +14,7 @@ export async function getProfile(userId: string) {
     phone: user.phone,
     createdAt: user.createdAt,
     hasPassword: !!user.passwordHash,
+    totpEnabled: user.totpEnabled,
   };
 }
 

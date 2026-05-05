@@ -48,7 +48,7 @@ export default function Navbar() {
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <Logo className="transition-transform group-hover:scale-105" size={26} />
-            <span className="font-bold text-lg tracking-tight text-black dark:text-white">Fluxa</span>
+            <span className="font-bold text-lg tracking-tight text-black dark:text-white">Kuant</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8">
@@ -146,7 +146,7 @@ export default function Navbar() {
             </button>
 
             {showMenu && (
-            <div className="absolute top-full right-0 w-full bg-white dark:bg-[#0a0a0a] border border-black/[0.1] dark:border-white/[0.1] border-t-0 rounded-b-2xl p-2 shadow-2xl z-[10] animate-fade-down">
+            <div className="absolute top-full right-0 w-full bg-white dark:bg-[#0a0a0a] border border-black/[0.1] dark:border-white/[0.1] border-t-0 rounded-b-2xl p-2 shadow-2xl z-[100] animate-fade-down overflow-y-auto max-h-[80vh]">
 
                 {!user && (
                   <>

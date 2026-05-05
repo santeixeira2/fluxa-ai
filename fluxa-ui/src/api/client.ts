@@ -254,6 +254,12 @@ export function getFiatRate(from: string, to: string): Promise<FiatRateResponse>
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
+  deviceToken?: string;
+}
+
+export interface MfaPending {
+  mfaPending: true;
+  mfaToken: string;
 }
 
 export function authRegister(email: string, password: string, name: string, phone: string): Promise<AuthTokens> {
@@ -264,8 +270,58 @@ export function authGoogle(accessToken: string): Promise<AuthTokens> {
   return request('/auth/google', { method: 'POST', body: JSON.stringify({ idToken: accessToken }) });
 }
 
-export function authLogin(email: string, password: string): Promise<AuthTokens> {
-  return request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+export function authLogin(
+  email: string,
+  password: string,
+  deviceToken?: string,
+): Promise<AuthTokens | MfaPending> {
+  return request('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password, ...(deviceToken ? { deviceToken } : {}) }),
+  });
+}
+
+export function authTotpVerify(
+  mfaToken: string,
+  code: string,
+  rememberDevice: boolean,
+): Promise<AuthTokens> {
+  return request('/auth/totp/verify', {
+    method: 'POST',
+    body: JSON.stringify({ mfaToken, code, rememberDevice }),
+  });
+}
+
+export interface TotpSetup {
+  qrCode: string;
+  manualKey: string;
+}
+
+export function totpSetup(): Promise<TotpSetup> {
+  return request('/auth/totp/setup');
+}
+
+export function totpConfirm(code: string): Promise<{ ok: boolean }> {
+  return request('/auth/totp/confirm', { method: 'POST', body: JSON.stringify({ code }) });
+}
+
+export function totpDisable(code: string): Promise<{ ok: boolean }> {
+  return request('/auth/totp', { method: 'DELETE', body: JSON.stringify({ code }) });
+}
+
+export interface TrustedDevice {
+  id: string;
+  userAgent: string | null;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export function totpDevices(): Promise<TrustedDevice[]> {
+  return request('/auth/totp/devices');
+}
+
+export function totpRemoveDevice(id: string): Promise<void> {
+  return request(`/auth/totp/devices/${id}`, { method: 'DELETE' });
 }
 
 export function authRefresh(refreshToken: string): Promise<AuthTokens> {
@@ -406,6 +462,7 @@ export interface UserProfile {
   phone: string | null;
   createdAt: string;
   hasPassword: boolean;
+  totpEnabled: boolean;
 }
 
 export function getProfile(): Promise<UserProfile> {

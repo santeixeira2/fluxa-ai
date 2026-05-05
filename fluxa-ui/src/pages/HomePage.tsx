@@ -64,7 +64,7 @@ export default function HomePage() {
         <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-3 opacity-40 hover:opacity-100 transition-opacity duration-500">
             <Logo size={24} />
-            <span className="font-bold text-sm tracking-tight text-black dark:text-white">Fluxa</span>
+            <span className="font-bold text-sm tracking-tight text-black dark:text-white">Kuant</span>
           </div>
           <div className="flex gap-8 text-[11px] font-mono uppercase tracking-[0.2em] text-black/20 dark:text-white/20">
             <a href="#" className="hover:text-black dark:hover:text-white transition-colors duration-300">Twitter</a>
@@ -72,7 +72,7 @@ export default function HomePage() {
             <a href="#" className="hover:text-black dark:hover:text-white transition-colors duration-300">Legal</a>
           </div>
           <p className="text-[11px] font-mono text-black/20 dark:text-white/20 uppercase tracking-widest">
-            © {new Date().getFullYear()} Fluxa
+            © {new Date().getFullYear()} Kuant
           </p>
         </div>
       </footer>

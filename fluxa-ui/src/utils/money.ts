@@ -1,6 +1,6 @@
 export type DisplayCurrency = 'BRL' | 'USD';
 
-const STORAGE_KEY = 'fluxa-currency';
+const STORAGE_KEY = 'kuant-currency';
 
 export function readStoredCurrency(): DisplayCurrency {
   try {

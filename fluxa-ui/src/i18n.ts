@@ -16,7 +16,7 @@ i18n
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
-      lookupLocalStorage: 'fluxa-lang',
+      lookupLocalStorage: 'kuant-lang',
     },
     interpolation: { escapeValue: false },
   });

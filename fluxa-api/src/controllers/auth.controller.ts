@@ -21,9 +21,11 @@ export async function register(req: Request, res: Response) {
 }
 
 export async function login(req: Request, res: Response) {
-  const { email, password } = loginSchema.parse(req.body);
-  const tokens = await authService.login(email, password);
-  res.json(tokens);
+  const { email, password, deviceToken } = loginSchema
+    .extend({ deviceToken: z.string().optional() })
+    .parse(req.body);
+  const result = await authService.login(email, password, deviceToken, req.ip);
+  res.json(result);
 }
 
 export async function googleAuth(req: Request, res: Response) {

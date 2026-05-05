@@ -17,15 +17,15 @@
     "viewAlerts": "Ver alertas →"
   },
   "hero": {
-    "badge": "[ Fluxa AI ]",
+    "badge": "[ Kuant AI ]",
     "headline": "O guru financeiro",
     "headlineMuted": "que você nunca teve.",
     "subheadline": "Pergunte sobre qualquer ativo, simule cenários e receba insights baseados no seu portfólio — com preços reais, sem corretora.",
     "placeholder": "Ex: Vale a pena comprar Bitcoin agora?",
     "analyzing": "Analisando...",
     "askFluxa": "Perguntar",
-    "analyzingMarkets": "Fluxa AI analisando mercados...",
-    "fluxaAI": "Fluxa AI",
+    "analyzingMarkets": "Kuant AI analisando mercados...",
+    "fluxaAI": "Kuant AI",
     "trust1": "Preços em tempo real",
     "trust2": "Sem corretora",
     "trust3": "Seu portfólio, seu contexto"
@@ -48,19 +48,19 @@
   },
   "faq": {
     "badge": "[ FAQ ]",
-    "headline": "Perguntas sobre a Fluxa.",
+    "headline": "Perguntas sobre a Kuant.",
     "items": [
       {
-        "q": "O que é a Fluxa?",
-        "a": "A Fluxa é seu guru financeiro com AI. Você informa o que tem investido e recebe insights, simulações e análises personalizadas em tempo real."
+        "q": "O que é a Kuant?",
+        "a": "A Kuant é seu guru financeiro com AI. Você informa o que tem investido e recebe insights, simulações e análises personalizadas em tempo real."
       },
       {
         "q": "Os dados são em tempo real?",
         "a": "Sim. Buscamos preços de criptomoedas, ações e câmbio a cada 30 segundos das principais exchanges e fontes de dados."
       },
       {
-        "q": "O Fluxa substitui uma corretora?",
-        "a": "Não. O Fluxa é uma ferramenta de análise e simulação. Não executamos ordens reais nem nos conectamos com sua corretora."
+        "q": "O Kuant substitui uma corretora?",
+        "a": "Não. O Kuant é uma ferramenta de análise e simulação. Não executamos ordens reais nem nos conectamos com sua corretora."
       },
       {
         "q": "O que é a watchlist?",
@@ -136,7 +136,7 @@
     },
     "report": {
       "title": "Relatório de {{month}}",
-      "loading": "Gerando relatório com Fluxa AI...",
+      "loading": "Gerando relatório com Kuant AI...",
       "previousMonth": "Mês anterior",
       "nextMonth": "Próximo mês",
       "startValue": "Valor inicial",
@@ -149,7 +149,7 @@
       "alertsTriggered": "Alertas disparados",
       "topWinners": "Top winners",
       "topLosers": "Top losers",
-      "aiSummary": "Análise da Fluxa AI",
+      "aiSummary": "Análise da Kuant AI",
       "error": "Não foi possível gerar o relatório.",
       "noWinners": "Sem destaques positivos no mês.",
       "noLosers": "Sem perdas relevantes no mês.",
@@ -211,7 +211,23 @@
     "changePasswordBtn": "Alterar senha",
     "changingPassword": "Alterando...",
     "passwordChanged": "Senha alterada com sucesso.",
-    "passwordMismatch": "As senhas não coincidem."
+    "passwordMismatch": "As senhas não coincidem.",
+    "twoFactor": "Autenticação em dois fatores",
+    "totpActive": "2FA ativo — sua conta está protegida.",
+    "totpInactive": "Adicione uma camada extra de segurança à sua conta.",
+    "totpEnableBtn": "Ativar 2FA",
+    "totpDisableBtn": "Desativar 2FA",
+    "totpLoading": "Processando...",
+    "totpEnabled": "2FA ativado com sucesso.",
+    "totpDisabled": "2FA desativado.",
+    "totpScanInstruction": "Escaneie o QR code com o Google Authenticator, Authy ou qualquer app TOTP.",
+    "totpManualKey": "Chave de entrada manual",
+    "totpNext": "Escaneei — inserir código",
+    "totpConfirmInstruction": "Digite o código de 6 dígitos do seu app autenticador para confirmar.",
+    "totpConfirmBtn": "Ativar 2FA",
+    "totpBackToQr": "← Voltar ao QR code",
+    "totpDisableInstruction": "Digite seu código atual de 6 dígitos para desativar o 2FA.",
+    "totpDisableConfirmBtn": "Confirmar e desativar"
   },
   "calculadoras": {
     "nav": {
@@ -353,10 +369,16 @@
     "noAccount": "Não tem conta?",
     "alreadyAccount": "Já tem conta?",
     "googleContinue": "Continuar com Google",
-    "googleSignInFailed": "Falha ao entrar com o Google."
+    "googleSignInFailed": "Falha ao entrar com o Google.",
+    "totpTitle": "Autenticação em dois fatores",
+    "totpSubtitle": "Digite o código do seu app autenticador",
+    "totpCode": "Código de autenticação",
+    "totpRemember": "Confiar neste dispositivo por 30 dias",
+    "totpVerify": "Verificar",
+    "totpBack": "← Voltar ao login"
   },
   "chat": {
-    "title": "Fluxa AI",
+    "title": "Kuant AI",
     "subtitle": "Assistente financeiro",
     "placeholder": "Pergunte sobre o mercado...",
     "examples": [
@@ -366,7 +388,7 @@
     ]
   },
   "aiChat": {
-    "sectionLabel": "Fluxa AI",
+    "sectionLabel": "Kuant AI",
     "titlePrefix": "Converse com a ",
     "subtitle": "Faça perguntas sobre o mercado, peça análises ou descreva um cenário de investimento — a IA responde com dados reais.",
     "cardSubtitle": "Assistente financeiro · Dados em tempo real",
@@ -413,8 +435,8 @@
     "invested": "Investido",
     "profitLoss": "Lucro / prejuízo",
     "explainLoading": "Gerando análise...",
-    "explainButton": "✦ Analisar com Fluxa AI",
-    "fluxaAiLabel": "✦ Fluxa AI"
+    "explainButton": "✦ Analisar com Kuant AI",
+    "fluxaAiLabel": "✦ Kuant AI"
   },
   "statsGrid": {
     "positiveReturn": "Retorno médio positivo",

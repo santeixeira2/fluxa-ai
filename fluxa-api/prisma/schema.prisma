@@ -13,11 +13,28 @@ model User {
   name         String?
   phone        String?
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  totpSecret   String?  @map("totp_secret")
+  totpEnabled  Boolean  @default(false) @map("totp_enabled")
+  lastLoginIp  String?  @map("last_login_ip")
 
-  alerts     alerts[]
-  portfolios SimulatedPortfolio[]
+  alerts         alerts[]
+  portfolios     SimulatedPortfolio[]
+  trustedDevices TrustedDevice[]
 
   @@map("users")
+}
+
+model TrustedDevice {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  tokenHash String   @map("token_hash") @unique
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("trusted_devices")
 }
 
 model alert_triggers {

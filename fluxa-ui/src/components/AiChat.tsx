@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { parseUserInput, chatAiStream } from '../api/client';
 import type { SimFormData } from './Simulator';
 import ChatMarkdown from './ChatMarkdown';
+import Logo from './Logo';
 
 interface AiChatProps {
   onParsed: (data: SimFormData) => void;
@@ -85,7 +86,7 @@ export default function AiChat({ onParsed }: AiChatProps) {
       <div className="ai-chat-card glass-card">
         {/* Header */}
         <div className="ai-chat-header">
-          <div className="ai-chat-avatar" aria-hidden="true">Fx</div>
+          <div className="ai-chat-avatar" aria-hidden="true"><Logo size={28} /></div>
           <div>
             <div className="ai-chat-title">{t('hero.fluxaAI')}</div>
             <div className="ai-chat-subtitle">{t('aiChat.cardSubtitle')}</div>
@@ -98,7 +99,7 @@ export default function AiChat({ onParsed }: AiChatProps) {
             {messages.map((msg, i) => (
               <div key={i} className={`ai-message ai-message--${msg.role}`}>
                 {msg.role === 'assistant' && (
-                  <div className="ai-message-avatar">Fx</div>
+                  <div className="ai-message-avatar"><Logo size={22} /></div>
                 )}
                 <div className="ai-message-bubble">
                   {msg.role === 'assistant' ? <ChatMarkdown text={msg.text} /> : msg.text}

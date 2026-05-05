@@ -121,7 +121,7 @@ export default function ComparisonTab({ assets, preselectedA }: Props) {
           <ComparisonChart result={result} />
           {result.aiSummary && (
             <div className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl p-5">
-              <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">✦ Fluxa AI</p>
+              <p className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase mb-3">✦ Kuant AI</p>
               <p className="text-sm leading-relaxed text-black/80 dark:text-white/80">{result.aiSummary}</p>
             </div>
           )}

@@ -10,7 +10,7 @@ const labelCls = "text-xs font-mono uppercase tracking-widest text-black/40 dark
 
 export default function LoginForm() {
   const { t } = useTranslation();
-  const { login, register } = useAuth();
+  const { login, register, loginWithGoogle, verifyTotp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string })?.from ?? '/';
@@ -25,6 +25,11 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // TOTP step
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
+  const [totpCode, setTotpCode] = useState('');
+  const [rememberDevice, setRememberDevice] = useState(false);
+
   const hasGoogle = !!import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   async function handleSubmit(e: FormEvent) {
@@ -36,11 +41,34 @@ export default function LoginForm() {
     }
     setLoading(true);
     try {
-      if (mode === 'login') await login(email, password);
-      else await register(email, password, name, phone);
+      if (mode === 'login') {
+        const mfa = await login(email, password);
+        if (mfa) {
+          setMfaToken(mfa.mfaToken);
+          return;
+        }
+      } else {
+        await register(email, password, name, phone);
+      }
       navigate(from);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleTotpSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!mfaToken || totpCode.length !== 6) return;
+    setError('');
+    setLoading(true);
+    try {
+      await verifyTotp(mfaToken, totpCode, rememberDevice);
+      navigate(from);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setTotpCode('');
     } finally {
       setLoading(false);
     }
@@ -51,13 +79,91 @@ export default function LoginForm() {
     setError('');
   }
 
+  if (mfaToken) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-[420px]">
+          <div className="flex justify-center mb-10">
+            <Link to="/" className="flex items-center gap-3">
+              <Logo size={32} />
+              <span className="text-xl font-bold tracking-tight">Kuant</span>
+            </Link>
+          </div>
+
+          <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.02] p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-full bg-black/[0.06] dark:bg-white/[0.06] flex items-center justify-center text-lg">
+                🔐
+              </div>
+              <div>
+                <h1 className="text-base font-bold">{t('auth.totpTitle')}</h1>
+                <p className="text-xs text-black/40 dark:text-white/40">{t('auth.totpSubtitle')}</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleTotpSubmit} className="space-y-4">
+              <div>
+                <label className={labelCls}>{t('auth.totpCode')}</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  value={totpCode}
+                  onChange={e => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                  autoFocus
+                  className={`${inputCls} text-center text-2xl tracking-[0.5em] font-mono`}
+                  placeholder="000000"
+                />
+              </div>
+
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div className="relative">
+                  <input type="checkbox" checked={rememberDevice} onChange={e => setRememberDevice(e.target.checked)} className="sr-only" />
+                  <div className={`w-4 h-4 rounded border transition-colors ${rememberDevice ? 'bg-black dark:bg-white border-black dark:border-white' : 'bg-transparent border-black/20 dark:border-white/20'}`}>
+                    {rememberDevice && (
+                      <svg className="w-4 h-4 text-white dark:text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <span className="text-xs text-black/40 dark:text-white/40">{t('auth.totpRemember')}</span>
+              </label>
+
+              {error && (
+                <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">{error}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading || totpCode.length !== 6}
+                className="w-full bg-black dark:bg-white text-white dark:text-black font-bold py-3 rounded-lg text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {loading ? t('auth.loading') : t('auth.totpVerify')}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setMfaToken(null); setTotpCode(''); setError(''); }}
+                className="w-full text-xs text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60 transition-colors"
+              >
+                {t('auth.totpBack')}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-[420px]">
         <div className="flex justify-center mb-10">
           <Link to="/" className="flex items-center gap-3">
             <Logo size={32} />
-            <span className="text-xl font-bold tracking-tight">Fluxa</span>
+            <span className="text-xl font-bold tracking-tight">Kuant</span>
           </Link>
         </div>
 

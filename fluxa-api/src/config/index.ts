@@ -19,5 +19,6 @@ export const config = {
   jwtExpirationTime: process.env.JWT_EXPIRATION_TIME,
   jwtRefreshExpirationTime: process.env.JWT_REFRESH_EXPIRATION_TIME,
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+  totpEncryptionKey: process.env.TOTP_ENCRYPTION_KEY || 'change-me-in-production',
 } as const;
 

@@ -14,8 +14,8 @@ export default function StatsGrid() {
         <div className="stats-ring-wrap">
           <ProgressRing value={78} size={110} />
           <div className="stats-ring-inner">
-            <div className="stats-ring-logo">Fx</div>
-            <div className="stats-ring-brand">Fluxa</div>
+            <div className="stats-ring-logo">Kq</div>
+            <div className="stats-ring-brand">Kuant</div>
           </div>
         </div>
         <div className="stats-card-value">78%</div>

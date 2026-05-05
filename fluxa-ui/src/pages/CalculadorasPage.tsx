@@ -350,7 +350,7 @@ export default function CalculadorasPage() {
 
       <footer className="py-12 border-t border-black/[0.05] dark:border-white/[0.05] bg-white dark:bg-black">
         <p className="text-center text-[11px] font-mono text-black/20 dark:text-white/20 uppercase tracking-widest">
-          © {new Date().getFullYear()} Fluxa
+          © {new Date().getFullYear()} Kuant
         </p>
       </footer>
     </div>

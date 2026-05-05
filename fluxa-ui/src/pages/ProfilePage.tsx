@@ -2,7 +2,7 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { getProfile, updateProfile, changePassword } from '../api/client';
+import { getProfile, updateProfile, changePassword, totpSetup, totpConfirm, totpDisable } from '../api/client';
 import type { UserProfile } from '../api/client';
 
 const inputCls = "w-full bg-black/[0.04] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 disabled:opacity-40";
@@ -26,6 +26,14 @@ export default function ProfilePage() {
   const [confirmPwd, setConfirmPwd] = useState('');
   const [pwdLoading, setPwdLoading] = useState(false);
   const [pwdMsg, setPwdMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  // 2FA
+  const [totpStep, setTotpStep] = useState<'idle' | 'setup' | 'confirm' | 'disable'>('idle');
+  const [totpQr, setTotpQr] = useState('');
+  const [totpManualKey, setTotpManualKey] = useState('');
+  const [totpCode, setTotpCode] = useState('');
+  const [totpLoading, setTotpLoading] = useState(false);
+  const [totpMsg, setTotpMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   useEffect(() => {
     getProfile()
@@ -62,6 +70,55 @@ export default function ProfilePage() {
       setPwdMsg({ ok: false, text: err instanceof Error ? err.message : 'Erro ao alterar senha.' });
     } finally {
       setPwdLoading(false);
+    }
+  }
+
+  async function handleTotpEnable() {
+    setTotpMsg(null);
+    setTotpLoading(true);
+    try {
+      const data = await totpSetup();
+      setTotpQr(data.qrCode);
+      setTotpManualKey(data.manualKey);
+      setTotpStep('setup');
+    } catch (err) {
+      setTotpMsg({ ok: false, text: err instanceof Error ? err.message : 'Erro.' });
+    } finally {
+      setTotpLoading(false);
+    }
+  }
+
+  async function handleTotpConfirm(e: FormEvent) {
+    e.preventDefault();
+    setTotpMsg(null);
+    setTotpLoading(true);
+    try {
+      await totpConfirm(totpCode);
+      setProfile(prev => prev ? { ...prev, totpEnabled: true } : prev);
+      setTotpStep('idle');
+      setTotpCode('');
+      setTotpMsg({ ok: true, text: t('profile.totpEnabled') });
+    } catch (err) {
+      setTotpMsg({ ok: false, text: err instanceof Error ? err.message : 'Código inválido.' });
+    } finally {
+      setTotpLoading(false);
+    }
+  }
+
+  async function handleTotpDisable(e: FormEvent) {
+    e.preventDefault();
+    setTotpMsg(null);
+    setTotpLoading(true);
+    try {
+      await totpDisable(totpCode);
+      setProfile(prev => prev ? { ...prev, totpEnabled: false } : prev);
+      setTotpStep('idle');
+      setTotpCode('');
+      setTotpMsg({ ok: true, text: t('profile.totpDisabled') });
+    } catch (err) {
+      setTotpMsg({ ok: false, text: err instanceof Error ? err.message : 'Código inválido.' });
+    } finally {
+      setTotpLoading(false);
     }
   }
 
@@ -141,6 +198,112 @@ export default function ProfilePage() {
               {editLoading ? t('profile.saving') : t('profile.save')}
             </button>
           </form>
+        </section>
+
+        {/* 2FA */}
+        <section className="mb-8 bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-sm font-bold">{t('profile.twoFactor')}</h2>
+              <p className="text-xs text-black/40 dark:text-white/40 mt-0.5">
+                {profile.totpEnabled ? t('profile.totpActive') : t('profile.totpInactive')}
+              </p>
+            </div>
+            <div className={`w-2 h-2 rounded-full ${profile.totpEnabled ? 'bg-emerald-500' : 'bg-black/20 dark:bg-white/20'}`} />
+          </div>
+
+          {totpMsg && (
+            <p className={`text-xs font-mono mb-4 ${totpMsg.ok ? 'text-emerald-500' : 'text-red-500'}`}>{totpMsg.text}</p>
+          )}
+
+          {totpStep === 'idle' && (
+            <button
+              onClick={profile.totpEnabled ? () => { setTotpStep('disable'); setTotpCode(''); setTotpMsg(null); } : handleTotpEnable}
+              disabled={totpLoading}
+              className={`w-full py-3 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 ${
+                profile.totpEnabled
+                  ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
+                  : 'bg-black/[0.06] dark:bg-white/[0.06] hover:bg-black/10 dark:hover:bg-white/10 text-black dark:text-white'
+              }`}
+            >
+              {totpLoading ? t('profile.totpLoading') : profile.totpEnabled ? t('profile.totpDisableBtn') : t('profile.totpEnableBtn')}
+            </button>
+          )}
+
+          {totpStep === 'setup' && (
+            <div className="space-y-4">
+              <p className="text-xs text-black/50 dark:text-white/50">{t('profile.totpScanInstruction')}</p>
+              <div className="flex justify-center">
+                <img src={totpQr} alt="QR Code 2FA" className="w-44 h-44 rounded-xl border border-black/10 dark:border-white/10" />
+              </div>
+              <div>
+                <p className="text-[10px] font-mono text-black/30 dark:text-white/30 uppercase tracking-widest mb-1">{t('profile.totpManualKey')}</p>
+                <code className="block text-xs font-mono bg-black/[0.04] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.06] rounded-lg px-3 py-2 break-all select-all">
+                  {totpManualKey}
+                </code>
+              </div>
+              <button onClick={() => setTotpStep('confirm')} className="w-full py-3 rounded-xl text-sm font-medium bg-black dark:bg-white text-white dark:text-black hover:opacity-80 transition-opacity">
+                {t('profile.totpNext')}
+              </button>
+              <button onClick={() => { setTotpStep('idle'); setTotpMsg(null); }} className="w-full text-xs text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60 transition-colors">
+                {t('common.cancel')}
+              </button>
+            </div>
+          )}
+
+          {totpStep === 'confirm' && (
+            <form onSubmit={handleTotpConfirm} className="space-y-4">
+              <p className="text-xs text-black/50 dark:text-white/50">{t('profile.totpConfirmInstruction')}</p>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={totpCode}
+                onChange={e => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                autoFocus
+                className={`${inputCls} text-center text-2xl tracking-[0.5em] font-mono`}
+                placeholder="000000"
+              />
+              <button
+                type="submit"
+                disabled={totpLoading || totpCode.length !== 6}
+                className="w-full py-3 rounded-xl text-sm font-medium bg-black dark:bg-white text-white dark:text-black hover:opacity-80 transition-opacity disabled:opacity-50"
+              >
+                {totpLoading ? t('profile.totpLoading') : t('profile.totpConfirmBtn')}
+              </button>
+              <button type="button" onClick={() => setTotpStep('setup')} className="w-full text-xs text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60 transition-colors">
+                {t('profile.totpBackToQr')}
+              </button>
+            </form>
+          )}
+
+          {totpStep === 'disable' && (
+            <form onSubmit={handleTotpDisable} className="space-y-4">
+              <p className="text-xs text-black/50 dark:text-white/50">{t('profile.totpDisableInstruction')}</p>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={totpCode}
+                onChange={e => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                autoFocus
+                className={`${inputCls} text-center text-2xl tracking-[0.5em] font-mono`}
+                placeholder="000000"
+              />
+              <button
+                type="submit"
+                disabled={totpLoading || totpCode.length !== 6}
+                className="w-full py-3 rounded-xl text-sm font-medium bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+              >
+                {totpLoading ? t('profile.totpLoading') : t('profile.totpDisableConfirmBtn')}
+              </button>
+              <button type="button" onClick={() => { setTotpStep('idle'); setTotpMsg(null); }} className="w-full text-xs text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60 transition-colors">
+                {t('common.cancel')}
+              </button>
+            </form>
+          )}
         </section>
 
         {/* Change password — only for non-Google users */}
