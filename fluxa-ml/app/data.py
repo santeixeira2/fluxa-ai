@@ -14,13 +14,11 @@ def _session() -> requests.Session:
 
 
 def fetch_features(ticker: str, period: str = "5y") -> tuple[np.ndarray, pd.DatetimeIndex]:
-    df = yf.download(ticker, period=period, auto_adjust=True, progress=False, session=_session())
+    t = yf.Ticker(ticker, session=_session())
+    df = t.history(period=period, auto_adjust=True)
 
     if df.empty:
         raise ValueError(f"Insufficient data for {ticker}")
-
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = df.columns.get_level_values(0)
 
     if len(df) < 60:
         raise ValueError(f"Insufficient data for {ticker}")
