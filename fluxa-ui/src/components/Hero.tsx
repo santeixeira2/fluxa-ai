@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SimFormData } from './containers/SimulatorContainer';
 import { parseUserInput, explainSimulation, getPrice, chatAiStream } from '../api/client';
 import Reveal from './Reveal';
 import Logo from './Logo';
 import ChatMarkdown from './ChatMarkdown';
+import heroVideo from '../assets/hero.mp4';
 
 interface HeroProps {
   onParsed: (data: SimFormData) => void;
 }
 
-// Shared ring style — quantum ripple effect
 const ringBase: React.CSSProperties = {
   position: 'absolute',
   top: '50%',
@@ -29,6 +29,18 @@ export default function Hero({ onParsed }: HeroProps) {
   const [advice, setAdvice] = useState<string | null>(null);
   const [isAdvising, setIsAdvising] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const videoWrapRef = useRef<HTMLDivElement>(null);
+
+  // Parallax — video moves at 35% of scroll speed
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!videoWrapRef.current) return;
+      videoWrapRef.current.style.transform = `translateY(${window.scrollY * 0.35}px)`;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   function looksLikeSimulation(text: string): boolean {
     return /\d/.test(text) && /\b(invest|investi|aplicar|aplicando|colocar|simul|comprar|buy|put)\b/i.test(text);
@@ -85,27 +97,55 @@ export default function Hero({ onParsed }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-black text-white" style={{ minHeight: '100vh' }}>
 
-      {/* ── Subtle grid lines ── */}
+      {/* ── Video background with parallax ── */}
+      <div
+        ref={videoWrapRef}
+        className="absolute inset-x-0 pointer-events-none will-change-transform"
+        style={{ top: '-15%', height: '130%', zIndex: 0 }}
+        aria-hidden="true"
+      >
+        <video
+          src={heroVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+          style={{ opacity: 0.55 }}
+        />
+      </div>
+
+      {/* ── Gradient overlays — keep content readable ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,0.022) 79px, rgba(255,255,255,0.022) 80px)',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.65) 100%)',
           zIndex: 1,
         }}
         aria-hidden="true"
       />
 
-      {/* ── Grand atmospheric glow — behind the orb ── */}
+      {/* ── Grid lines ── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,0.025) 79px, rgba(255,255,255,0.025) 80px)',
+          zIndex: 2,
+        }}
+        aria-hidden="true"
+      />
+
+      {/* ── Atmospheric orb glow ── */}
       <div
         className="absolute pointer-events-none"
         style={{
-          top: '0',
+          top: 0,
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '1200px',
-          height: '700px',
-          background: 'radial-gradient(ellipse 55% 60% at 50% 5%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 35%, transparent 70%)',
-          zIndex: 2,
+          width: '1100px',
+          height: '640px',
+          background: 'radial-gradient(ellipse 55% 55% at 50% 5%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 40%, transparent 70%)',
+          zIndex: 3,
         }}
         aria-hidden="true"
       />
@@ -119,12 +159,11 @@ export default function Hero({ onParsed }: HeroProps) {
             className="relative flex items-center justify-center mb-16"
             style={{ width: '420px', height: '300px' }}
           >
-            {/* Quantum rings — staggered delays */}
             <div style={{ ...ringBase, animationDelay: '0s' }} />
             <div style={{ ...ringBase, animationDelay: '1.3s' }} />
             <div style={{ ...ringBase, animationDelay: '2.6s' }} />
 
-            {/* The main orb */}
+            {/* Orb sphere */}
             <div
               style={{
                 position: 'absolute',
@@ -134,17 +173,15 @@ export default function Hero({ onParsed }: HeroProps) {
                 width: '320px',
                 height: '320px',
                 borderRadius: '50%',
-                // Spherical shading — top lighter, bottom darker
                 background: `
-                  radial-gradient(circle at 50% 20%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.03) 45%, transparent 70%),
-                  radial-gradient(circle at 50% 80%, rgba(0,0,0,0.4) 0%, transparent 60%)
+                  radial-gradient(circle at 50% 20%, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.03) 45%, transparent 70%),
+                  radial-gradient(circle at 50% 80%, rgba(0,0,0,0.35) 0%, transparent 60%)
                 `,
-                border: '1px solid rgba(255,255,255,0.22)',
+                border: '1px solid rgba(255,255,255,0.20)',
                 animation: 'orb-breathe 5s ease-in-out infinite',
               }}
             />
 
-            {/* Inner ring — tighter, brighter */}
             <div
               style={{
                 position: 'absolute',
@@ -154,16 +191,16 @@ export default function Hero({ onParsed }: HeroProps) {
                 width: '260px',
                 height: '260px',
                 borderRadius: '50%',
-                border: '1px solid rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.07)',
                 pointerEvents: 'none',
               }}
             />
 
-            {/* Logo badge — sits at apex of orb */}
+            {/* Logo at apex */}
             <div
               style={{
                 position: 'absolute',
-                top: 'calc(50% - 160px)',   // top edge of the 320px orb
+                top: 'calc(50% - 160px)',
                 left: '50%',
                 transform: 'translateX(-50%) translateY(-50%)',
                 zIndex: 20,
@@ -261,10 +298,10 @@ export default function Hero({ onParsed }: HeroProps) {
 
         {/* ── Trust indicators ── */}
         <Reveal delay={520}>
-          <div className="flex flex-wrap justify-center items-center gap-8 text-white/20">
+          <div className="flex flex-wrap justify-center items-center gap-8 text-white/25">
             {[t('hero.trust1'), t('hero.trust2'), t('hero.trust3')].map((item, i) => (
               <span key={i} className="text-[11px] font-mono tracking-widest uppercase flex items-center gap-2">
-                <span className="w-1 h-1 rounded-full bg-white/20" />
+                <span className="w-1 h-1 rounded-full bg-white/25" />
                 {item}
               </span>
             ))}
