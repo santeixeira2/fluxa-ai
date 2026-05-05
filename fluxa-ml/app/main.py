@@ -60,7 +60,9 @@ def get_regime(asset: str, period: str = "2y"):
     try:
         model, scaler = load(asset)
     except FileNotFoundError:
-        raise HTTPException(404, f"No model for {asset}. POST /train first.")
+        # auto-train on first request
+        train(asset, features)
+        model, scaler = load(asset)
 
     regime, confidence = predict(model, scaler, features)
     return RegimeResponse(
