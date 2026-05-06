@@ -736,7 +736,7 @@ export default function PortfolioPage() {
           <span className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">{t('portfolio.badge')}</span>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mt-3">
             <div>
-              <p className="text-4xl font-bold tracking-tight font-mono">{formatFromBrl(portfolio.totalValue)}</p>
+              <p className="text-3xl sm:text-4xl font-bold tracking-tight font-mono">{formatFromBrl(portfolio.totalValue)}</p>
               <p className={`mt-1 text-sm font-mono ${pnlPositive ? 'text-emerald-500' : 'text-red-500'}`}>
                 {pnlPositive ? '↗' : '↘'} {formatFromBrl(portfolio.totalPnl)} ({fmtPct(portfolio.totalPnlPct)}) {t('portfolio.totalPnlLabel')}
               </p>
@@ -758,7 +758,7 @@ export default function PortfolioPage() {
         </div>
 
         {/* Stats strip */}
-        <div className="grid grid-cols-3 gap-3 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
           {[
             { label: t('portfolio.freeBalance'),    value: formatFromBrl(portfolio.currentBalance) },
             { label: t('portfolio.initialCapital'), value: formatFromBrl(portfolio.initialBalance) },
@@ -772,7 +772,7 @@ export default function PortfolioPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 border-b border-black/[0.06] dark:border-white/[0.06]">
+        <div className="flex gap-1 mb-6 border-b border-black/[0.06] dark:border-white/[0.06] overflow-x-auto">
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${tab === t.id ? 'border-black dark:border-white text-black dark:text-white' : 'border-transparent text-black/40 dark:text-white/40 hover:text-black/70 dark:hover:text-white/70'}`}>

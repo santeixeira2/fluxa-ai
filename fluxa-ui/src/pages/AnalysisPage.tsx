@@ -243,7 +243,7 @@ function RegimeTab({ assetId }: { assetId: string }) {
       </div>
 
       {result.metrics && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
             { label: t('analysis.regime.realizedVol'), value: `${(result.metrics.realizedVol * 100).toFixed(1)}%` },
             { label: t('analysis.regime.smaSlope'), value: result.metrics.smaSlope >= 0 ? `+${result.metrics.smaSlope.toFixed(4)}` : result.metrics.smaSlope.toFixed(4) },
@@ -299,12 +299,12 @@ export default function AnalysisPage() {
           <span className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">
             {t('analysis.badge')}
           </span>
-          <h1 className="text-4xl font-bold tracking-tight mt-3">{t('analysis.title')}</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mt-3">{t('analysis.title')}</h1>
           <p className="text-sm text-black/40 dark:text-white/40 mt-2">{t('analysis.subtitle')}</p>
         </div>
 
         {/* Tabs row + asset picker */}
-        <div className="flex items-center justify-between mb-6 border-b border-black/[0.06] dark:border-white/[0.06]">
+        <div className="flex flex-wrap items-center justify-between gap-y-2 mb-6 border-b border-black/[0.06] dark:border-white/[0.06]">
           <div className="flex gap-1">
             {TABS.map(tabItem => (
               <button

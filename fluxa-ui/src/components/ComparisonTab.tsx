@@ -155,7 +155,7 @@ function MetricsGrid({ a, b }: MetricsGridProps) {
 
   return (
     <div className="bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] rounded-2xl overflow-hidden">
-      <div className="grid grid-cols-3 gap-3 px-5 py-3 border-b border-black/[0.06] dark:border-white/[0.06]">
+      <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-2 px-5 py-3 border-b border-black/[0.06] dark:border-white/[0.06]">
         <span className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">
           {t('portfolio.compare.metric')}
         </span>
@@ -172,7 +172,7 @@ function MetricsGrid({ a, b }: MetricsGridProps) {
         const va = a.metrics[row.key];
         const vb = b.metrics[row.key];
         return (
-          <div key={row.key} className="grid grid-cols-3 gap-3 px-5 py-3 border-b last:border-b-0 border-black/[0.04] dark:border-white/[0.04]">
+          <div key={row.key} className="grid grid-cols-[1.5fr_1fr_1fr] gap-2 px-5 py-3 border-b last:border-b-0 border-black/[0.04] dark:border-white/[0.04]">
             <span className="text-xs font-mono text-black/50 dark:text-white/50">{row.label}</span>
             <span className={`text-right text-sm font-mono font-bold ${toneClass(va, row.tone)}`}>{row.format(va)}</span>
             <span className={`text-right text-sm font-mono font-bold ${toneClass(vb, row.tone)}`}>{row.format(vb)}</span>

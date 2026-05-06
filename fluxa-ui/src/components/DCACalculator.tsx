@@ -326,7 +326,7 @@ export default function DCACalculator() {
             ) : (
               <div className="animate-fade space-y-6">
                 {/* ── Totals grid ── */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
                   {/* Total Invested */}
                   <div className="glass-card p-6">
                     <span className="text-[9px] uppercase font-mono tracking-[0.2em] text-black/20 dark:text-white/20">
