@@ -146,7 +146,7 @@ export default function Navbar() {
             </button>
 
             {showMenu && (
-            <div className="absolute top-full right-0 w-[min(260px,calc(100vw-1rem))] md:w-full bg-white dark:bg-[#0a0a0a] border border-black/[0.1] dark:border-white/[0.1] border-t-0 rounded-b-2xl p-2 shadow-2xl z-[100] animate-fade-down overflow-y-auto max-h-[80vh]">
+            <div className="absolute top-full right-0 w-[min(260px,calc(100vw-1rem))] md:w-full bg-white dark:bg-[#0a0a0a] border border-black/[0.1] dark:border-white/[0.1] border-t-0 rounded-b-2xl p-2 shadow-2xl z-[300] animate-fade-down overflow-y-auto max-h-[80vh]">
 
                 {/* Mobile nav links */}
                 <div className="md:hidden border-b border-black/[0.05] dark:border-white/[0.05] mb-1 pb-1">
