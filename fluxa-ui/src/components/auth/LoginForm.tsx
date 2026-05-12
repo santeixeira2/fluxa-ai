@@ -10,7 +10,7 @@ const labelCls = "text-xs font-mono uppercase tracking-widest text-black/40 dark
 
 export default function LoginForm() {
   const { t } = useTranslation();
-  const { login, register, loginWithGoogle, verifyTotp } = useAuth();
+  const { login, register, verifyTotp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string })?.from ?? '/';

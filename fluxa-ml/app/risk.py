@@ -10,11 +10,24 @@ def fetch_returns(tickers: list[str], period: str = "1y") -> pd.DataFrame:
     raw = yf.download(tickers, period=period, auto_adjust=True, progress=False)["Close"]
     if isinstance(raw, pd.Series):
         raw = raw.to_frame(tickers[0])
-    return np.log(raw / raw.shift(1)).dropna()
+    raw = raw.dropna(axis=1, how='all')  # drop tickers with no data at all
+    returns = np.log(raw / raw.shift(1)).dropna()
+    return returns
 
 def portfolio_risk(tickers: list[str], weights: list[float]) -> dict:
     w = np.array(weights)
     R = fetch_returns(tickers)
+
+    if R.empty or R.shape[0] < 5:
+        raise ValueError(f"Insufficient historical data for tickers: {tickers}")
+
+    # Re-align weights if some tickers were dropped due to missing data
+    valid_tickers = list(R.columns)
+    if len(valid_tickers) < len(tickers):
+        idx = [tickers.index(t) for t in valid_tickers if t in tickers]
+        w = np.array([weights[i] for i in idx])
+        w = w / w.sum()
+        tickers = valid_tickers
 
     covariance = R.cov().values
     portfolio_var = w @ covariance @ w
