@@ -102,7 +102,7 @@
       "sharpe": "Sharpe ratio",
       "marketFactor": "Market factor (PC1)",
       "riskByAsset": "Risk contribution by asset",
-      "stressTest": "⚠ Stress test — crash {{period}}",
+      "stressTest": "⚠ Stress test: crash {{period}}",
       "stressDesc": "Portfolio cumulative return during the worst recent drawdown period",
       "loadError": "Could not load risk analysis.",
       "needPositions": "Add positions to your portfolio to see risk analysis."
@@ -130,7 +130,7 @@
         "weak_negative": "Move nearly independently, slight opposition. Good diversification.",
         "moderate_positive": "Tend to move together. Partial diversification.",
         "moderate_negative": "Tend to move in opposite directions. Moderate hedge.",
-        "strong_positive": "Move almost in lockstep. Concentrated risk — little real diversification.",
+        "strong_positive": "Move almost in lockstep. Concentrated risk, little real diversification.",
         "strong_negative": "Move almost in opposition. Strong hedge."
       }
     },
@@ -153,7 +153,7 @@
       "error": "Could not generate the report.",
       "noWinners": "No positive highlights this month.",
       "noLosers": "No relevant losses this month.",
-      "noTopAsset": "—"
+      "noTopAsset": ""
     },
     "emptyPositions": "No assets yet. Start by buying something.",
     "emptyTransactions": "No transactions yet.",
@@ -213,7 +213,7 @@
     "passwordChanged": "Password changed successfully.",
     "passwordMismatch": "Passwords do not match.",
     "twoFactor": "Two-factor authentication",
-    "totpActive": "2FA is active — your account is protected.",
+    "totpActive": "2FA is active. Your account is protected.",
     "totpInactive": "Add an extra layer of security to your account.",
     "totpEnableBtn": "Enable 2FA",
     "totpDisableBtn": "Disable 2FA",
@@ -222,7 +222,7 @@
     "totpDisabled": "2FA disabled.",
     "totpScanInstruction": "Scan the QR code with Google Authenticator, Authy, or any TOTP app.",
     "totpManualKey": "Manual entry key",
-    "totpNext": "I've scanned it — enter code",
+    "totpNext": "Scanned, enter code",
     "totpConfirmInstruction": "Enter the 6-digit code from your authenticator app to confirm.",
     "totpConfirmBtn": "Activate 2FA",
     "totpBackToQr": "← Back to QR code",
@@ -390,7 +390,7 @@
   "aiChat": {
     "sectionLabel": "Kuant AI",
     "titlePrefix": "Chat with ",
-    "subtitle": "Ask about the market, request analysis, or describe an investment scenario — the AI answers with real data.",
+    "subtitle": "Ask about the market, request analysis, or describe an investment scenario. The AI answers with real data.",
     "cardSubtitle": "Financial assistant · Real-time data",
     "placeholder": "Ask about the market...",
     "thinking": "Thinking",
@@ -450,7 +450,7 @@
   },
   "earningsSentiment": {
     "noData": "No data available for this asset",
-    "header": "Sentiment — quarterly results",
+    "header": "Sentiment: quarterly results",
     "footer": "Source: SEC EDGAR · AI analysis · Tap to expand",
     "guidanceRaised": "Guidance ↑",
     "guidanceLowered": "Guidance ↓",
@@ -462,7 +462,7 @@
       "cautious": "Cautious",
       "neutral": "Neutral"
     },
-    "previewTitle": "Sentiment — latest results",
+    "previewTitle": "Sentiment: latest results",
     "previewFooterUS": "Source: SEC EDGAR · AI analysis",
     "previewFooterBR": "Source: CVM ITR · Open data · AI analysis"
   },
@@ -513,6 +513,6 @@
     "performance": "Performance",
     "chartNoData": "Chart data unavailable for this asset.",
     "unexpectedError": "Unexpected error",
-    "dash": "—"
+    "dash": ""
   }
 }

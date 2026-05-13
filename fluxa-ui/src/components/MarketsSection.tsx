@@ -38,7 +38,7 @@ function MarketRow({ item, index }: { item: MarketItem; index: number }) {
         <div>
           <p className="text-sm font-mono font-medium text-black dark:text-white">{fmt(item.price, item.currency)}</p>
           <p className={`text-xs font-mono ${up ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-            {pct !== 0 ? `${up ? '+' : ''}${pct.toFixed(2)}%` : '—'}
+            {pct !== 0 ? `${up ? '+' : ''}${pct.toFixed(2)}%` : '0.00%'}
           </p>
         </div>
         <svg className="w-3.5 h-3.5 text-black/20 dark:text-white/20 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

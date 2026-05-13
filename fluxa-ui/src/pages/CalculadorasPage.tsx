@@ -289,7 +289,7 @@ function CurrencyConverter() {
                   {toSymbol} {formatResult(result)}
                 </p>
                 <p className="text-black/30 dark:text-white/30 text-xs font-mono mt-2">
-                  1 {fromInfo?.code} = {rate != null ? formatResult(rate) : '—'} {toInfo?.code}
+                  1 {fromInfo?.code} = {rate != null ? formatResult(rate) : ''} {toInfo?.code}
                 </p>
               </>
             ) : (

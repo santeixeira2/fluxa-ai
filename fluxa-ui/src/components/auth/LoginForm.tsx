@@ -240,7 +240,7 @@ export default function LoginForm() {
                 <span className="text-xs text-black/20 dark:text-white/20 font-mono">{t('auth.or')}</span>
                 <div className="flex-1 h-px bg-black/10 dark:bg-white/10" />
               </div>
-              <GoogleButton onError={setError} onLoading={setLoading} />
+              <GoogleButton onError={setError} onLoading={setLoading} onMfaPending={setMfaToken} />
             </>
           )}
 

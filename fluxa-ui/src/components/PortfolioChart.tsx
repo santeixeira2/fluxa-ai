@@ -75,7 +75,7 @@ export default function PortfolioChart() {
 
   if (points.length < 2) return (
     <div className="h-[200px] flex flex-col items-center justify-center text-black/20 dark:text-white/20">
-      <p className="text-2xl mb-2">—</p>
+      <p className="text-2xl mb-2">·</p>
       <p className="text-xs font-mono">{t('common.noData')}</p>
     </div>
   );

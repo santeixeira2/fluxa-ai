@@ -359,7 +359,7 @@ function AlertsTab({ assets }: { assets: AssetInfo[] }) {
                     </div>
                   </div>
                   <p className="text-xs font-mono text-black/30 dark:text-white/30">
-                    {alert.triggered_at ? fmtDate(alert.triggered_at) : '—'}
+                    {alert.triggered_at ? fmtDate(alert.triggered_at) : ''}
                   </p>
                 </div>
               );
@@ -785,7 +785,7 @@ export default function PortfolioPage() {
         {tab === 'positions' && (
           portfolio.positions.length === 0 ? (
             <div className="text-center py-20 text-black/30 dark:text-white/30">
-              <p className="text-3xl mb-3">—</p>
+              <p className="text-3xl mb-3">·</p>
               <p className="text-sm">{t('portfolio.emptyPositions')}</p>
             </div>
           ) : (
@@ -824,7 +824,7 @@ export default function PortfolioPage() {
         {tab === 'transactions' && (
           transactions.length === 0 ? (
             <div className="text-center py-20 text-black/30 dark:text-white/30">
-              <p className="text-3xl mb-3">—</p>
+              <p className="text-3xl mb-3">·</p>
               <p className="text-sm">{t('portfolio.emptyTransactions')}</p>
             </div>
           ) : (

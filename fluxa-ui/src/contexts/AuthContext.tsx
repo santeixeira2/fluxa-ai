@@ -11,7 +11,7 @@ interface AuthContextValue {
   user: { email: string; name?: string } | null;
   login: (email: string, password: string) => Promise<MfaRequired | null>;
   register: (email: string, password: string, name: string, phone: string) => Promise<void>;
-  loginWithGoogle: (accessToken: string) => Promise<void>;
+  loginWithGoogle: (accessToken: string) => Promise<MfaRequired | null>;
   verifyTotp: (mfaToken: string, code: string, rememberDevice: boolean) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -45,8 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [dispatch]);
 
   const loginWithGoogle = useCallback(async (accessToken: string) => {
-    const tokens = await authGoogle(accessToken);
-    saveToStore(dispatch, tokens);
+    const result = await authGoogle(accessToken);
+    if ('mfaPending' in result) return { mfaToken: result.mfaToken };
+    saveToStore(dispatch, result);
+    return null;
   }, [dispatch]);
 
   const verifyTotp = useCallback(async (mfaToken: string, code: string, rememberDevice: boolean) => {

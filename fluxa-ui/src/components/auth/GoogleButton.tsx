@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 interface Props {
   onError: (msg: string) => void;
   onLoading: (v: boolean) => void;
+  onMfaPending?: (mfaToken: string) => void;
 }
 
-export default function GoogleButton({ onError, onLoading }: Props) {
+export default function GoogleButton({ onError, onLoading, onMfaPending }: Props) {
   const { t } = useTranslation();
   const { loginWithGoogle } = useAuth();
   const navigate = useNavigate();
@@ -19,7 +20,11 @@ export default function GoogleButton({ onError, onLoading }: Props) {
       onLoading(true);
       onError('');
       try {
-        await loginWithGoogle(access_token);
+        const mfa = await loginWithGoogle(access_token);
+        if (mfa) {
+          onMfaPending?.(mfa.mfaToken);
+          return;
+        }
         navigate('/');
       } catch (err) {
         onError(err instanceof Error ? err.message : t('auth.googleSignInFailed'));

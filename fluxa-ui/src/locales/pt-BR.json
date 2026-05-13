@@ -20,7 +20,7 @@
     "badge": "[ Kuant AI ]",
     "headline": "O guru financeiro",
     "headlineMuted": "que você nunca teve.",
-    "subheadline": "Pergunte sobre qualquer ativo, simule cenários e receba insights baseados no seu portfólio — com preços reais, sem corretora.",
+    "subheadline": "Pergunte sobre qualquer ativo, simule cenários e receba insights baseados no seu portfólio. Preços reais, sem corretora.",
     "placeholder": "Ex: Vale a pena comprar Bitcoin agora?",
     "analyzing": "Analisando...",
     "askFluxa": "Perguntar",
@@ -102,7 +102,7 @@
       "sharpe": "Sharpe",
       "marketFactor": "Fator mercado (PC1)",
       "riskByAsset": "Contribuição de risco por ativo",
-      "stressTest": "⚠ Stress test — crash {{period}}",
+      "stressTest": "⚠ Stress test: crash {{period}}",
       "stressDesc": "Retorno acumulado do portfólio no período de maior queda recente",
       "loadError": "Erro ao carregar análise de risco.",
       "needPositions": "Adicione posições ao portfólio para ver a análise de risco."
@@ -130,7 +130,7 @@
         "weak_negative": "Movem-se quase independentes, com leve oposição. Boa diversificação.",
         "moderate_positive": "Tendem a se mover juntos. Diversificação parcial.",
         "moderate_negative": "Tendem a se mover em direções opostas. Hedge moderado.",
-        "strong_positive": "Movem-se quase juntos. Risco concentrado — pouca diversificação real.",
+        "strong_positive": "Movem-se quase juntos. Risco concentrado, pouca diversificação real.",
         "strong_negative": "Movem-se quase em oposição. Forte hedge."
       }
     },
@@ -153,7 +153,7 @@
       "error": "Não foi possível gerar o relatório.",
       "noWinners": "Sem destaques positivos no mês.",
       "noLosers": "Sem perdas relevantes no mês.",
-      "noTopAsset": "—"
+      "noTopAsset": ""
     },
     "emptyPositions": "Nenhum ativo ainda. Comece comprando algo.",
     "emptyTransactions": "Nenhuma transação ainda.",
@@ -213,7 +213,7 @@
     "passwordChanged": "Senha alterada com sucesso.",
     "passwordMismatch": "As senhas não coincidem.",
     "twoFactor": "Autenticação em dois fatores",
-    "totpActive": "2FA ativo — sua conta está protegida.",
+    "totpActive": "2FA ativo. Sua conta está protegida.",
     "totpInactive": "Adicione uma camada extra de segurança à sua conta.",
     "totpEnableBtn": "Ativar 2FA",
     "totpDisableBtn": "Desativar 2FA",
@@ -222,7 +222,7 @@
     "totpDisabled": "2FA desativado.",
     "totpScanInstruction": "Escaneie o QR code com o Google Authenticator, Authy ou qualquer app TOTP.",
     "totpManualKey": "Chave de entrada manual",
-    "totpNext": "Escaneei — inserir código",
+    "totpNext": "Escaneei, inserir código",
     "totpConfirmInstruction": "Digite o código de 6 dígitos do seu app autenticador para confirmar.",
     "totpConfirmBtn": "Ativar 2FA",
     "totpBackToQr": "← Voltar ao QR code",
@@ -390,7 +390,7 @@
   "aiChat": {
     "sectionLabel": "Kuant AI",
     "titlePrefix": "Converse com a ",
-    "subtitle": "Faça perguntas sobre o mercado, peça análises ou descreva um cenário de investimento — a IA responde com dados reais.",
+    "subtitle": "Faça perguntas sobre o mercado, peça análises ou descreva um cenário de investimento. A IA responde com dados reais.",
     "cardSubtitle": "Assistente financeiro · Dados em tempo real",
     "placeholder": "Pergunte sobre o mercado...",
     "thinking": "Pensando",
@@ -450,7 +450,7 @@
   },
   "earningsSentiment": {
     "noData": "Dados não disponíveis para este ativo",
-    "header": "Sentimento — resultados trimestrais",
+    "header": "Sentimento: resultados trimestrais",
     "footer": "Fonte: SEC EDGAR · Análise via IA · Clique para expandir",
     "guidanceRaised": "Guidance ↑",
     "guidanceLowered": "Guidance ↓",
@@ -462,7 +462,7 @@
       "cautious": "Cauteloso",
       "neutral": "Neutro"
     },
-    "previewTitle": "Sentimento — últimos resultados",
+    "previewTitle": "Sentimento: últimos resultados",
     "previewFooterUS": "Fonte: SEC EDGAR · Análise via IA",
     "previewFooterBR": "Fonte: CVM ITR · Dados abertos · Análise via IA"
   },
@@ -513,6 +513,6 @@
     "performance": "Performance",
     "chartNoData": "Dados indisponíveis para este ativo.",
     "unexpectedError": "Erro inesperado",
-    "dash": "—"
+    "dash": ""
   }
 }

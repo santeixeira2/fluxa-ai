@@ -266,7 +266,7 @@ export function authRegister(email: string, password: string, name: string, phon
   return request('/auth/register', { method: 'POST', body: JSON.stringify({ email, password, name, phone }) });
 }
 
-export function authGoogle(accessToken: string): Promise<AuthTokens> {
+export function authGoogle(accessToken: string): Promise<AuthTokens | MfaPending> {
   return request('/auth/google', { method: 'POST', body: JSON.stringify({ idToken: accessToken }) });
 }
 
