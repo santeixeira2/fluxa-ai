@@ -195,6 +195,10 @@
   "profile": {
     "badge": "[ Profile ]",
     "memberSince": "Member since",
+    "avatarSaved": "Photo updated.",
+    "avatarRemoved": "Photo removed.",
+    "avatarError": "Error updating photo.",
+    "avatarRemove": "Remove photo",
     "personalInfo": "Personal information",
     "email": "Email",
     "name": "Name",
@@ -499,6 +503,18 @@
         "trending_down": "The asset is in a sustained downward trend. Exercise caution with new entries.",
         "volatile": "High volatility without a clear direction. Elevated risk, wider spreads.",
         "mean_reverting": "The asset tends to revert to its historical mean. Mean-reversion strategies may apply."
+      },
+      "tooltip": {
+        "trending_up": "Consistent positive momentum. Prices forming higher highs.",
+        "trending_down": "Dominant negative momentum. Prices forming consecutive lower lows.",
+        "volatile": "Realized volatility above historical average. Large, unpredictable swings.",
+        "mean_reverting": "Price oscillating without directionality. Low ADX, no defined trend."
+      },
+      "explain": {
+        "trending_up": "The asset has been rising consistently. Good for current holders, but entering now may mean paying a premium.",
+        "trending_down": "The asset is falling. This can be a time for caution or a buying opportunity at a lower price, depending on your time horizon.",
+        "volatile": "The price swings up and down sharply in short periods. Avoid impulsive decisions in this environment.",
+        "mean_reverting": "The asset is moving sideways with no clear direction. Common after strong moves. It may be a pause before the next move."
       }
     }
   },

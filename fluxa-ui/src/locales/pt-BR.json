@@ -195,6 +195,10 @@
   "profile": {
     "badge": "[ Perfil ]",
     "memberSince": "Membro desde",
+    "avatarSaved": "Foto atualizada.",
+    "avatarRemoved": "Foto removida.",
+    "avatarError": "Erro ao atualizar foto.",
+    "avatarRemove": "Remover foto",
     "personalInfo": "Informações pessoais",
     "email": "Email",
     "name": "Nome",
@@ -499,6 +503,18 @@
         "trending_down": "O ativo está em tendência de queda sustentada. Cautela com novas entradas.",
         "volatile": "Alta volatilidade sem direção clara. Risco elevado, spreads maiores.",
         "mean_reverting": "O ativo tende a reverter à sua média histórica. Estratégias de reversão podem ser aplicadas."
+      },
+      "tooltip": {
+        "trending_up": "Momentum positivo consistente. Preços formando máximas cada vez mais altas.",
+        "trending_down": "Momentum negativo dominante. Preços formando mínimas consecutivas.",
+        "volatile": "Volatilidade realizada acima da média histórica. Oscilações grandes e imprevisíveis.",
+        "mean_reverting": "Preço oscilando sem direcionalidade. ADX baixo, sem tendência definida."
+      },
+      "explain": {
+        "trending_up": "O ativo vem subindo de forma consistente. Bom para quem já está investido, mas entrar agora pode significar pagar mais caro.",
+        "trending_down": "O ativo está caindo. Pode ser momento de cautela ou uma oportunidade de compra a preço baixo, dependendo do seu horizonte de investimento.",
+        "volatile": "O preço sobe e desce muito em pouco tempo. Evite decisões impulsivas nesse cenário.",
+        "mean_reverting": "O ativo está de lado, sem direção clara. Comum após movimentos fortes. Pode ser uma pausa antes do próximo movimento."
       }
     }
   },
