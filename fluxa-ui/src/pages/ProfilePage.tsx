@@ -1,8 +1,8 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { getProfile, updateProfile, changePassword, totpSetup, totpConfirm, totpDisable } from '../api/client';
+import { getProfile, updateProfile, changePassword, uploadAvatar, deleteAvatar, totpSetup, totpConfirm, totpDisable } from '../api/client';
 import type { UserProfile } from '../api/client';
 
 const inputCls = "w-full bg-black/[0.04] dark:bg-white/[0.05] border border-black/10 dark:border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 disabled:opacity-40";
@@ -27,6 +27,11 @@ export default function ProfilePage() {
   const [pwdLoading, setPwdLoading] = useState(false);
   const [pwdMsg, setPwdMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
+  // avatar
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [avatarMsg, setAvatarMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
   // 2FA
   const [totpStep, setTotpStep] = useState<'idle' | 'setup' | 'confirm' | 'disable'>('idle');
   const [totpQr, setTotpQr] = useState('');
@@ -41,6 +46,39 @@ export default function ProfilePage() {
       .catch(() => navigate('/login'))
       .finally(() => setLoading(false));
   }, [navigate]);
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarMsg(null);
+    setAvatarLoading(true);
+    try {
+      const { avatarUrl } = await uploadAvatar(file);
+      setProfile(prev => prev ? { ...prev, avatarUrl } : prev);
+      localStorage.setItem('avatarUrl', avatarUrl);
+      setAvatarMsg({ ok: true, text: t('profile.avatarSaved') });
+    } catch (err) {
+      setAvatarMsg({ ok: false, text: err instanceof Error ? err.message : t('profile.avatarError') });
+    } finally {
+      setAvatarLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
+
+  async function handleDeleteAvatar() {
+    setAvatarMsg(null);
+    setAvatarLoading(true);
+    try {
+      await deleteAvatar();
+      setProfile(prev => prev ? { ...prev, avatarUrl: null } : prev);
+      localStorage.removeItem('avatarUrl');
+      setAvatarMsg({ ok: true, text: t('profile.avatarRemoved') });
+    } catch {
+      setAvatarMsg({ ok: false, text: t('profile.avatarError') });
+    } finally {
+      setAvatarLoading(false);
+    }
+  }
 
   async function handleEditSubmit(e: FormEvent) {
     e.preventDefault();
@@ -148,13 +186,50 @@ export default function ProfilePage() {
         <div className="mb-10">
           <span className="text-[10px] font-mono tracking-widest text-black/30 dark:text-white/30 uppercase">{t('profile.badge')}</span>
           <div className="flex items-center gap-5 mt-4">
-            <div className="w-16 h-16 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-2xl font-bold text-black dark:text-white">
-              {initials}
+            <div className="relative group">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarLoading}
+                className="w-16 h-16 rounded-full overflow-hidden bg-black/10 dark:bg-white/10 flex items-center justify-center text-2xl font-bold text-black dark:text-white relative focus:outline-none"
+              >
+                {profile.avatarUrl ? (
+                  <img src={profile.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{initials}</span>
+                )}
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+              </button>
+              {profile.avatarUrl && !avatarLoading && (
+                <button
+                  type="button"
+                  onClick={handleDeleteAvatar}
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors"
+                  title={t('profile.avatarRemove')}
+                >
+                  x
+                </button>
+              )}
             </div>
             <div>
               <p className="text-xl font-bold">{profile.name ?? profile.email}</p>
               <p className="text-sm text-black/40 dark:text-white/40 font-mono">{profile.email}</p>
               <p className="text-xs text-black/30 dark:text-white/30 font-mono mt-0.5">{t('profile.memberSince')} {memberSince}</p>
+              {avatarMsg && (
+                <p className={`text-[11px] font-mono mt-1 ${avatarMsg.ok ? 'text-emerald-500' : 'text-red-500'}`}>{avatarMsg.text}</p>
+              )}
             </div>
           </div>
         </div>

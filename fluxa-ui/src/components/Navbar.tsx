@@ -38,6 +38,7 @@ export default function Navbar() {
   const initials = user?.name
     ? user.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
     : user?.email?.[0].toUpperCase() ?? '?';
+  const avatarUrl = user ? localStorage.getItem('avatarUrl') : null;
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
@@ -134,8 +135,8 @@ export default function Navbar() {
               onClick={() => setShowMenu(!showMenu)}
               className={`flex items-center gap-2.5 bg-black/[0.05] dark:bg-white/[0.05] border border-black/[0.1] dark:border-white/[0.1] pl-1.5 pr-4 py-1.5 hover:bg-black/[0.1] dark:hover:bg-white/[0.1] transition-all md:w-[200px] ${showMenu ? 'rounded-t-2xl rounded-b-none border-b-transparent' : 'rounded-full'}`}
             >
-              <div className="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-[11px] font-bold text-black dark:text-white">
-                {initials}
+              <div className="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-[11px] font-bold text-black dark:text-white overflow-hidden">
+                {avatarUrl ? <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" /> : initials}
               </div>
               <span className="text-[13px] font-medium text-black/80 dark:text-white/80 hidden sm:block flex-1 truncate">
                 {user ? (user.name ?? user.email) : 'Sign up'}
@@ -171,8 +172,8 @@ export default function Navbar() {
                 {user && (
                   <>
                     <div className="flex items-center gap-3 p-3">
-                      <div className="w-9 h-9 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-sm font-bold">
-                        {initials}
+                      <div className="w-9 h-9 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-sm font-bold overflow-hidden">
+                        {avatarUrl ? <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" /> : initials}
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate text-black dark:text-white">{user.name ?? user.email}</p>

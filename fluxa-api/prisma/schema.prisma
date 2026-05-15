@@ -16,6 +16,7 @@ model User {
   totpSecret   String?  @map("totp_secret")
   totpEnabled  Boolean  @default(false) @map("totp_enabled")
   lastLoginIp  String?  @map("last_login_ip")
+  avatarUrl    String?  @map("avatar_url")
 
   alerts         alerts[]
   portfolios     SimulatedPortfolio[]

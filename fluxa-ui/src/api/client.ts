@@ -65,6 +65,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     throw new Error(body.message || body.error || `Request failed (${res.status})`);
   }
 
+  if (res.status === 204) return undefined as T;
   return res.json();
 }
 
@@ -463,6 +464,7 @@ export interface UserProfile {
   createdAt: string;
   hasPassword: boolean;
   totpEnabled: boolean;
+  avatarUrl: string | null;
 }
 
 export function getProfile(): Promise<UserProfile> {
@@ -475,6 +477,23 @@ export function updateProfile(data: { name?: string; phone?: string }): Promise<
 
 export function changePassword(currentPassword: string, newPassword: string): Promise<void> {
   return request('/profile/password', { method: 'PATCH', body: JSON.stringify({ currentPassword, newPassword }) });
+}
+
+export async function uploadAvatar(file: File): Promise<{ avatarUrl: string }> {
+  const form = new FormData();
+  form.append('avatar', file);
+  const token = localStorage.getItem('accessToken');
+  const res = await fetch(`${BASE}/profile/avatar`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message ?? 'Upload failed');
+  return res.json();
+}
+
+export function deleteAvatar(): Promise<void> {
+  return request('/profile/avatar', { method: 'DELETE' });
 }
 
 // ── Analysis ───────────────────────────────────────────────────────────────
